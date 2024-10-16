@@ -1,0 +1,74 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20241014
+      author: Sofia Arcones
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: user_id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+                    autoIncrement: true
+              - column:
+                  name: username
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: password
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: avatar
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: bio
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: gender
+                  type: varchar(20)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: birthday
+                  type: date
+                  constraints:
+                    nullable: true
+              - column:
+                  name: location
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: verification_status
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: registration_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_modification
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role
+                  type: varchar(20)
+                  constraints:
+                    nullable: true

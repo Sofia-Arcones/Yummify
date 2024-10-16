@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .login-container {
+        width: 100%;
+        max-width: 400px;
+        margin-top: 20vh;
+    }
+    img {
+        display: block;
+        margin: 0 auto 20px auto;
+        max-width: 100px;
+    }
+</style>
+<body>
+<div class="login-container">
+    <img src="/images/logo.png" alt="Logo de la aplicación" class="img-fluid">
+    <div class="jumbotron">
+        <h2 class="mt-5">Registro</h2>
+        <form action="#" th:action="@{/user}" method="post" class="mt-4">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Registrar</button>
+        </form>
+        <div th:if="${success}" class="alert alert-success" role="alert">
+            <span th:text="${success}"></span>
+        </div>
+    </div>
+</div>
+</body>
+</html>
