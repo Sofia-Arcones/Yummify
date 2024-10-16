@@ -19,12 +19,15 @@ public class SecurityConfig {
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(requests -> requests
-                        .anyRequest().authenticated()) // Permitir autenticación para cualquier solicitud
-                .formLogin(loginConfigurer -> loginConfigurer.loginPage("/login"))
-                .logout(logoutConfigurer -> logoutConfigurer.logoutUrl("/logout").logoutSuccessUrl("/")
-                        .invalidateHttpSession(true).permitAll())
-                .httpBasic(Customizer.withDefaults());
-
+                        .requestMatchers("/login", "/user", "/register", "/css/**", "/images/**").permitAll()  // Permitir acceso a login sin autenticación
+                        .anyRequest().authenticated())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .permitAll())
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/")
+                        .permitAll());
         return http.build();
     }
 

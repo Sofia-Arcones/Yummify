@@ -18,7 +18,7 @@ import java.util.Collections;
 @Entity
 @Getter
 @Setter
-@Table(name = "Users")
+@Table(name = "users")
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,7 +37,6 @@ public class User implements UserDetails {
     @NotNull
     @NotBlank
     @Size(min = 8)
-    @Pattern(regexp = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z])$")
     private String password;
 
     private String avatar;
