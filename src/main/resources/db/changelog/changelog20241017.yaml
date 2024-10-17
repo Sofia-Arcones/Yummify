@@ -9,13 +9,13 @@ databaseChangeLog:
               - column:
                   name: ingredient_id
                   type: serial
-                  contraints:
+                  constraints:
                     primaryKey: true
                     autoIncrement: true
               - column:
                   name: ingredient_name
                   type: varchar(50)
-                  contraints:
+                  constraints:
                     nullable: false
               - column:
                   name: unit_of_measure

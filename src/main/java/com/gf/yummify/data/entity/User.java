@@ -1,10 +1,12 @@
 package com.gf.yummify.data.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.gf.yummify.data.enums.Gender;
 import com.gf.yummify.data.enums.Role;
 import com.gf.yummify.data.enums.VerificationStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,12 +14,13 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @Entity
-@Getter
-@Setter
+@Data
 @Table(name = "users")
 public class User implements UserDetails {
     @Id
@@ -60,6 +63,15 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Recipe> recipes = new ArrayList<>(); // Relación inversa One-to-Many
+
+    @PreUpdate
+    public void setLastModification() {
+        this.lastModification = LocalDate.now();
+    }
 
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // Aquí puedes mapear tu rol a una colección de GrantedAuthority

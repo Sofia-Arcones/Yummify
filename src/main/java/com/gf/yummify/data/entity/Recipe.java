@@ -1,44 +1,48 @@
 package com.gf.yummify.data.entity;
 
-import com.gf.yummify.data.enums.IngredientStatus;
-import com.gf.yummify.data.enums.IngredientType;
-import com.gf.yummify.data.enums.UnitOfMeasure;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.gf.yummify.data.enums.Difficulty;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Data
-@Table(name = "ingredients")
-public class Ingredient {
+@Table(name = "recipes")
+public class Recipe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long ingredientId;
+    private Long recipeId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
+    private User user;
+
+    @Size(max = 200)
+    @NotNull
+    private String title;
+
+    private String description;
+
+    private String image;
+
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private Difficulty difficulty;
 
     @NotNull
-    @NotBlank
-    @Size(max = 50)
-    private String ingredientName;
-
-    @Enumerated(EnumType.STRING)
-    private UnitOfMeasure unitOfMeasure;
-
-    @Enumerated(EnumType.STRING)
-    private IngredientType ingredientType;
-
     @Positive
-    private Double calories;
+    private Integer prepTime;
 
-    @Enumerated(EnumType.STRING)
+    @Lob
     @NotNull
-    private IngredientStatus ingredientStatus;
+    private String instructions;
 
     @NotNull
     private LocalDate creationDate = LocalDate.now();
@@ -48,6 +52,4 @@ public class Ingredient {
     public void setLastModification() {
         this.lastModification = LocalDate.now();
     }
-
-
 }

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <title>Encabezado</title>
+</head>
+<body>
+<header th:fragment="header">
+    <div class="header-container">
+        <img src="/images/logo.png" alt="Logo de la Aplicación" class="logo">
+        <nav>
+            <ul class="nav nav-pills">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/home}">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/recipes}">Recetas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/about}">Acerca de</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/profile}">Perfil</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>
+</body>
+</html>
+
+<style>
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Para espaciar logo y botones */
+            padding: 10px;
+        }
+
+        .logo {
+            max-width: 50px; /* Ajusta el tamaño del logo según tus necesidades */
+            margin-right: 10px; /* Espacio entre el logo y los botones */
+        }
+
+        .nav-link {
+            margin-left: 15px; /* Espacio entre los botones */
+            font-weight: bold; /* Negrita para los enlaces */
+        }
+    </style>
