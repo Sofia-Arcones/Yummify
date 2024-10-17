@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20241017
+      author: Sofia Arcones
+      changes:
+        - createTable:
+            tableName: ingredients
+            columns:
+              - column:
+                  name: ingredient_id
+                  type: serial
+                  contraints:
+                    primaryKey: true
+                    autoIncrement: true
+              - column:
+                  name: ingredient_name
+                  type: varchar(50)
+                  contraints:
+                    nullable: false
+              - column:
+                  name: unit_of_measure
+                  type: varchar(50)
+              - column:
+                  name: ingredient_type
+                  type: varchar(50)
+              - column:
+                  name: calories
+                  type: double precision
+              - column:
+                  name: ingredient_status
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: creation_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_modification
+                  type: date
+                  constraints:
+                    nullable: false
+
+

@@ -54,6 +54,7 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private VerificationStatus verificationStatus;
 
+    @NotNull
     private LocalDate registrationDate = LocalDate.now();
     private LocalDate lastModification = LocalDate.now();
 
