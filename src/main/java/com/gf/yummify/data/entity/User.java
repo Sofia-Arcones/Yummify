@@ -66,7 +66,7 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<Recipe> recipes = new ArrayList<>(); // Relación inversa One-to-Many
+    private List<Recipe> recipes = new ArrayList<>();
 
     @PreUpdate
     public void setLastModification() {
