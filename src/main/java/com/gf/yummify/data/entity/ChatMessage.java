@@ -1,5 +1,6 @@
 package com.gf.yummify.data.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -17,10 +18,12 @@ public class ChatMessage {
 
     @ManyToOne
     @JoinColumn(name = "senderUser", nullable = false)
+    @JsonBackReference
     private User sender;
 
     @ManyToOne
     @JoinColumn(name = "receiverUser", nullable = false)
+    @JsonBackReference
     private User receiver;
 
     @NotNull

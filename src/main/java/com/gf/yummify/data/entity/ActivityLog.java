@@ -1,5 +1,6 @@
 package com.gf.yummify.data.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.gf.yummify.data.enums.ActivityType;
 import com.gf.yummify.data.enums.RelatedEntity;
 import jakarta.persistence.*;
@@ -18,6 +19,7 @@ public class ActivityLog {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
     private User user;
 
     @NotNull

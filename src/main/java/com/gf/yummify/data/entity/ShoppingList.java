@@ -1,5 +1,6 @@
 package com.gf.yummify.data.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.gf.yummify.data.enums.ListStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -17,6 +18,7 @@ public class ShoppingList {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
     private User user;
 
     @NotNull

@@ -1,5 +1,6 @@
 package com.gf.yummify.data.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.gf.yummify.data.enums.RelationshipStatus;
 import com.gf.yummify.data.enums.RelationshipType;
 import jakarta.persistence.*;
@@ -18,10 +19,12 @@ public class Relationship {
 
     @ManyToOne
     @JoinColumn(name = "requesting_user", nullable = false)
+    @JsonBackReference
     private User sender;
 
     @ManyToOne
     @JoinColumn(name = "requested_user", nullable = false)
+    @JsonBackReference
     private User receiver;
 
     @Enumerated(EnumType.STRING)
