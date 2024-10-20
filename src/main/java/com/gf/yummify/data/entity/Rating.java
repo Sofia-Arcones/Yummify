@@ -22,7 +22,9 @@ public class Rating {
 
     @NotNull
     private Double rating;
-    
+
+    @OneToOne(mappedBy = "rate", cascade = CascadeType.ALL, optional = true)
+    private Comment comment;
     @NotNull
     private LocalDate creationDate;
     private LocalDate lastModification;
