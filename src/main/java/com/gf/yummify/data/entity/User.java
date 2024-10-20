@@ -61,12 +61,16 @@ public class User implements UserDetails {
     private LocalDate registrationDate;
     private LocalDate lastModification;
 
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<Recipe> recipes = new ArrayList<>();
+    private List<Recipe> recipes;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<ChallengeParticipation> participations;
 
     public User() {
         this.registrationDate = LocalDate.now();

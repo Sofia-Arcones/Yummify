@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Entity
@@ -29,7 +30,8 @@ public class Challenge {
     @NotNull
     private String reward;
 
-
+    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
+    private List<ChallengeParticipation> participations;
 
     @NotNull
     private LocalDate creationDate;
