@@ -58,8 +58,8 @@ public class User implements UserDetails {
     private VerificationStatus verificationStatus;
 
     @NotNull
-    private LocalDate registrationDate = LocalDate.now();
-    private LocalDate lastModification = LocalDate.now();
+    private LocalDate registrationDate;
+    private LocalDate lastModification;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -68,6 +68,10 @@ public class User implements UserDetails {
     @JsonManagedReference
     private List<Recipe> recipes = new ArrayList<>();
 
+    public User() {
+        this.registrationDate = LocalDate.now();
+        this.lastModification = LocalDate.now();
+    }
     @PreUpdate
     public void setLastModification() {
         this.lastModification = LocalDate.now();

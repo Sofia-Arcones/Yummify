@@ -41,9 +41,13 @@ public class Ingredient {
     private IngredientStatus ingredientStatus;
 
     @NotNull
-    private LocalDate creationDate = LocalDate.now();
-    private LocalDate lastModification = LocalDate.now();
+    private LocalDate creationDate;
+    private LocalDate lastModification;
 
+    public Ingredient() {
+        this.creationDate = LocalDate.now();
+        this.lastModification = LocalDate.now();
+    }
     @PreUpdate
     public void setLastModification() {
         this.lastModification = LocalDate.now();

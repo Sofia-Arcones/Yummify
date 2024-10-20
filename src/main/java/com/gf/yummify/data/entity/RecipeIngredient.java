@@ -29,5 +29,9 @@ public class RecipeIngredient {
     private Double quantity;
 
     @NotNull
-    private LocalDate creationDate = LocalDate.now();
+    private LocalDate creationDate;
+
+    public RecipeIngredient() {
+        this.creationDate = LocalDate.now();
+    }
 }

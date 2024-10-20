@@ -30,9 +30,19 @@ public class ChatMessage {
     private Boolean isRead = false;
 
     @NotNull
-    private LocalDateTime sentAt = LocalDateTime.now();
+    private LocalDateTime sentAt;
+    private LocalDateTime lastModification;
+
 
     @NotNull
     private Boolean isDeleted = false;
 
+    public ChatMessage() {
+        this.sentAt = LocalDateTime.now();
+        this.lastModification = LocalDateTime.now();
+    }
+    @PreUpdate
+    public void preUpdate() {
+        this.lastModification = LocalDateTime.now();
+    }
 }

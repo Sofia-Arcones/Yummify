@@ -45,11 +45,16 @@ public class Recipe {
     private String instructions;
 
     @NotNull
-    private LocalDate creationDate = LocalDate.now();
-    private LocalDate lastModification = LocalDate.now();
+    private LocalDate creationDate;
+    private LocalDate lastModification;
 
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL)
     private List<RecipeIngredient> ingredients;
+
+    public Recipe() {
+        this.creationDate = LocalDate.now();
+        this.lastModification = LocalDate.now();
+    }
 
     @PreUpdate
     public void setLastModification() {

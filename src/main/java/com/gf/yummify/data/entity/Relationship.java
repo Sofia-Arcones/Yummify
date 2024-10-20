@@ -17,11 +17,11 @@ public class Relationship {
     private Long relationshipId;
 
     @ManyToOne
-    @JoinColumn(name = "requestingUser", nullable = false)
+    @JoinColumn(name = "requesting_user", nullable = false)
     private User sender;
 
     @ManyToOne
-    @JoinColumn(name = "requestedUser", nullable = false)
+    @JoinColumn(name = "requested_user", nullable = false)
     private User receiver;
 
     @Enumerated(EnumType.STRING)
@@ -33,7 +33,16 @@ public class Relationship {
     private RelationshipType relationshipType;
 
     @NotNull
-    private LocalDate creationDate = LocalDate.now();
-    private LocalDate lastModification = LocalDate.now();
+    private LocalDate creationDate;
+    private LocalDate lastModification;
+
+    public Relationship() {
+        this.creationDate = LocalDate.now();
+        this.lastModification = LocalDate.now();
+    }
+    @PreUpdate
+    public void preUpdate() {
+        this.lastModification = LocalDate.now();
+    }
 
 }

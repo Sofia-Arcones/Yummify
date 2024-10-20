@@ -16,7 +16,7 @@ public class ShoppingList {
     private Long shoppingListId;
 
     @ManyToOne
-    @JoinColumn(name = "user", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @NotNull
@@ -28,4 +28,13 @@ public class ShoppingList {
     @NotNull
     private LocalDate creationDate = LocalDate.now();
     private LocalDate lastModification = LocalDate.now();
+
+    public ShoppingList() {
+        this.creationDate = LocalDate.now();
+        this.lastModification = LocalDate.now();
+    }
+    @PreUpdate
+    public void preUpdate() {
+        this.lastModification = LocalDate.now();
+    }
 }
