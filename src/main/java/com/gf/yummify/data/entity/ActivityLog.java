@@ -35,6 +35,9 @@ public class ActivityLog {
     @NotNull
     private String description;
 
+    @OneToOne(mappedBy = "activityLog", cascade = CascadeType.ALL)
+    private Notification notification;
+
     public ActivityLog() {
         this.activityDate = LocalDateTime.now();
     }

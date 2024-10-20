@@ -26,9 +26,8 @@ public class ShoppingList {
     @NotNull
     private ListStatus listStatus;
     @NotNull
-    private LocalDate creationDate = LocalDate.now();
-    private LocalDate lastModification = LocalDate.now();
-
+    private LocalDate creationDate;
+    private LocalDate lastModification;
     public ShoppingList() {
         this.creationDate = LocalDate.now();
         this.lastModification = LocalDate.now();
