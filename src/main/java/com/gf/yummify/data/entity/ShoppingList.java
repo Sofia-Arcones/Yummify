@@ -1,12 +1,14 @@
 package com.gf.yummify.data.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.gf.yummify.data.enums.ListStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Entity
@@ -29,6 +31,10 @@ public class ShoppingList {
     private ListStatus listStatus;
     private @NotNull LocalDateTime creationDate;
     private LocalDateTime lastModification;
+
+    @OneToMany(mappedBy = "shoppingList", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<ShoppingListItem> listItems;
     public ShoppingList() {
         this.creationDate = LocalDateTime.now();
         this.lastModification = LocalDateTime.now();
