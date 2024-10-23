@@ -1,0 +1,54 @@
+databaseChangeLog:
+  - changeSet:
+      id: 202410231210
+      author: Sofia Arcones
+      changes:
+        - createTable:
+            tableName: challenges
+            columns:
+              - column:
+                  name: challenge_id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+                    autoIncrement: true
+              - column:
+                  name: title
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: winner_quantity
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: start_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: end_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: reward
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: creation_date
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_modification
+                  type: timestamp
+                  constraints:
+                    nullable: false
