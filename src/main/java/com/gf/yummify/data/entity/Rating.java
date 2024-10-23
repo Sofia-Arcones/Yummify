@@ -1,11 +1,13 @@
 package com.gf.yummify.data.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Entity
@@ -25,9 +27,9 @@ public class Rating {
 
     @NotNull
     private Double rating;
-
-    @OneToOne(mappedBy = "rate", cascade = CascadeType.ALL, optional = true)
-    private Comment comment;
+    @OneToMany(mappedBy = "rate", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Comment> comments;
     private @NotNull LocalDateTime creationDate;
     private LocalDateTime lastModification;
     public Rating() {

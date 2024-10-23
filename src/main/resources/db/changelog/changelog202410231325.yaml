@@ -1,0 +1,51 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20241021325
+      author: Sofia Arcones
+      changes:
+        - createTable:
+            tableName: ratings
+            columns:
+              - column:
+                  name: rate_id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+                    autoIncrement: true
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: recipe_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: rating
+                  type: double precision
+                  constraints:
+                    nullable: false
+              - column:
+                  name: creation_date
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_modification
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: ratings
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: user_id
+            constraintName: fk_users_ratings
+        - addForeignKeyConstraint:
+            baseTableName: ratings
+            baseColumnNames: recipe_id
+            referencedTableName: recipes
+            referencedColumnNames: recipe_id
+            constraintName: fk_recipe_ratings

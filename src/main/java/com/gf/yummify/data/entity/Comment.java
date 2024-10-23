@@ -1,5 +1,6 @@
 package com.gf.yummify.data.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -12,8 +13,9 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long commentId;
 
-    @OneToOne
-    @JoinColumn(name = "rate_id", nullable = false, unique = true)  // Relación uno a uno con Rate
+    @ManyToOne
+    @JoinColumn(name = "rate_id", nullable = false)
+    @JsonBackReference
     private Rating rate;
 
     @NotNull
