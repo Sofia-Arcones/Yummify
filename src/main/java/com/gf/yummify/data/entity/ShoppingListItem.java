@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -33,8 +33,16 @@ public class ShoppingListItem {
     @NotNull
     private Boolean isPurchased;
 
-    @NotNull
-    private LocalDate creationDate = LocalDate.now();
-    private LocalDate lastModification = LocalDate.now();
+    private @NotNull LocalDateTime creationDate = LocalDateTime.now();
+    private LocalDateTime lastModification = LocalDateTime.now();
+
+    public ShoppingListItem() {
+        this.creationDate = LocalDateTime.now();
+        this.lastModification = LocalDateTime.now();
+    }
+    @PreUpdate
+    public void preUpdate() {
+        this.lastModification = LocalDateTime.now();
+    }
 
 }

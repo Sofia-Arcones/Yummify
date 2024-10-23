@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Entity
@@ -17,10 +18,12 @@ public class Tag {
     @NotNull
     private String name;
 
-    @NotNull
-    private LocalDate creationDate;
+    private @NotNull LocalDateTime creationDate;
+
+    @ManyToMany(mappedBy = "tags")
+    private List<Recipe> recipes;
 
     public Tag() {
-        this.creationDate = LocalDate.now();
+        this.creationDate = LocalDateTime.now();
     }
 }

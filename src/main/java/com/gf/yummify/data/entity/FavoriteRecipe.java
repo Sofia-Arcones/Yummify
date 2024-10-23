@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -25,10 +25,9 @@ public class FavoriteRecipe {
     @JsonBackReference
     private User user;
 
-    @NotNull
-    private LocalDate creationDate;
+    private @NotNull LocalDateTime creationDate;
 
     public FavoriteRecipe() {
-        this.creationDate = LocalDate.now();
+        this.creationDate = LocalDateTime.now();
     }
 }

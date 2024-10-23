@@ -9,10 +9,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -40,17 +38,16 @@ public class Ingredient {
     @NotNull
     private IngredientStatus ingredientStatus;
 
-    @NotNull
-    private LocalDate creationDate;
-    private LocalDate lastModification;
+    private @NotNull LocalDateTime creationDate;
+    private LocalDateTime lastModification;
 
     public Ingredient() {
-        this.creationDate = LocalDate.now();
-        this.lastModification = LocalDate.now();
+        this.creationDate = LocalDateTime.now();
+        this.lastModification = LocalDateTime.now();
     }
     @PreUpdate
     public void setLastModification() {
-        this.lastModification = LocalDate.now();
+        this.lastModification = LocalDateTime.now();
     }
 
 

@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -28,15 +28,14 @@ public class Rating {
 
     @OneToOne(mappedBy = "rate", cascade = CascadeType.ALL, optional = true)
     private Comment comment;
-    @NotNull
-    private LocalDate creationDate;
-    private LocalDate lastModification;
+    private @NotNull LocalDateTime creationDate;
+    private LocalDateTime lastModification;
     public Rating() {
-        this.creationDate = LocalDate.now();
-        this.lastModification = LocalDate.now();
+        this.creationDate = LocalDateTime.now();
+        this.lastModification = LocalDateTime.now();
     }
     @PreUpdate
     public void preUpdate() {
-        this.lastModification = LocalDate.now();
+        this.lastModification = LocalDateTime.now();
     }
 }

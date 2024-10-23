@@ -1,6 +1,7 @@
 package com.gf.yummify.data.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.gf.yummify.data.enums.Difficulty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -8,7 +9,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -44,20 +45,35 @@ public class Recipe {
     @NotNull
     private String instructions;
 
-    @NotNull
-    private LocalDate creationDate;
-    private LocalDate lastModification;
+    private @NotNull LocalDateTime creationDate;
+    private LocalDateTime lastModification;
 
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL)
     private List<RecipeIngredient> ingredients;
 
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<ChallengeParticipation> participate;
+
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Rating> ratings;
+
+    @ManyToMany
+    @JoinTable(
+            name = "recipe_tags",
+            joinColumns = @JoinColumn(name = "recipe_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private List<Tag> tags;
+
     public Recipe() {
-        this.creationDate = LocalDate.now();
-        this.lastModification = LocalDate.now();
+        this.creationDate = LocalDateTime.now();
+        this.lastModification = LocalDateTime.now();
     }
 
     @PreUpdate
     public void setLastModification() {
-        this.lastModification = LocalDate.now();
+        this.lastModification = LocalDateTime.now();
     }
 }

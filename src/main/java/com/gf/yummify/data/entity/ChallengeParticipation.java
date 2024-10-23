@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -27,11 +27,10 @@ public class ChallengeParticipation {
     private Challenge challenge;
     @NotNull
     private Boolean isWinner;
-    @NotNull
-    private LocalDate participationDate;
+    private @NotNull LocalDateTime participationDate;
 
     public ChallengeParticipation() {
-        this.participationDate = LocalDate.now();
+        this.participationDate = LocalDateTime.now();
     }
 
 

@@ -17,12 +17,12 @@ public class ChatMessage {
     private Long messageId;
 
     @ManyToOne
-    @JoinColumn(name = "senderUser", nullable = false)
+    @JoinColumn(name = "sender_user", nullable = false) // Nombres de columnas consistentes
     @JsonBackReference
     private User sender;
 
     @ManyToOne
-    @JoinColumn(name = "receiverUser", nullable = false)
+    @JoinColumn(name = "receiver_user", nullable = false) // Consistente con la entidad User
     @JsonBackReference
     private User receiver;
 

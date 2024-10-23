@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -27,6 +27,7 @@ public class Relationship {
     @JsonBackReference
     private User receiver;
 
+
     @Enumerated(EnumType.STRING)
     @NotNull
     private RelationshipStatus relationshipStatus;
@@ -35,17 +36,16 @@ public class Relationship {
     @NotNull
     private RelationshipType relationshipType;
 
-    @NotNull
-    private LocalDate creationDate;
-    private LocalDate lastModification;
+    private @NotNull LocalDateTime creationDate;
+    private LocalDateTime lastModification;
 
     public Relationship() {
-        this.creationDate = LocalDate.now();
-        this.lastModification = LocalDate.now();
+        this.creationDate = LocalDateTime.now();
+        this.lastModification = LocalDateTime.now();
     }
     @PreUpdate
     public void preUpdate() {
-        this.lastModification = LocalDate.now();
+        this.lastModification = LocalDateTime.now();
     }
 
 }
