@@ -1,0 +1,58 @@
+databaseChangeLog:
+  - changeSet:
+      id: 202410231600
+      author: Sofia Arcones
+      changes:
+        - createTable:
+            tableName: shopping_list_items
+            columns:
+              - column:
+                  name: shopping_list_item_id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+                    autoIncrement: true
+              - column:
+                  name: shopping_list_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ingredient_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantity
+                  type: double precision
+              - column:
+                  name: unit_of_measure
+                  type: varchar(50)
+              - column:
+                  name: is_purchased
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: creation_date
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_modification
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: shopping_list_items
+            baseColumnNames: shopping_list_id
+            referencedTableName: shopping_lists
+            referencedColumnNames: shopping_list_id
+            constraintName: fk_shopping_list_items
+        - addForeignKeyConstraint:
+            baseTableName: shopping_list_items
+            baseColumnNames: ingredient_id
+            referencedTableName: ingredients
+            referencedColumnNames: ingredient_id
+            constraintName: fk_ingredients_items
+
