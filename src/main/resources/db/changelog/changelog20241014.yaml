@@ -59,12 +59,12 @@ databaseChangeLog:
                     nullable: true
               - column:
                   name: registration_date
-                  type: date
+                  type: timestamp
                   constraints:
                     nullable: false
               - column:
                   name: last_modification
-                  type: date
+                  type: timestamp
                   constraints:
                     nullable: false
               - column:

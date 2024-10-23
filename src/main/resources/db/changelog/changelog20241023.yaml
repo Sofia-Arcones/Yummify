@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20241023
+      author: Sofia Arcones
+      changes:
+        - createTable:
+            tableName: tags
+            columns:
+              - column:
+                  name: tag_id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+                    autoIncrement: true
+              - column:
+                  name: name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: creation_date
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: recipe_tags
+            columns:
+              - column:
+                  name: recipe_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tag_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - addForeignKeyConstraint:
+                  baseTableName: recipe_tags
+                  baseColumnNames: recipe_id
+                  referencedTableName: recipes
+                  referencedColumnNames: recipe_id
+                  constraintName: fk_recipe_tags_recipe
+              - addForeignKeyConstraint:
+                  baseTableName: recipe_tags
+                  baseColumnNames: tag_id
+                  referencedTableName: tags
+                  referencedColumnNames: tag_id
+                  constraintName: fk_recipe_tags_tag
+

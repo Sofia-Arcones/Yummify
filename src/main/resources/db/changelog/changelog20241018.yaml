@@ -34,7 +34,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: creation_date
-                  type: date
+                  type: timestamp
                   constraints:
                     nullable: false
         - addForeignKeyConstraint:
