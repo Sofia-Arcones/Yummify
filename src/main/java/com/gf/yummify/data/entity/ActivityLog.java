@@ -29,9 +29,11 @@ public class ActivityLog {
     private Long relatedEntityId;
 
     @Enumerated(EnumType.STRING)
+    @NotNull
     private RelatedEntity relatedEntity;
 
     @Enumerated(EnumType.STRING)
+    @NotNull
     private ActivityType activityType;
 
     @NotNull

@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: 202410231100
+      author: Sofia Arcones
+      changes:
+        - createTable:
+            tableName: activity_logs
+            columns:
+              - column:
+                  name: activity_id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+                    autoIncrement: true
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: activity_date
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: related_entity_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: related_entity
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: activity_type
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: activity_logs
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: user_id
+            constraintName: fk_users_activities
