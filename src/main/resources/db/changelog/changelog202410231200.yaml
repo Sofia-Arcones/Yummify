@@ -1,0 +1,41 @@
+databaseChangeLog:
+  - changeSet:
+      id: 202410231200
+      author: Sofia Arcones
+      changes:
+        - createTable:
+            tableName: favorite_recipes
+            columns:
+              - column:
+                  name: favorite_id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+                    autoIncrement: true
+              - column:
+                  name: recipe_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: creation_date
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: favorite_recipes
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: user_id
+            constraintName: fk_users_favorites
+        - addForeignKeyConstraint:
+            baseTableName: favorite_recipes
+            baseColumnNames: recipe_id
+            referencedTableName: recipes
+            referencedColumnNames: recipe_id
+            constraintName: fk_recipes_favorites
