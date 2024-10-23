@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - changeSet:
+      id: 202410231345
+      author: Sofia Arcones
+      changes:
+        - createTable:
+            tableName: comments
+            columns:
+              - column:
+                  name: comment_id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+                    autoIncrement: true
+              - column:
+                  name: rate_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: comment
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: comment_date
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: comments
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: user_id
+            constraintName: fk_user_comment
+        - addForeignKeyConstraint:
+            baseTableName: comments
+            baseColumnNames: rate_id
+            referencedTableName: ratings
+            referencedColumnNames: rate_id
+            constraintName: fk_rate_comments
