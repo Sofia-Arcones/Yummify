@@ -38,6 +38,10 @@
             </div>
             <button type="submit" class="btn btn-primary">Login</button>
         </form>
+        <hr>
+        <div th:if="${param.error}" class="alert alert-danger">
+            Usuario o contraseña incorrectas.
+        </div>
     </div>
 </div>
 </body>
