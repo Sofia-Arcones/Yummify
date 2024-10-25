@@ -6,6 +6,7 @@ import com.gf.yummify.data.enums.IngredientType;
 import com.gf.yummify.data.repository.IngredientRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -33,6 +34,10 @@ public class IngredientServiceImpl implements IngredientService {
             newIngredient.setIngredientStatus(IngredientStatus.PENDING_REVIEW);
         }
         return null;
+    }
+@Override
+    public List<Ingredient> findIngredientsByStatus(IngredientStatus ingredientStatus){
+      return ingredientRepository.findByIngredientStatus(ingredientStatus);
     }
 
    /* public Ingredient approveIngredient(String ingredientName){

@@ -21,7 +21,7 @@ public class SecurityConfig {
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/login", "/user", "/register", "/css/**", "/images/**").permitAll()
+                        .requestMatchers("/login", "/user", "/register", "/css/**", "/images/**", "/recipe/create").permitAll()
                         .anyRequest().authenticated())  // El resto de las rutas requieren autenticación
                 .formLogin(form -> form
                         .loginPage("/login")
