@@ -1,34 +1,45 @@
 databaseChangeLog:
   - changeSet:
-      id: 20241017
+      id: 202410231210
       author: Sofia Arcones
       changes:
         - createTable:
-            tableName: ingredients
+            tableName: challenges
             columns:
               - column:
-                  name: ingredient_id
+                  name: challenge_id
                   type: serial
                   constraints:
                     primaryKey: true
                     autoIncrement: true
               - column:
-                  name: ingredient_name
-                  type: varchar(50)
+                  name: title
+                  type: varchar(200)
                   constraints:
                     nullable: false
               - column:
-                  name: unit_of_measure
-                  type: varchar(50)
+                  name: description
+                  type: text
+                  constraints:
+                    nullable: false
               - column:
-                  name: ingredient_type
-                  type: varchar(50)
+                  name: winner_quantity
+                  type: int
+                  constraints:
+                    nullable: false
               - column:
-                  name: calories
-                  type: double precision
+                  name: start_date
+                  type: date
+                  constraints:
+                    nullable: false
               - column:
-                  name: ingredient_status
-                  type: varchar(50)
+                  name: end_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: reward
+                  type: text
                   constraints:
                     nullable: false
               - column:
@@ -41,5 +52,3 @@ databaseChangeLog:
                   type: timestamp
                   constraints:
                     nullable: false
-
-

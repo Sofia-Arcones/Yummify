@@ -1,64 +1,55 @@
 databaseChangeLog:
   - changeSet:
-      id: 20241014
+      id: 202410172
       author: Sofia Arcones
       changes:
         - createTable:
-            tableName: users
+            tableName: recipes
             columns:
               - column:
-                  name: user_id
+                  name: recipe_id
                   type: serial
                   constraints:
                     primaryKey: true
                     autoIncrement: true
               - column:
-                  name: username
-                  type: varchar(100)
+                  name: user_id
+                  type: bigint
                   constraints:
                     nullable: false
               - column:
-                  name: email
-                  type: varchar(255)
+                  name: title
+                  type: varchar(200)
                   constraints:
                     nullable: false
               - column:
-                  name: password
-                  type: varchar(255)
-                  constraints:
-                    nullable: false
-              - column:
-                  name: avatar
+                  name: description
                   type: text
                   constraints:
                     nullable: true
               - column:
-                  name: bio
+                  name: image
                   type: text
                   constraints:
                     nullable: true
               - column:
-                  name: gender
-                  type: varchar(20)
+                  name: difficulty
+                  type: varchar(50)
                   constraints:
-                    nullable: true
+                    nullable: false
               - column:
-                  name: birthday
-                  type: date
+                  name: prep_time
+                  type: integer
                   constraints:
-                    nullable: true
+                    nullable: false
+                    positive: true
               - column:
-                  name: location
-                  type: varchar(100)
+                  name: instructions
+                  type: text
                   constraints:
-                    nullable: true
+                    nullable: false
               - column:
-                  name: verification_status
-                  type: varchar(100)
-                  constraints:
-                    nullable: true
-              - column:
-                  name: registration_date
+                  name: creation_date
                   type: timestamp
                   constraints:
                     nullable: false
@@ -67,8 +58,11 @@ databaseChangeLog:
                   type: timestamp
                   constraints:
                     nullable: false
-              - column:
-                  name: role
-                  type: varchar(20)
-                  constraints:
-                    nullable: true
+        - addForeignKeyConstraint:
+            baseTableName: recipes
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: user_id
+            constraintName: fk_recipe_user
+
+

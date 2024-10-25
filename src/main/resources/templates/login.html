@@ -7,24 +7,26 @@
     <title>Login</title>
     <style>
         body {
+            margin: 0;
+            padding: 0;
             display: flex;
-            justify-content: center;
-            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
         }
         .login-container {
             width: 100%;
             max-width: 400px;
+            margin: 20px auto;
         }
-        img {
-            display: block;
-            margin: 0 auto 20px auto;
-            max-width: 100px;
+        .jumbotron {
+            padding: 2rem;
         }
+
     </style>
 </head>
 <body>
+<div th:replace="~{fragments/header :: header}"></div>
 <div class="login-container">
-    <img src="/images/logo.png" alt="Logo de la aplicación" class="img-fluid">
     <div class="jumbotron">
         <h2>Login</h2>
         <form th:action="@{/login}" method="post">
@@ -40,4 +42,3 @@
 </div>
 </body>
 </html>
-

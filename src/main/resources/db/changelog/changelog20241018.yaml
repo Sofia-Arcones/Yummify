@@ -1,0 +1,51 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20241018
+      author: Sofia Arcones
+      changes:
+        - createTable:
+            tableName: recipe_ingredients
+            columns:
+              - column:
+                  name: recipe_ingredient_id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+                    autoIncrement: true
+              - column:
+                  name: recipe_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ingredient_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: unit_of_measure
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantity
+                  type: double precision
+                  constraints:
+                    nullable: false
+              - column:
+                  name: creation_date
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: recipe_ingredients
+            baseColumnNames: recipe_id
+            referencedTableName: recipes
+            referencedColumnNames: recipe_id
+            constraintName: fk_recipe_recipe_ingredient
+        - addForeignKeyConstraint:
+            baseTableName: recipe_ingredients
+            baseColumnNames: ingredient_id
+            referencedTableName: ingredients
+            referencedColumnNames: ingredient_id
+            constraintName: fk_recipe_ingredient_ingredient

@@ -1,34 +1,30 @@
 databaseChangeLog:
   - changeSet:
-      id: 20241017
+      id: 20241021325
       author: Sofia Arcones
       changes:
         - createTable:
-            tableName: ingredients
+            tableName: ratings
             columns:
               - column:
-                  name: ingredient_id
+                  name: rate_id
                   type: serial
                   constraints:
                     primaryKey: true
                     autoIncrement: true
               - column:
-                  name: ingredient_name
-                  type: varchar(50)
+                  name: user_id
+                  type: bigint
                   constraints:
                     nullable: false
               - column:
-                  name: unit_of_measure
-                  type: varchar(50)
+                  name: recipe_id
+                  type: bigint
+                  constraints:
+                    nullable: false
               - column:
-                  name: ingredient_type
-                  type: varchar(50)
-              - column:
-                  name: calories
+                  name: rating
                   type: double precision
-              - column:
-                  name: ingredient_status
-                  type: varchar(50)
                   constraints:
                     nullable: false
               - column:
@@ -41,5 +37,15 @@ databaseChangeLog:
                   type: timestamp
                   constraints:
                     nullable: false
-
-
+        - addForeignKeyConstraint:
+            baseTableName: ratings
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: user_id
+            constraintName: fk_users_ratings
+        - addForeignKeyConstraint:
+            baseTableName: ratings
+            baseColumnNames: recipe_id
+            referencedTableName: recipes
+            referencedColumnNames: recipe_id
+            constraintName: fk_recipe_ratings

@@ -1,0 +1,56 @@
+databaseChangeLog:
+  - changeSet:
+      id: 202410231535
+      author: Sofia Arcones
+      changes:
+        - createTable:
+            tableName: relationships
+            columns:
+              - column:
+                  name: relationship_id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+                    autoIncrement: true
+              - column:
+                  name: requesting_user
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: requested_user
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: relationship_status
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: relationship_type
+                  type: varchar(10)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: creation_date
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_modification
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: relationships
+            baseColumnNames: requesting_user
+            referencedTableName: users
+            referencedColumnNames: user_id
+            constraintName: fk_requesting_user_relationship
+        - addForeignKeyConstraint:
+            baseTableName: relationships
+            baseColumnNames: requested_user
+            referencedTableName: users
+            referencedColumnNames: user_id
+            constraintName: fk_requested_user_relationship
