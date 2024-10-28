@@ -30,32 +30,34 @@
             width: 90%;
             max-width: 600px;
         }
-        .btn-remove {
-            color: red;
-        }
     </style>
-    <script>
-        function addInstruction() {
-            const instructionContainer = document.getElementById("instruction-container");
-            const instructionDiv = document.createElement("div");
-            instructionDiv.setAttribute("class", "input-group mb-2");
 
-            const newInstruction = document.createElement("textarea");
-            newInstruction.setAttribute("name", "instructions");
-            newInstruction.setAttribute("class", "form-control");
-            newInstruction.setAttribute("rows", "3");
-            newInstruction.setAttribute("required", "required");
+    <script th:inline="javascript">
+        var unidades = /*[[${unidades}]]*/ [];
+        var ingredientes = /*[[${ingredientes}]]*/ [];
 
-            const removeButton = document.createElement("div");
-            removeButton.setAttribute("class", "input-group-append");
-            removeButton.innerHTML = '<button class="btn btn-danger" type="button">Eliminar</button>';
-            removeButton.onclick = function() {
-                instructionDiv.remove();
-            };
+        $(function() {
+            if (ingredientes.length > 0) {
+                $(".ingredient-input").autocomplete({
+                    source: ingredientes
+                });
+            }
+        });
 
-            instructionDiv.appendChild(newInstruction);
-            instructionDiv.appendChild(removeButton);
-            instructionContainer.appendChild(instructionDiv);
+        function createUnitSelect() {
+            const unitSelect = document.createElement("select");
+            unitSelect.setAttribute("name", "units");
+            unitSelect.setAttribute("class", "form-control col-md-3 ml-2");
+            unitSelect.setAttribute("required", "required");
+
+            unidades.forEach(unidad => {
+                const option = document.createElement("option");
+                option.value = unidad;
+                option.textContent = unidad;
+                unitSelect.appendChild(option);
+            });
+
+            return unitSelect;
         }
 
         function addIngredient() {
@@ -65,7 +67,7 @@
 
             const ingredientInput = document.createElement("input");
             ingredientInput.setAttribute("name", "ingredients");
-            ingredientInput.setAttribute("class", "form-control col-md-4");
+            ingredientInput.setAttribute("class", "form-control col-md-4 ingredient-input");
             ingredientInput.setAttribute("placeholder", "Ingrediente");
             ingredientInput.setAttribute("required", "required");
 
@@ -77,23 +79,11 @@
             quantityInput.setAttribute("placeholder", "Cantidad");
             quantityInput.setAttribute("required", "required");
 
-            const unitSelect = document.createElement("select");
-            unitSelect.setAttribute("name", "units");
-            unitSelect.setAttribute("class", "form-control col-md-3 ml-2");
-            unitSelect.setAttribute("required", "required");
-
-            // Opciones del enum Unidad de medida
-            const units = ["GRAMOS", "LITROS", "MILILITROS", "UNIDAD"]; // Cambia esto por tu enum
-            units.forEach(unit => {
-                const option = document.createElement("option");
-                option.value = unit;
-                option.text = unit;
-                unitSelect.appendChild(option);
-            });
-
-            const removeButton = document.createElement("div");
-            removeButton.setAttribute("class", "col-md-2 ml-2");
-            removeButton.innerHTML = '<button class="btn btn-danger" type="button">Eliminar</button>';
+            const unitSelect = createUnitSelect();
+            const removeButton = document.createElement("button");
+            removeButton.setAttribute("class", "btn btn-danger col-md-2 ml-2");
+            removeButton.setAttribute("type", "button");
+            removeButton.textContent = "Eliminar";
             removeButton.onclick = function() {
                 ingredientDiv.remove();
             };
@@ -103,42 +93,73 @@
             ingredientDiv.appendChild(unitSelect);
             ingredientDiv.appendChild(removeButton);
             ingredientContainer.appendChild(ingredientDiv);
+
+            $(".ingredient-input").autocomplete({
+                source: ingredientes
+            });
+        }
+
+        function addInstruction() {
+            console.log("Adding instruction");
+            const instructionContainer = document.getElementById("instruction-container");
+            const instructionDiv = document.createElement("div");
+            instructionDiv.setAttribute("class", "input-group mb-2");
+
+            const newInstruction = document.createElement("textarea");
+            newInstruction.setAttribute("name", "instructions");
+            newInstruction.setAttribute("class", "form-control");
+            newInstruction.setAttribute("rows", "3");
+            newInstruction.setAttribute("required", "required");
+
+            const removeButton = document.createElement("button");
+            removeButton.setAttribute("class", "btn btn-danger");
+            removeButton.setAttribute("type", "button");
+            removeButton.textContent = "Eliminar";
+            removeButton.onclick = function() {
+                instructionDiv.remove();
+            };
+
+            instructionDiv.appendChild(newInstruction);
+            instructionDiv.appendChild(removeButton);
+            instructionContainer.appendChild(instructionDiv);
         }
     </script>
 </head>
+
 <body class="d-flex flex-column min-vh-100">
 <div class="container-fluid p-0">
     <div th:replace="~{fragments/header :: header}"></div>
 </div>
+<br>
 <div class="jumbotron">
-    <h2>Crear Receta</h2>
+    <h2 class="display-4 custom-title text-center">Inspírate: Diseña Tu Propia Receta</h2>
     <form th:action="@{/recipes}" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label for="title">Título</label>
             <input type="text" id="title" name="title" required class="form-control">
-
+            <hr>
             <label for="description">Descripción</label>
             <textarea id="description" name="description" class="form-control" rows="3"></textarea>
-
+            <hr>
             <label for="image">Imagen</label>
             <input type="file" id="image" name="image" accept="image/*" required class="form-control-file">
-
+            <hr>
             <label for="difficulty">Dificultad</label>
             <select id="difficulty" name="difficulty" class="form-control col-md-3 ml-2" required>
                 <option th:each="dificultad : ${dificultades}" th:value="${dificultad}"
                         th:text="${dificultad}"></option>
             </select>
-            </select>
-
+            <hr>
             <label for="prepTime">Tiempo de Preparación (minutos)</label>
             <input type="number" id="prepTime" name="prepTime" required class="form-control" min="1">
+            <hr>
 
             <!-- Ingredientes -->
             <label>Ingredientes</label>
             <div id="ingredient-container">
                 <div class="form-row align-items-center mb-2">
-                    <input type="text" name="ingredients" class="form-control col-md-4" placeholder="Ingrediente"
-                           required>
+                    <input type="text" name="ingredients" class="form-control col-md-4 ingredient-input"
+                           placeholder="Ingrediente" required>
                     <input type="number" name="quantities" class="form-control col-md-3 ml-2" step="0.01"
                            placeholder="Cantidad" required>
                     <select name="units" class="form-control col-md-3 ml-2" required>
@@ -146,7 +167,10 @@
                     </select>
                 </div>
             </div>
+            <div class="d-flex justify-content-center mt-3">
             <button type="button" class="btn btn-secondary mt-2" onclick="addIngredient()">Añadir Ingrediente</button>
+            </div>
+            <hr>
 
             <!-- Instrucciones -->
             <label>Instrucciones</label>
@@ -155,13 +179,15 @@
                     <textarea name="instructions" class="form-control" rows="3" required></textarea>
                 </div>
             </div>
+            <div class="d-flex justify-content-center mt-3">
             <button type="button" class="btn btn-secondary mt-2" onclick="addInstruction()">Añadir Instrucción</button>
-
-            <button type="submit" class="btn btn-primary mt-3">Crear Receta</button>
+            </div>
+                <hr>
+            <div class="d-flex justify-content-center mt-3">
+                <button type="submit" class="btn btn-primary">Crear Receta</button>
+            </div>
         </div>
     </form>
 </div>
 </body>
 </html>
-
-
