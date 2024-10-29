@@ -8,13 +8,14 @@ databaseChangeLog:
             columns:
               - column:
                   name: notification_id
-                  type: serial
+                  type: uuid
                   constraints:
                     primaryKey: true
-                    autoIncrement: true
+                    nullable: false
+                    defaultValueComputed: "uuid_generate_v4()"
               - column:
                   name: user_id
-                  type: bigint
+                  type: uuid
                   constraints:
                     nullable: false
               - column:
@@ -29,7 +30,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: activity_id
-                  type: bigint
+                  type: uuid
                   constraints:
                     nullable: false
               - column:

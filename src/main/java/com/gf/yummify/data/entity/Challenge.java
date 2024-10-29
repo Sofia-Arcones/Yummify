@@ -3,18 +3,21 @@ package com.gf.yummify.data.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Entity
 @Table(name = "challenges")
 public class Challenge {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long challengeId;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    private UUID challengeId;
 
     @NotNull
     private String title;
@@ -36,10 +39,12 @@ public class Challenge {
 
     private @NotNull LocalDateTime creationDate;
     private LocalDateTime lastModification;
+
     public Challenge() {
         this.creationDate = LocalDateTime.now();
         this.lastModification = LocalDateTime.now();
     }
+
     @PreUpdate
     public void preUpdate() {
         this.lastModification = LocalDateTime.now();

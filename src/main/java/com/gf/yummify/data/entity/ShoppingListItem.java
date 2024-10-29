@@ -5,16 +5,19 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @Entity
 @Table(name = "shopping_list_items")
 public class ShoppingListItem {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long shoppingListItemId;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    private UUID shoppingListItemId;
 
     @ManyToOne
     @JoinColumn(name = "shopping_list_id", nullable = false)

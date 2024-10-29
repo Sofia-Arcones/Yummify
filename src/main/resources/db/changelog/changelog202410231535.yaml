@@ -8,18 +8,19 @@ databaseChangeLog:
             columns:
               - column:
                   name: relationship_id
-                  type: serial
+                  type: uuid
                   constraints:
                     primaryKey: true
-                    autoIncrement: true
+                    nullable: false
+                    defaultValueComputed: "uuid_generate_v4()"
               - column:
                   name: requesting_user
-                  type: bigint
+                  type: uuid
                   constraints:
                     nullable: false
               - column:
                   name: requested_user
-                  type: bigint
+                  type: uuid
                   constraints:
                     nullable: false
               - column:

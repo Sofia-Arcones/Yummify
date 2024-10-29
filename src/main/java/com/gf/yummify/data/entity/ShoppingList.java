@@ -6,17 +6,20 @@ import com.gf.yummify.data.enums.ListStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Entity
 @Table(name = "shopping_lists")
 public class ShoppingList {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long shoppingListId;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    private UUID shoppingListId;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

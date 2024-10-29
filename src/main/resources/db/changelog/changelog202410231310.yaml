@@ -8,18 +8,19 @@ databaseChangeLog:
             columns:
               - column:
                   name: message_id
-                  type: serial
+                  type: uuid
                   constraints:
                     primaryKey: true
-                    autoIncrement: true
+                    nullable: false
+                    defaultValueComputed: "uuid_generate_v4()"
               - column:
                   name: sender_user
-                  type: bigint
+                  type: uuid
                   constraints:
                     nullable: false
               - column:
                   name: receiver_user
-                  type: bigint
+                  type: uuid
                   constraints:
                     nullable: false
               - column:

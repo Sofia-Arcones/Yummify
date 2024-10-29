@@ -4,16 +4,19 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @Entity
 @Table(name = "challenge_participations")
 public class ChallengeParticipation {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long challengeParticipationId;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    private UUID challengeParticipationId;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

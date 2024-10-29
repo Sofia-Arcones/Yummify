@@ -2,10 +2,12 @@ package com.gf.yummify.business.services;
 
 import com.gf.yummify.data.entity.Ingredient;
 import com.gf.yummify.data.enums.IngredientStatus;
-import com.gf.yummify.data.enums.IngredientType;
 import com.gf.yummify.data.repository.IngredientRepository;
+import com.gf.yummify.presentation.dto.IngredientAutocompleteDTO;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -17,8 +19,10 @@ public class IngredientServiceImpl implements IngredientService {
         this.ingredientRepository = ingredientRepository;
     }
 
+    @Override
     public Ingredient findByIngredientName(String ingredientName) {
-        Optional<Ingredient> ingredient = ingredientRepository.findByIngredientName(ingredientName);
+        String normalizedIngredientName = capitalizeIngredientName(ingredientName);
+        Optional<Ingredient> ingredient = ingredientRepository.findByIngredientName(normalizedIngredientName);
         if (ingredient.isPresent()) {
             return ingredient.get();
         } else {
@@ -26,13 +30,42 @@ public class IngredientServiceImpl implements IngredientService {
         }
     }
 
-    public Ingredient createIngredient(String ingredientName) {
-        if (!ingredientRepository.existsByIngredientName(ingredientName)) {
-            Ingredient newIngredient = new Ingredient();
-            newIngredient.setIngredientName(ingredientName);
-            newIngredient.setIngredientStatus(IngredientStatus.PENDING_REVIEW);
+    @Override
+    public Ingredient findOrCreateIngredient(String name) {
+        String normalizedIngredientName = capitalizeIngredientName(name);
+        return ingredientRepository.findByIngredientName(normalizedIngredientName)
+                .orElseGet(() -> {
+                    Ingredient newIngredient = new Ingredient();
+                    newIngredient.setIngredientName(normalizedIngredientName);
+                    newIngredient.setIngredientStatus(IngredientStatus.PENDING_REVIEW);
+                    return ingredientRepository.save(newIngredient);
+                });
+    }
+
+    private String capitalizeIngredientName(String name) {
+        if (name == null || name.isEmpty()) {
+            return name;
         }
-        return null;
+        return name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
+    }
+
+    @Override
+    public List<Ingredient> findIngredientsByStatus(IngredientStatus ingredientStatus) {
+        return ingredientRepository.findByIngredientStatus(ingredientStatus);
+    }
+
+    @Override
+    public List<IngredientAutocompleteDTO> getApprovedIngredientsForAutocomplete() {
+        List<Ingredient> ingredients = ingredientRepository.findByIngredientStatus(IngredientStatus.APPROVED);
+        List<IngredientAutocompleteDTO> autocompleteDTOList = new ArrayList<>();
+        for (Ingredient ingredient : ingredients) {
+            IngredientAutocompleteDTO ingredientAutocompleteDTO = new IngredientAutocompleteDTO(
+                    ingredient.getIngredientName(),
+                    ingredient.getUnitOfMeasure().toString()
+            );
+            autocompleteDTOList.add(ingredientAutocompleteDTO);
+        }
+        return autocompleteDTOList;
     }
 
    /* public Ingredient approveIngredient(String ingredientName){
