@@ -3,8 +3,10 @@ package com.gf.yummify.business.services;
 import com.gf.yummify.data.entity.Ingredient;
 import com.gf.yummify.data.enums.IngredientStatus;
 import com.gf.yummify.data.repository.IngredientRepository;
+import com.gf.yummify.presentation.dto.IngredientAutocompleteDTO;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -50,6 +52,20 @@ public class IngredientServiceImpl implements IngredientService {
     @Override
     public List<Ingredient> findIngredientsByStatus(IngredientStatus ingredientStatus) {
         return ingredientRepository.findByIngredientStatus(ingredientStatus);
+    }
+
+    @Override
+    public List<IngredientAutocompleteDTO> getApprovedIngredientsForAutocomplete() {
+        List<Ingredient> ingredients = ingredientRepository.findByIngredientStatus(IngredientStatus.APPROVED);
+        List<IngredientAutocompleteDTO> autocompleteDTOList = new ArrayList<>();
+        for (Ingredient ingredient : ingredients) {
+            IngredientAutocompleteDTO ingredientAutocompleteDTO = new IngredientAutocompleteDTO(
+                    ingredient.getIngredientName(),
+                    ingredient.getUnitOfMeasure().toString()
+            );
+            autocompleteDTOList.add(ingredientAutocompleteDTO);
+        }
+        return autocompleteDTOList;
     }
 
    /* public Ingredient approveIngredient(String ingredientName){

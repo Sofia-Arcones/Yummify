@@ -2,11 +2,10 @@ package com.gf.yummify.presentation.controller;
 
 import com.gf.yummify.business.services.IngredientService;
 import com.gf.yummify.business.services.RecipeService;
-import com.gf.yummify.data.entity.Ingredient;
 import com.gf.yummify.data.entity.Recipe;
 import com.gf.yummify.data.enums.Difficulty;
-import com.gf.yummify.data.enums.IngredientStatus;
 import com.gf.yummify.data.enums.UnitOfMeasure;
+import com.gf.yummify.presentation.dto.IngredientAutocompleteDTO;
 import com.gf.yummify.presentation.dto.RecipeRequestDTO;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
@@ -33,14 +32,13 @@ public class RecipeController {
 
     @GetMapping("/recipe/create")
     public String recipeForm(Model model) {
-        List<String> unidades = Arrays.stream(UnitOfMeasure.values()).map(Enum::name).collect(Collectors.toList());
-        model.addAttribute("unidades", unidades);
+        List<String> units = Arrays.stream(UnitOfMeasure.values()).map(Enum::name).collect(Collectors.toList());
+        model.addAttribute("unidades", units);
 
         model.addAttribute("dificultades", Difficulty.values());
 
-        List<Ingredient> ingredients = ingredientService.findIngredientsByStatus(IngredientStatus.APPROVED);
-        List<String> ingredientNames = ingredients.stream().map(Ingredient::getIngredientName).collect(Collectors.toList());
-        model.addAttribute("ingredientes", ingredientNames);
+        List<IngredientAutocompleteDTO> ingredients = ingredientService.getApprovedIngredientsForAutocomplete();
+        model.addAttribute("ingredientes", ingredients);
 
         return "createRecipeForm";
     }

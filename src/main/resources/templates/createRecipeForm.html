@@ -31,15 +31,32 @@
             max-width: 600px;
         }
     </style>
-
     <script th:inline="javascript">
-        var unidades = /*[[${unidades}]]*/ [];
-        var ingredientes = /*[[${ingredientes}]]*/ [];
+        var units = /*[[${unidades}]]*/ [];
+        var ingredients = /*[[${ingredientes}]]*/ [];
 
-        $(function() {
-            if (ingredientes.length > 0) {
-                $(".ingredient-input").autocomplete({
-                    source: ingredientes
+        $(document).ready(function() {
+            // Autocompletado en el campo de ingrediente base
+            $(".ingredient-input").autocomplete({
+                source: ingredients.map(item => item.name),
+                select: function(event, ui) {
+                    const selectedIngredientName = ui.item.value;
+                    const selectedIngredient = ingredients.find(item => item.name === selectedIngredientName);
+
+                    if (selectedIngredient) {
+                        const unitField = $(this).closest(".form-row").find("select[name='units']");
+                        unitField.val(selectedIngredient.predeterminedUnit);
+                        toggleQuantityField(unitField);
+                    }
+                }
+            });
+
+            // Aplica toggleQuantityField al campo de unidad base
+            const baseUnitSelect = document.querySelector("select[name='units']");
+            if (baseUnitSelect) {
+                toggleQuantityField(baseUnitSelect);  // Verifica el valor inicial por si ya es "AL_GUSTO"
+                baseUnitSelect.addEventListener("change", function() {
+                    toggleQuantityField(baseUnitSelect);
                 });
             }
         });
@@ -50,11 +67,16 @@
             unitSelect.setAttribute("class", "form-control col-md-3 ml-2");
             unitSelect.setAttribute("required", "required");
 
-            unidades.forEach(unidad => {
+            units.forEach(unit => {
                 const option = document.createElement("option");
-                option.value = unidad;
-                option.textContent = unidad;
+                option.value = unit;
+                option.textContent = unit;
                 unitSelect.appendChild(option);
+            });
+
+            // Aplica toggleQuantityField al nuevo campo de unidad creado
+            unitSelect.addEventListener("change", function() {
+                toggleQuantityField(unitSelect);
             });
 
             return unitSelect;
@@ -80,6 +102,7 @@
             quantityInput.setAttribute("required", "required");
 
             const unitSelect = createUnitSelect();
+
             const removeButton = document.createElement("button");
             removeButton.setAttribute("class", "btn btn-danger col-md-2 ml-2");
             removeButton.setAttribute("type", "button");
@@ -94,36 +117,33 @@
             ingredientDiv.appendChild(removeButton);
             ingredientContainer.appendChild(ingredientDiv);
 
-            $(".ingredient-input").autocomplete({
-                source: ingredientes
+            // Activa el autocompletado en el nuevo campo de ingrediente
+            $(ingredientInput).autocomplete({
+                source: ingredients.map(item => item.name),
+                select: function(event, ui) {
+                    const selectedIngredientName = ui.item.value;
+                    const selectedIngredient = ingredients.find(item => item.name === selectedIngredientName);
+
+                    if (selectedIngredient) {
+                        const unitField = $(this).closest(".form-row").find("select[name='units']");
+                        unitField.val(selectedIngredient.predeterminedUnit);
+                        toggleQuantityField(unitField);
+                    }
+                }
             });
         }
 
-        function addInstruction() {
-            console.log("Adding instruction");
-            const instructionContainer = document.getElementById("instruction-container");
-            const instructionDiv = document.createElement("div");
-            instructionDiv.setAttribute("class", "input-group mb-2");
+        function toggleQuantityField(unitSelect) {
+            const quantityInput = $(unitSelect).closest(".form-row").find("input[name='quantities']");
 
-            const newInstruction = document.createElement("textarea");
-            newInstruction.setAttribute("name", "instructions");
-            newInstruction.setAttribute("class", "form-control");
-            newInstruction.setAttribute("rows", "3");
-            newInstruction.setAttribute("required", "required");
-
-            const removeButton = document.createElement("button");
-            removeButton.setAttribute("class", "btn btn-danger");
-            removeButton.setAttribute("type", "button");
-            removeButton.textContent = "Eliminar";
-            removeButton.onclick = function() {
-                instructionDiv.remove();
-            };
-
-            instructionDiv.appendChild(newInstruction);
-            instructionDiv.appendChild(removeButton);
-            instructionContainer.appendChild(instructionDiv);
+            if (unitSelect.value === "AL_GUSTO") {
+                quantityInput.prop("disabled", true).val("1");  // Desactiva y establece en 1
+            } else {
+                quantityInput.prop("disabled", false).val("");  // Activa y limpia el valor
+            }
         }
     </script>
+
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -168,7 +188,8 @@
                 </div>
             </div>
             <div class="d-flex justify-content-center mt-3">
-            <button type="button" class="btn btn-secondary mt-2" onclick="addIngredient()">Añadir Ingrediente</button>
+                <button type="button" class="btn btn-secondary mt-2" onclick="addIngredient()">Añadir Ingrediente
+                </button>
             </div>
             <hr>
 
@@ -180,14 +201,18 @@
                 </div>
             </div>
             <div class="d-flex justify-content-center mt-3">
-            <button type="button" class="btn btn-secondary mt-2" onclick="addInstruction()">Añadir Instrucción</button>
+                <button type="button" class="btn btn-secondary mt-2" onclick="addInstruction()">Añadir Instrucción
+                </button>
             </div>
-                <hr>
+            <hr>
             <div class="d-flex justify-content-center mt-3">
                 <button type="submit" class="btn btn-primary">Crear Receta</button>
             </div>
         </div>
     </form>
+    <div th:if="${param.error}" class="alert alert-danger">
+        <p th:text="${error}"></p>
+    </div>
 </div>
 </body>
 </html>

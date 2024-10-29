@@ -51,6 +51,12 @@ public class RecipeServiceImpl implements RecipeService {
         recipe.setUser(user);
 
         recipe.setInstructions(joinInstrucions(recipeRequestDTO.getInstructions()));
+        // Procesar los ingredientes
+        List<RecipeIngredient> recipeIngredients = mapRecipeIngredients(recipeRequestDTO);
+        for (RecipeIngredient recipeIngredient : recipeIngredients){
+            recipeIngredient.setRecipe(recipe);
+        }
+        recipe.setIngredients(recipeIngredients);
 
         // Manejo de la imagen
         MultipartFile image = recipeRequestDTO.getImage();
@@ -59,11 +65,8 @@ public class RecipeServiceImpl implements RecipeService {
         }
         recipe.setImage(handleImageUpload(image));
 
-        // Procesar los ingredientes
-        List<RecipeIngredient> recipeIngredients = mapRecipeIngredients(recipeRequestDTO);
-        recipe.setIngredients(recipeIngredients);
-
         return recipeRepository.save(recipe);
+
     }
 
     private List<RecipeIngredient> mapRecipeIngredients(RecipeRequestDTO recipeRequestDTO) {
