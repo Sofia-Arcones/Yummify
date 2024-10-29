@@ -8,18 +8,19 @@ databaseChangeLog:
             columns:
               - column:
                   name: recipe_ingredient_id
-                  type: serial
+                  type: uuid
                   constraints:
                     primaryKey: true
-                    autoIncrement: true
+                    nullable: false
+                    defaultValueComputed: "uuid_generate_v4()"
               - column:
                   name: recipe_id
-                  type: bigint
+                  type: uuid
                   constraints:
                     nullable: false
               - column:
                   name: ingredient_id
-                  type: bigint
+                  type: uuid
                   constraints:
                     nullable: false
               - column:

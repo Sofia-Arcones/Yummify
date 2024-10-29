@@ -8,10 +8,11 @@ databaseChangeLog:
             columns:
               - column:
                   name: tag_id
-                  type: serial
+                  type: uuid
                   constraints:
                     primaryKey: true
-                    autoIncrement: true
+                    nullable: false
+                    defaultValueComputed: "uuid_generate_v4()"
               - column:
                   name: name
                   type: varchar(50)
@@ -27,12 +28,12 @@ databaseChangeLog:
             columns:
               - column:
                   name: recipe_id
-                  type: bigint
+                  type: UUID
                   constraints:
                     nullable: false
               - column:
                   name: tag_id
-                  type: bigint
+                  type: UUID
                   constraints:
                     nullable: false
               - addForeignKeyConstraint:

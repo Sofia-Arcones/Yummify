@@ -6,16 +6,19 @@ import com.gf.yummify.data.enums.RelationshipType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @Entity
 @Table(name = "relationships")
 public class Relationship {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long relationshipId;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    private UUID relationshipId;
 
     @ManyToOne
     @JoinColumn(name = "requesting_user", nullable = false)

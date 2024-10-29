@@ -8,18 +8,19 @@ databaseChangeLog:
             columns:
               - column:
                   name: comment_id
-                  type: serial
+                  type: uuid
                   constraints:
                     primaryKey: true
-                    autoIncrement: true
+                    nullable: false
+                    defaultValueComputed: "uuid_generate_v4()"
               - column:
                   name: rate_id
-                  type: bigint
+                  type: uuid
                   constraints:
                     nullable: false
               - column:
                   name: user_id
-                  type: bigint
+                  type: uuid
                   constraints:
                     nullable: false
               - column:

@@ -8,10 +8,11 @@ databaseChangeLog:
             columns:
               - column:
                   name: challenge_id
-                  type: serial
+                  type: uuid
                   constraints:
                     primaryKey: true
-                    autoIncrement: true
+                    nullable: false
+                    defaultValueComputed: "uuid_generate_v4()"
               - column:
                   name: title
                   type: varchar(200)
