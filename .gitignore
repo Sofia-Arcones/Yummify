@@ -31,3 +31,16 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Ignora todas las imágenes .jpg, .png y .gif en cualquier carpeta
+*.jpg
+*.png
+*.gif
+
+# Ignora todas las imágenes en una carpeta específica, como /uploads
+/uploads/*.jpg
+/uploads/*.png
+/uploads/*.gif
+
+
+
