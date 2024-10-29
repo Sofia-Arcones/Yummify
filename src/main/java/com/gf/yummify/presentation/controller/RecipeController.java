@@ -3,18 +3,19 @@ package com.gf.yummify.presentation.controller;
 import com.gf.yummify.business.services.IngredientService;
 import com.gf.yummify.business.services.RecipeService;
 import com.gf.yummify.data.entity.Ingredient;
+import com.gf.yummify.data.entity.Recipe;
 import com.gf.yummify.data.enums.Difficulty;
 import com.gf.yummify.data.enums.IngredientStatus;
 import com.gf.yummify.data.enums.UnitOfMeasure;
 import com.gf.yummify.presentation.dto.RecipeRequestDTO;
+import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.List;
@@ -45,8 +46,21 @@ public class RecipeController {
     }
 
     @PostMapping("/recipe")
-    public void crearReceta(@ModelAttribute RecipeRequestDTO requestDTO, Model model, Authentication authentication) {
-
-}
+    public String crearReceta(@ModelAttribute @Valid RecipeRequestDTO requestDTO, Model model, Authentication authentication, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("recipeRequestDTO", requestDTO);
+            return "createRecipeForm";
+        }
+        try {
+            Recipe recipe = recipeService.saveRecipe(requestDTO, authentication);
+            model.addAttribute("successMessage", "Receta creada correctamente.");
+            model.addAttribute("recipe", recipe);
+            return "recipeSuccess";
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+            model.addAttribute("recipeRequestDTO", requestDTO);
+            return "createRecipeForm";
+        }
+    }
 
 }

@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface IngredientService {
     Ingredient findByIngredientName(String ingredientName);
-    Ingredient createIngredient(String ingredientName);
     List<Ingredient> findIngredientsByStatus(IngredientStatus ingredientStatus);
+    Ingredient findOrCreateIngredient(String name);
 }
