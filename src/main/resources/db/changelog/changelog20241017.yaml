@@ -8,10 +8,11 @@ databaseChangeLog:
             columns:
               - column:
                   name: ingredient_id
-                  type: serial
+                  type: uuid
                   constraints:
                     primaryKey: true
-                    autoIncrement: true
+                    nullable: false
+                    defaultValueComputed: "uuid_generate_v4()"
               - column:
                   name: ingredient_name
                   type: varchar(50)

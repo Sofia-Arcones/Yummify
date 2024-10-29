@@ -4,16 +4,19 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @Entity
 @Table(name = "favorite_recipes")
 public class FavoriteRecipe {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long favoriteId;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    private UUID favoriteId;
 
     @ManyToOne
     @JoinColumn(name = "recipe_id", nullable = false)

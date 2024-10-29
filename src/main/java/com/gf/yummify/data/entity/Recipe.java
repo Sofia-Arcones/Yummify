@@ -8,17 +8,20 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Data
 @Table(name = "recipes")
 public class Recipe {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long recipeId;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    private UUID recipeId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
