@@ -39,24 +39,24 @@ public class RecipeController {
         List<IngredientAutocompleteDTO> ingredients = ingredientService.getApprovedIngredientsForAutocomplete();
         model.addAttribute("ingredientes", ingredients);
 
-        return "createRecipeForm";
+        return "recipes/createRecipeForm";
     }
 
     @PostMapping("/recipe")
     public String crearReceta(@ModelAttribute @Valid RecipeRequestDTO requestDTO, Model model, Authentication authentication, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("recipeRequestDTO", requestDTO);
-            return "createRecipeForm";
+            return "recipes/createRecipeForm";
         }
         try {
             Recipe recipe = recipeService.saveRecipe(requestDTO, authentication);
             model.addAttribute("successMessage", "Receta creada correctamente.");
             model.addAttribute("recipe", recipe);
-            return "recipeSuccess";
+            return "recipes/recipeSuccess";
         } catch (Exception ex) {
             model.addAttribute("error", ex.getMessage());
             model.addAttribute("recipeRequestDTO", requestDTO);
-            return "createRecipeForm";
+            return "recipes/createRecipeForm";
         }
     }
 

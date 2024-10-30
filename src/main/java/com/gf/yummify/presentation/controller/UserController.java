@@ -21,7 +21,7 @@ public class UserController {
 
     @GetMapping("/admin/panel")
     public String administratorPanel() {
-        return "administratorPanel";
+        return "users/administratorPanel";
     }
 
     @PostMapping("/user")
@@ -31,17 +31,17 @@ public class UserController {
                                RedirectAttributes redirectAttributes) {
         userService.createUser(username, email, password);
         redirectAttributes.addFlashAttribute("success", "Usuario registrado correctamente");
-        return "redirect:/register"; // redirige de vuelta al formulario de registro
+        return "redirect:users/register"; // redirige de vuelta al formulario de registro
     }
 
     @GetMapping("/login")
     public String login() {
-        return "login";
+        return "users/login";
     }
 
     @GetMapping("/register")
     public String register() {
-        return "register";
+        return "users/register";
     }
 
 }

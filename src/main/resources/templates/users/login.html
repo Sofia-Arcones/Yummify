@@ -43,7 +43,7 @@
         </form>
         <hr>
         <div th:if="${param.error}" class="alert alert-danger">
-            Usuario o contraseña incorrectas.
+            <p th:text="${error.message}"></p>
         </div>
     </div>
 </div>
