@@ -29,7 +29,6 @@ public class RecipeController {
         this.recipeService = recipeService;
         this.ingredientService = ingredientService;
     }
-
     @GetMapping("/recipe/create")
     public String recipeForm(Model model) {
         List<String> units = Arrays.stream(UnitOfMeasure.values()).map(Enum::name).collect(Collectors.toList());
