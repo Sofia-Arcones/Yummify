@@ -142,6 +142,28 @@
                 quantityInput.prop("disabled", false).val("");  // Activa y limpia el valor
             }
         }
+        function addInstruction() {
+            const instructionContainer = document.getElementById("instruction-container");
+            const instructionDiv = document.createElement("div");
+            instructionDiv.setAttribute("class", "input-group mb-2");
+
+            const newInstruction = document.createElement("textarea");
+            newInstruction.setAttribute("name", "instructions");
+            newInstruction.setAttribute("class", "form-control");
+            newInstruction.setAttribute("rows", "3");
+            newInstruction.setAttribute("required", "required");
+
+            const removeButton = document.createElement("div");
+            removeButton.setAttribute("class", "input-group-append");
+            removeButton.innerHTML = '<button class="btn btn-danger" type="button">Eliminar</button>';
+            removeButton.onclick = function() {
+                instructionDiv.remove();
+            };
+
+            instructionDiv.appendChild(newInstruction);
+            instructionDiv.appendChild(removeButton);
+            instructionContainer.appendChild(instructionDiv);
+        }
     </script>
 
 </head>
