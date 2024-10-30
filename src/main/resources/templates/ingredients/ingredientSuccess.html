@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingrediente Actualizado con Éxito</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body class="d-flex flex-column min-vh-100">
+<div class="container-fluid p-0">
+    <div th:replace="~{fragments/headerAdmin :: headerAdmin}"></div>
+</div>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card text-center bg-info text-white" th:if="${updateMessage != null}">
+                <div class="card-body">
+                    <h1 class="card-title">¡Ingrediente Actualizado!</h1>
+                    <p class="card-text">Tu ingrediente ha sido actualizado exitosamente. Aquí están los detalles:</p>
+                    <div class="alert alert-success">
+                        <strong>Nombre del Ingrediente:</strong> <span
+                            th:text="${ingredient.ingredientName}"></span><br>
+                        <strong>Tipo:</strong> <span th:text="${ingredient.ingredientType}"></span><br>
+                        <strong>Unidad de Medida:</strong> <span th:text="${ingredient.unitOfMeasure}"></span><br>
+                        <strong>Calorías:</strong> <span th:text="${ingredient.calories}"></span>
+                    </div>
+                    <p>¿Qué te gustaría hacer a continuación?</p>
+                    <a class="btn btn-primary" href="/ingredients/management" role="button">Volver a la Gestión de
+                        Ingredientes</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+</body>
+</html>
