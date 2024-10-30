@@ -3,7 +3,6 @@ package com.gf.yummify.presentation.controller;
 import com.gf.yummify.business.services.UserService;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,9 +19,9 @@ public class UserController {
         this.userDetailsService = userDetailsService;
     }
 
-    @GetMapping("/hola")
-    public String hola() {
-        return "hola";
+    @GetMapping("/admin/panel")
+    public String administratorPanel() {
+        return "administratorPanel";
     }
 
     @PostMapping("/user")
@@ -39,6 +38,7 @@ public class UserController {
     public String login() {
         return "login";
     }
+
     @GetMapping("/register")
     public String register() {
         return "register";
