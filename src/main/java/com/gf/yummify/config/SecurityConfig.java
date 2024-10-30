@@ -22,8 +22,8 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/login", "/user", "/register", "/css/**", "/images/**").permitAll()
-                        .requestMatchers("/admin/panel").hasRole("ADMIN")
-                        .anyRequest().authenticated())  // El resto de las rutas requieren autenticación
+                        .requestMatchers("/admin/panel", "ingredients/management").hasRole("ADMIN")
+                        .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/home", true)

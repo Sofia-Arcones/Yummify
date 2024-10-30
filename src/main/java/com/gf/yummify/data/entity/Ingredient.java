@@ -44,10 +44,16 @@ public class Ingredient {
     private @NotNull LocalDateTime creationDate;
     private LocalDateTime lastModification;
 
+    @Transient
+    private String formattedCreationDate;
+    @Transient
+    private String formattedLastModification;
+
     public Ingredient() {
         this.creationDate = LocalDateTime.now();
         this.lastModification = LocalDateTime.now();
     }
+
     @PreUpdate
     public void setLastModification() {
         this.lastModification = LocalDateTime.now();
