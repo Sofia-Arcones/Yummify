@@ -1,6 +1,6 @@
 package com.gf.yummify.data.enums;
 
 public enum Role {
-    ADMIN,
-    USER
+    ROLE_ADMIN,
+    ROLE_USER
 }

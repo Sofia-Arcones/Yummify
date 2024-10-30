@@ -14,8 +14,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -117,14 +117,16 @@ public class User implements UserDetails {
         this.registrationDate = LocalDateTime.now();
         this.lastModification = LocalDateTime.now();
     }
+
     @PreUpdate
     public void setLastModification() {
         this.lastModification = LocalDateTime.now();
     }
 
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Aquí puedes mapear tu rol a una colección de GrantedAuthority
-        return Collections.singletonList(new SimpleGrantedAuthority(role.name()));
+        List<GrantedAuthority> roles = new ArrayList<>();
+        roles.add(new SimpleGrantedAuthority(role.toString()));
+        return roles;
     }
 
     @Override
