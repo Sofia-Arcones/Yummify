@@ -21,6 +21,8 @@ public class RecipeRequestDTO {
     private String difficulty;
     @NotNull(message = "El tiempo de preparación es obligatorio.")
     private Integer prepTime;
+    @NotNull(message = "La cantidad de comensales es obligatoria.")
+    private Integer portions;
     @NotNull(message = "Los ingredientes son obligatorios.")
     private List<String> ingredients;
     @NotNull(message = "Las cantidades son obligatorias.")

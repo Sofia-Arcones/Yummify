@@ -14,17 +14,16 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <!-- Aplicamos color al card con bg-primary y text-white -->
             <div class="card text-center bg-info text-white">
                 <div class="card-body">
                     <h1 class="card-title">¡Receta Creada!</h1>
                     <p class="card-text">Tu receta ha sido creada exitosamente. Aquí están los detalles:</p>
-                    <!-- Cambia el color de la alerta si quieres, aquí usamos bg-light y text-dark para contraste -->
                     <div class="alert alert-success">
                         <strong>Título:</strong> <span th:text="${recipe.title}"></span><br>
                         <strong>Descripción:</strong> <span th:text="${recipe.description}"></span><br>
                         <strong>Dificultad:</strong> <span th:text="${recipe.difficulty}"></span><br>
-                        <strong>Tiempo de Preparación:</strong> <span th:text="${recipe.prepTime}"></span> minutos
+                        <strong>Tiempo de Preparación:</strong> <span th:text="${recipe.prepTime}"></span> minutos<br>
+                        <strong>Cantidad de comensales:</strong> <span th:text="${recipe.portions}"></span>
                     </div>
                     <p>¿Qué te gustaría hacer a continuación?</p>
                     <a class="btn btn-primary" href="/" role="button">Volver al Inicio</a>

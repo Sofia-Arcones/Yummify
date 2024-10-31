@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20241031
+      author: Sofia Arcones
+      changes:
+        - addColumn:
+            tableName: "recipes"
+            columns:
+              - column:
+                  name: "portions"
+                  type: bigint
+                  constraints:
+                    nullable: false
+

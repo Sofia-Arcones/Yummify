@@ -29,7 +29,7 @@ public class RecipeServiceImpl implements RecipeService {
     private UserService userService;
     private RecipeIngredientRepository recipeIngredientRepository;
     private IngredientService ingredientService;
-    private static final String UPLOAD_DIR = "static/uploads";
+    private static final String UPLOAD_DIR = "src/main/resources/static/uploads/recipes";
     private static final List<String> ALLOWED_CONTENT_TYPES = Arrays.asList("image/jpeg", "image/png");
 
     public RecipeServiceImpl(RecipeRepository recipeRepository, UserService userService, RecipeIngredientRepository recipeIngredientRepository, IngredientService ingredientService) {
@@ -42,31 +42,28 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     public Recipe saveRecipe(RecipeRequestDTO recipeRequestDTO, Authentication authentication) {
         User user = userService.findUserByUsername(authentication.getName());
-
         Recipe recipe = new Recipe();
         recipe.setTitle(recipeRequestDTO.getTitle());
         recipe.setDescription(recipeRequestDTO.getDescription());
         recipe.setDifficulty(Difficulty.valueOf(recipeRequestDTO.getDifficulty()));
         recipe.setPrepTime(recipeRequestDTO.getPrepTime());
+        recipe.setPortions(recipeRequestDTO.getPortions());
         recipe.setUser(user);
 
         recipe.setInstructions(joinInstrucions(recipeRequestDTO.getInstructions()));
         // Procesar los ingredientes
         List<RecipeIngredient> recipeIngredients = mapRecipeIngredients(recipeRequestDTO);
-        for (RecipeIngredient recipeIngredient : recipeIngredients){
+        for (RecipeIngredient recipeIngredient : recipeIngredients) {
             recipeIngredient.setRecipe(recipe);
         }
         recipe.setIngredients(recipeIngredients);
-
         // Manejo de la imagen
         MultipartFile image = recipeRequestDTO.getImage();
         if (image.isEmpty()) {
             throw new IllegalArgumentException("La receta debe tener una imagen");
         }
         recipe.setImage(handleImageUpload(image));
-
         return recipeRepository.save(recipe);
-
     }
 
     private List<RecipeIngredient> mapRecipeIngredients(RecipeRequestDTO recipeRequestDTO) {
