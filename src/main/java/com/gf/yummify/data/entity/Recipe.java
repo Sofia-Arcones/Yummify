@@ -49,6 +49,10 @@ public class Recipe {
     @NotNull
     private String instructions;
 
+    @NotNull
+    @Positive
+    private Integer portions;
+
     private @NotNull LocalDateTime creationDate;
     private LocalDateTime lastModification;
 
