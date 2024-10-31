@@ -4,5 +4,8 @@ import com.gf.yummify.data.entity.User;
 
 public interface UserService {
     User createUser(String username, String email, String password);
+
     User findUserByUsername(String username);
+
+    Boolean checkUserAuthentication(String loggedUsername, String profileUsername);
 }

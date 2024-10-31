@@ -29,7 +29,7 @@ public class RecipeServiceImpl implements RecipeService {
     private UserService userService;
     private RecipeIngredientRepository recipeIngredientRepository;
     private IngredientService ingredientService;
-    private static final String UPLOAD_DIR = "src/main/resources/static/uploads/recipes";
+    private static final String UPLOAD_DIR = "src/main/resources/static/images/uploads/recipes";
     private static final List<String> ALLOWED_CONTENT_TYPES = Arrays.asList("image/jpeg", "image/png");
 
     public RecipeServiceImpl(RecipeRepository recipeRepository, UserService userService, RecipeIngredientRepository recipeIngredientRepository, IngredientService ingredientService) {
@@ -86,6 +86,7 @@ public class RecipeServiceImpl implements RecipeService {
         return recipeIngredientList;
     }
 
+
     private String handleImageUpload(MultipartFile image) {
         if (!isImageValid(image)) {
             throw new IllegalArgumentException("Tipo de archivo no permitido o archivo vacío. Solo se permiten: JPEG, PNG.");
@@ -101,7 +102,7 @@ public class RecipeServiceImpl implements RecipeService {
             throw new RuntimeException("Error al guardar la imagen: " + e.getMessage(), e);
         }
 
-        return imagePath.toString();
+        return "/images/uploads/recipes/" + fileName;
     }
 
     private boolean isImageValid(MultipartFile image) {

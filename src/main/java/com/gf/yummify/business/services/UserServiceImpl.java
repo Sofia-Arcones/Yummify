@@ -36,5 +36,10 @@ public class UserServiceImpl implements UserService {
             throw new NoSuchElementException("Usuario no encontrado");
         }
     }
-
+    @Override
+    public Boolean checkUserAuthentication(String loggedUsername, String profileUsername) {
+        User loggedUser = findUserByUsername(loggedUsername);
+        User profileUser = findUserByUsername(profileUsername);
+        return profileUser.getUserId().equals(loggedUser.getUserId());
+    }
 }
