@@ -10,10 +10,11 @@
 <header th:fragment="header">
     <nav class="navbar navbar-expand-lg navbar-primary bg-secondary">
         <a class="navbar-brand d-flex align-items-center" href="#">
-            <img src="/images/logo.png" alt="Logo" class="logo"  width="90" height="90">
+            <img src="/images/logo.png" alt="Logo" class="logo" width="90" height="90">
             <span class="text-white">Yummify</span>
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <ul class="nav nav-pills ml-auto">
@@ -27,11 +28,13 @@
                 <a class="nav-link text-white" href="#">Acerca de</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white" href="#">Perfil</a>
+                <a class="nav-link text-white" th:href="@{/users/profile/{username}(username=${#authentication.name})}">Perfil</a>
             </li>
             <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
                 <form th:action="@{/admin/panel}" method="get">
-                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">Consola de administrador</button>
+                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">Consola de
+                        administrador
+                    </button>
                 </form>
             </li>
             <li class="nav-item" sec:authorize="isAnonymous()">
@@ -39,7 +42,8 @@
             </li>
             <li class="nav-item" sec:authorize="isAuthenticated()">
                 <form th:action="@{/logout}" method="post">
-                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">Logout</button>
+                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">Logout
+                    </button>
                 </form>
             </li>
         </ul>

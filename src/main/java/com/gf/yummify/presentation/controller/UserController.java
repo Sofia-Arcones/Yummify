@@ -1,12 +1,16 @@
 package com.gf.yummify.presentation.controller;
 
 import com.gf.yummify.business.services.UserService;
+import com.gf.yummify.data.entity.User;
+import jakarta.transaction.Transactional;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class UserController {
@@ -28,10 +32,10 @@ public class UserController {
     public String registerUser(@RequestParam("email") String email,
                                @RequestParam("username") String username,
                                @RequestParam("password") String password,
-                               RedirectAttributes redirectAttributes) {
+                               Model model) {
         userService.createUser(username, email, password);
-        redirectAttributes.addFlashAttribute("success", "Usuario registrado correctamente");
-        return "redirect:users/register"; // redirige de vuelta al formulario de registro
+        model.addAttribute("success", "Usuario registrado correctamente");
+        return "users/register";
     }
 
     @GetMapping("/login")
@@ -42,6 +46,21 @@ public class UserController {
     @GetMapping("/register")
     public String register() {
         return "users/register";
+    }
+
+    @Transactional
+    @GetMapping("/users/profile/{username}")
+    public String viewProfile(@PathVariable String username, Model model, Authentication authentication) {
+        try {
+            User profileUser = userService.findUserByUsername(username);
+            model.addAttribute("user", profileUser);
+            model.addAttribute("recipes", profileUser.getRecipes());
+            model.addAttribute("isOwnProfile", userService.checkUserAuthentication(authentication.getName(), profileUser.getUsername()));
+            return "users/profile";
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+            return "error";
+        }
     }
 
 }

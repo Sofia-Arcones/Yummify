@@ -45,7 +45,6 @@ public class Recipe {
     @Positive
     private Integer prepTime;
 
-    @Lob
     @NotNull
     private String instructions;
 

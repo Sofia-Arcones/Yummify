@@ -148,5 +148,11 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return UserDetails.super.isEnabled();
     }
+
+    public String getAvatar() {
+        return avatar != null && !avatar.isEmpty() ? avatar : "/images/uploads/default_avatar.png";
+    }
+
+
 }
 

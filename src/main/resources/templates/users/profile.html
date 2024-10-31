@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil de Usuario</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-4 text-center">
+            <img th:src="@{${user.avatar}}" class="rounded-circle img-fluid"
+                 alt="Avatar del Usuario" width="150" height="150">
+        </div>
+        <div class="col-md-8">
+            <h3 th:text="${user.username}">Nombre de Usuario</h3>
+            <p>Email: <span th:text="${user.email}">email@ejemplo.com</span></p>
+            <p>Ubicación: <span th:text="${user.location}">Ciudad, País</span></p>
+            <p>Bio: <span th:text="${user.bio}">Esta es una breve biografía del usuario...</span></p>
+            <a th:href="@{/profile/edit}" class="btn btn-primary" th:if="${isOwnProfile}">Editar Perfil</a>
+        </div>
+    </div>
+    <hr>
+    <h4 class="text-center my-4">Recetas del Usuario</h4>
+    <div class="row">
+        <div class="col-sm-6 col-md-4 col-lg-3 mb-4" th:each="recipe : ${recipes}">
+            <a th:href="@{/recipe/{id}(id=${recipe.recipeId})}" class="text-decoration-none text-dark">
+                <div class="card bg-secondary shadow-sm">
+                    <img th:src="@{${recipe.image}}" alt="Imagen de la receta" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title text-center" th:text="${recipe.title}">Título de la Receta</h5>
+                        <div class="d-flex justify-content-between">
+                        <span th:if="${isOwnProfile}">
+                            <a th:href="@{/recipe/edit/{id}(id=${recipe.recipeId})}"
+                               class="btn btn-sm btn-warning">Editar</a>
+                            <form th:action="@{/recipe/delete/{id}(id=${recipe.recipeId})}" method="post"
+                                  class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-danger">Borrar</button>
+                            </form>
+                        </span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts de Bootstrap -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
