@@ -8,19 +8,19 @@ import com.gf.yummify.data.enums.UnitOfMeasure;
 import com.gf.yummify.presentation.dto.IngredientAutocompleteDTO;
 import com.gf.yummify.presentation.dto.RecipeRequestDTO;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
+@RequestMapping("/recipe")
 public class RecipeController {
     private RecipeService recipeService;
     private IngredientService ingredientService;
@@ -29,7 +29,8 @@ public class RecipeController {
         this.recipeService = recipeService;
         this.ingredientService = ingredientService;
     }
-    @GetMapping("/recipe/create")
+
+    @GetMapping("/create")
     public String recipeForm(Model model) {
         List<String> units = Arrays.stream(UnitOfMeasure.values()).map(Enum::name).collect(Collectors.toList());
         model.addAttribute("unidades", units);
@@ -42,8 +43,8 @@ public class RecipeController {
         return "recipes/createRecipeForm";
     }
 
-    @PostMapping("/recipe")
-    public String crearReceta(@ModelAttribute @Valid RecipeRequestDTO requestDTO, Model model, Authentication authentication, BindingResult bindingResult) {
+    @PostMapping()
+    public String createRecipe(@ModelAttribute @Valid RecipeRequestDTO requestDTO, Model model, Authentication authentication, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("recipeRequestDTO", requestDTO);
             return "recipes/createRecipeForm";
@@ -57,6 +58,20 @@ public class RecipeController {
             model.addAttribute("error", ex.getMessage());
             model.addAttribute("recipeRequestDTO", requestDTO);
             return "recipes/createRecipeForm";
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> deleteRecipe(@PathVariable UUID id) {
+        Map<String, String> response = new HashMap<>();
+        try {
+            recipeService.deleteRecipe(id);
+            response.put("success", "Eliminado correctamente");
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            response.put("error", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
