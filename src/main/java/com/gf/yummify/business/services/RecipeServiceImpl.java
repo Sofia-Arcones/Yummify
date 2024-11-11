@@ -17,10 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class RecipeServiceImpl implements RecipeService {
@@ -112,6 +109,19 @@ public class RecipeServiceImpl implements RecipeService {
         return fileName != null && !image.isEmpty() &&
                 fileName.toLowerCase().matches(".*\\.(jpg|jpeg|png)$") &&
                 ALLOWED_CONTENT_TYPES.contains(contentType);
+    }
+
+    @Override
+    public void deleteRecipe(UUID id) {
+        Recipe recipe = findRecipeById(id);
+        recipeRepository.delete(recipe);
+
+    }
+
+    @Override
+    public Recipe findRecipeById(UUID id) {
+        return recipeRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("La receta con id: " + id + " no existe"));
     }
 
     private String joinInstrucions(List<String> instructionsList) {
