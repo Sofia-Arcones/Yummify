@@ -9,6 +9,7 @@ import com.gf.yummify.data.enums.UnitOfMeasure;
 import com.gf.yummify.data.repository.RecipeIngredientRepository;
 import com.gf.yummify.data.repository.RecipeRepository;
 import com.gf.yummify.presentation.dto.RecipeRequestDTO;
+import com.gf.yummify.presentation.dto.RecipeResponseDTO;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,18 +19,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-
+//TODO Implementar editado de recetas correctamente
 @Service
 public class RecipeServiceImpl implements RecipeService {
 
-    private RecipeRepository recipeRepository;
-    private UserService userService;
-    private RecipeIngredientRepository recipeIngredientRepository;
-    private IngredientService ingredientService;
+    private final RecipeRepository recipeRepository;
+    private final UserService userService;
+    private final RecipeIngredientRepository recipeIngredientRepository;
+    private final IngredientService ingredientService;
+
     private static final String UPLOAD_DIR = "src/main/resources/static/images/uploads/recipes";
     private static final List<String> ALLOWED_CONTENT_TYPES = Arrays.asList("image/jpeg", "image/png");
 
-    public RecipeServiceImpl(RecipeRepository recipeRepository, UserService userService, RecipeIngredientRepository recipeIngredientRepository, IngredientService ingredientService) {
+    public RecipeServiceImpl(RecipeRepository recipeRepository, UserService userService,
+                             RecipeIngredientRepository recipeIngredientRepository, IngredientService ingredientService) {
         this.recipeRepository = recipeRepository;
         this.userService = userService;
         this.recipeIngredientRepository = recipeIngredientRepository;
@@ -40,6 +43,58 @@ public class RecipeServiceImpl implements RecipeService {
     public Recipe saveRecipe(RecipeRequestDTO recipeRequestDTO, Authentication authentication) {
         User user = userService.findUserByUsername(authentication.getName());
         Recipe recipe = new Recipe();
+
+        setRecipeFields(recipe, recipeRequestDTO, user);
+
+        MultipartFile image = recipeRequestDTO.getImage();
+        if (image.isEmpty()) {
+            throw new IllegalArgumentException("La receta debe tener una imagen");
+        }
+        recipe.setImage(handleImageUpload(image));
+
+        return recipeRepository.save(recipe);
+    }
+
+    @Override
+    public Recipe updateRecipe(UUID id, RecipeRequestDTO recipeRequestDTO, Authentication authentication) {
+        User user = userService.findUserByUsername(authentication.getName());
+        Recipe recipe = findRecipeById(id);
+
+        if (!recipe.getUser().equals(user)) {
+            throw new IllegalArgumentException("No tienes permiso para editar esta receta");
+        }
+
+        setRecipeFields(recipe, recipeRequestDTO, user);
+
+        MultipartFile image = recipeRequestDTO.getImage();
+        if (!image.isEmpty()) {
+            recipe.setImage(handleImageUpload(image));
+        }
+
+        return recipeRepository.save(recipe);
+    }
+
+    @Override
+    public void deleteRecipe(UUID id) {
+        Recipe recipe = findRecipeById(id);
+        deleteImageFile(recipe.getImage());
+        recipeRepository.delete(recipe);
+    }
+
+    @Override
+    public Recipe findRecipeById(UUID id) {
+        return recipeRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("La receta con id: " + id + " no existe"));
+    }
+
+    @Override
+    public RecipeResponseDTO getRecipeResponseDTO(UUID id) {
+        Recipe recipe = findRecipeById(id);
+        return mapToRecipeResponseDTO(recipe);
+    }
+
+
+    private void setRecipeFields(Recipe recipe, RecipeRequestDTO recipeRequestDTO, User user) {
         recipe.setTitle(recipeRequestDTO.getTitle());
         recipe.setDescription(recipeRequestDTO.getDescription());
         recipe.setDifficulty(Difficulty.valueOf(recipeRequestDTO.getDifficulty()));
@@ -47,42 +102,64 @@ public class RecipeServiceImpl implements RecipeService {
         recipe.setPortions(recipeRequestDTO.getPortions());
         recipe.setUser(user);
 
-        recipe.setInstructions(joinInstrucions(recipeRequestDTO.getInstructions()));
-        // Procesar los ingredientes
         List<RecipeIngredient> recipeIngredients = mapRecipeIngredients(recipeRequestDTO);
-        for (RecipeIngredient recipeIngredient : recipeIngredients) {
-            recipeIngredient.setRecipe(recipe);
-        }
+        recipeIngredients.forEach(ri -> ri.setRecipe(recipe));
         recipe.setIngredients(recipeIngredients);
-        // Manejo de la imagen
-        MultipartFile image = recipeRequestDTO.getImage();
-        if (image.isEmpty()) {
-            throw new IllegalArgumentException("La receta debe tener una imagen");
-        }
-        recipe.setImage(handleImageUpload(image));
-        return recipeRepository.save(recipe);
+
+        recipe.setInstructions(joinInstructions(recipeRequestDTO.getInstructions()));
     }
 
     private List<RecipeIngredient> mapRecipeIngredients(RecipeRequestDTO recipeRequestDTO) {
         List<RecipeIngredient> recipeIngredientList = new ArrayList<>();
 
         for (int i = 0; i < recipeRequestDTO.getIngredients().size(); i++) {
-            String rawIngredientName = recipeRequestDTO.getIngredients().get(i);
-            Double quantity = recipeRequestDTO.getQuantities().get(i);
-            UnitOfMeasure unit = UnitOfMeasure.valueOf(recipeRequestDTO.getUnits().get(i));
-
-            Ingredient ingredient = ingredientService.findOrCreateIngredient(rawIngredientName);
-
+            Ingredient ingredient = ingredientService.findOrCreateIngredient(recipeRequestDTO.getIngredients().get(i));
             RecipeIngredient recipeIngredient = new RecipeIngredient();
             recipeIngredient.setIngredient(ingredient);
-            recipeIngredient.setQuantity(quantity);
-            recipeIngredient.setUnitOfMeasure(unit);
+            recipeIngredient.setQuantity(recipeRequestDTO.getQuantities().get(i));
+            recipeIngredient.setUnitOfMeasure(UnitOfMeasure.valueOf(recipeRequestDTO.getUnits().get(i)));
             recipeIngredientList.add(recipeIngredient);
         }
 
         return recipeIngredientList;
     }
 
+    private RecipeResponseDTO mapToRecipeResponseDTO(Recipe recipe) {
+        RecipeResponseDTO recipeResponseDTO = new RecipeResponseDTO();
+        recipeResponseDTO.setDescription(recipe.getDescription());
+        recipeResponseDTO.setPortions(recipe.getPortions());
+        recipeResponseDTO.setDifficulty(recipe.getDifficulty().toString());
+        recipeResponseDTO.setTitle(recipe.getTitle());
+        recipeResponseDTO.setPrepTime(recipe.getPrepTime());
+        recipeResponseDTO.setInstructions(getInstructions(recipe.getInstructions()));
+
+        List<String> ingredients = new ArrayList<>();
+        List<Double> quantities = new ArrayList<>();
+        List<String> units = new ArrayList<>();
+
+        for (RecipeIngredient recipeIngredient : recipe.getIngredients()) {
+            ingredients.add(recipeIngredient.getIngredient().getIngredientName()); // Nombre del ingrediente
+            quantities.add(recipeIngredient.getQuantity()); // Cantidad
+            units.add(recipeIngredient.getUnitOfMeasure().name()); // Unidad de medida (en String)
+        }
+        System.out.println(ingredients);
+        System.out.println(quantities);
+        System.out.println(units);
+        recipeResponseDTO.setIngredients(ingredients);
+        recipeResponseDTO.setQuantities(quantities);
+        recipeResponseDTO.setUnits(units);
+
+        return recipeResponseDTO;
+    }
+
+
+    private String joinInstructions(List<String> instructionsList) {
+        return String.join("|~|", instructionsList);
+    }
+
+    private List<String> getInstructions(String instructions) {
+        return Arrays.asList(instructions.split("\\|~\\|"));
+    }
 
     private String handleImageUpload(MultipartFile image) {
         if (!isImageValid(image)) {
@@ -111,26 +188,18 @@ public class RecipeServiceImpl implements RecipeService {
                 ALLOWED_CONTENT_TYPES.contains(contentType);
     }
 
-    @Override
-    public void deleteRecipe(UUID id) {
-        Recipe recipe = findRecipeById(id);
-        recipeRepository.delete(recipe);
+    private void deleteImageFile(String imagePath) {
+        if (imagePath != null && !imagePath.isEmpty()) {
+            Path path = Paths.get("src/main/resources/static" + imagePath);
 
+            try {
+                if (Files.exists(path)) {
+                    Files.delete(path);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("Error al eliminar la imagen: " + e.getMessage(), e);
+            }
+        }
     }
-
-    @Override
-    public Recipe findRecipeById(UUID id) {
-        return recipeRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("La receta con id: " + id + " no existe"));
-    }
-
-    private String joinInstrucions(List<String> instructionsList) {
-        String instructions = String.join("|~|", instructionsList);
-        return instructions;
-    }
-
-    private List<String> getInstructions(Recipe recipe) {
-        return Arrays.asList(recipe.getInstructions().split("|~|"));
-    }
-
 }
+

@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Crear Receta</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/custom.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-
     <style>
         body {
             margin: 0;
@@ -34,8 +33,17 @@
     <script th:inline="javascript">
         var units = /*[[${unidades}]]*/ [];
         var ingredients = /*[[${ingredientes}]]*/ [];
+        var isEditing = /*[[${recipe != null}]]*/ false; // Verifica si estamos editando (receta no es nula)
 
         $(document).ready(function() {
+            // Si estamos editando, establecer las unidades a los selects
+            if (isEditing) {
+                $("select[name='units']").each(function(index) {
+                    const unitValue = recipeUnits[index]; // Obtener el valor de la unidad desde el backend
+                    $(this).val(unitValue); // Establecer el valor correcto
+                });
+            }
+
             // Autocompletado en el campo de ingrediente base
             $(".ingredient-input").autocomplete({
                 source: ingredients.map(item => item.name),
@@ -45,8 +53,8 @@
 
                     if (selectedIngredient) {
                         const unitField = $(this).closest(".form-row").find("select[name='units']");
-                        unitField.val(selectedIngredient.predeterminedUnit);
-                        toggleQuantityField(unitField);
+                        unitField.val(selectedIngredient.predeterminedUnit); // Establece la unidad predeterminada
+                        toggleQuantityField(unitField); // Aplica la lógica de cantidad
                     }
                 }
             });
@@ -56,11 +64,12 @@
             if (baseUnitSelect) {
                 toggleQuantityField(baseUnitSelect);  // Verifica el valor inicial por si ya es "AL_GUSTO"
                 baseUnitSelect.addEventListener("change", function() {
-                    toggleQuantityField(baseUnitSelect);
+                    toggleQuantityField(baseUnitSelect); // Actualiza la lógica de cantidad al cambiar la unidad
                 });
             }
         });
 
+        // Función para crear un select de unidades
         function createUnitSelect() {
             const unitSelect = document.createElement("select");
             unitSelect.setAttribute("name", "units");
@@ -74,14 +83,14 @@
                 unitSelect.appendChild(option);
             });
 
-            // Aplica toggleQuantityField al nuevo campo de unidad creado
             unitSelect.addEventListener("change", function() {
-                toggleQuantityField(unitSelect);
+                toggleQuantityField(unitSelect); // Actualiza la lógica de cantidad
             });
 
             return unitSelect;
         }
 
+        // Función para agregar un ingrediente
         function addIngredient() {
             const ingredientContainer = document.getElementById("ingredient-container");
             const ingredientDiv = document.createElement("div");
@@ -101,14 +110,14 @@
             quantityInput.setAttribute("placeholder", "Cantidad");
             quantityInput.setAttribute("required", "required");
 
-            const unitSelect = createUnitSelect();
+            const unitSelect = createUnitSelect(); // Crear el select de unidades
 
             const removeButton = document.createElement("button");
             removeButton.setAttribute("class", "btn btn-danger col-md-2 ml-2");
             removeButton.setAttribute("type", "button");
             removeButton.textContent = "Eliminar";
             removeButton.onclick = function() {
-                ingredientDiv.remove();
+                ingredientDiv.remove(); // Eliminar el ingrediente
             };
 
             ingredientDiv.appendChild(ingredientInput);
@@ -117,7 +126,7 @@
             ingredientDiv.appendChild(removeButton);
             ingredientContainer.appendChild(ingredientDiv);
 
-            // Activa el autocompletado en el nuevo campo de ingrediente
+            // Activar autocompletado en el nuevo campo de ingrediente
             $(ingredientInput).autocomplete({
                 source: ingredients.map(item => item.name),
                 select: function(event, ui) {
@@ -133,15 +142,18 @@
             });
         }
 
+        // Función para activar/desactivar el campo de cantidad según la unidad seleccionada
         function toggleQuantityField(unitSelect) {
             const quantityInput = $(unitSelect).closest(".form-row").find("input[name='quantities']");
 
             if (unitSelect.value === "AL_GUSTO") {
-                quantityInput.prop("disabled", true).val("1");  // Desactiva y establece en 1
+                quantityInput.prop("disabled", true).val("1"); // Desactiva y establece en 1 si es "AL_GUSTO"
             } else {
-                quantityInput.prop("disabled", false).val("");  // Activa y limpia el valor
+                quantityInput.prop("disabled", false).val(""); // Activa y limpia el valor
             }
         }
+
+        // Función para agregar una instrucción
         function addInstruction() {
             const instructionContainer = document.getElementById("instruction-container");
             const instructionDiv = document.createElement("div");
@@ -157,17 +169,23 @@
             removeButton.setAttribute("class", "input-group-append");
             removeButton.innerHTML = '<button class="btn btn-danger" type="button">Eliminar</button>';
             removeButton.onclick = function() {
-                instructionDiv.remove();
+                instructionDiv.remove(); // Elimina la instrucción
             };
 
             instructionDiv.appendChild(newInstruction);
             instructionDiv.appendChild(removeButton);
             instructionContainer.appendChild(instructionDiv);
         }
+
+        // Función para eliminar una instrucción
+        function removeInstruction(button) {
+            const instructionDiv = button.closest('.input-group'); // Obtener el contenedor de la instrucción
+            if (instructionDiv) {
+                instructionDiv.remove(); // Eliminar el contenedor
+            }
+        }
     </script>
-
 </head>
-
 <body class="d-flex flex-column min-vh-100">
 <div class="container-fluid p-0">
     <div th:replace="~{fragments/header :: header}"></div>
@@ -175,63 +193,107 @@
 <br>
 <div class="jumbotron">
     <h2 class="display-4 custom-title text-center">Inspírate: Diseña Tu Propia Receta</h2>
-    <form th:action="@{/recipe}" method="post" enctype="multipart/form-data">
+    <form th:action="@{${recipe != null ? '/recipe/edit/' + id : '/recipe'}}" method="post" enctype="multipart/form-data">
+        <div th:if="${recipe != null}">
+            <img th:src="@{${recipe.image}}" alt="Imagen de la receta" class="card-img-top">
+        </div>
         <div class="form-group">
             <label for="title">Título</label>
-            <input type="text" id="title" name="title" required class="form-control">
-            <hr>
+            <input type="text" id="title" name="title" th:value="${recipe != null ? recipe.title : ''}" required class="form-control">
+        </div>
+        <hr>
+
+        <div class="form-group">
             <label for="description">Descripción</label>
-            <textarea id="description" name="description" class="form-control" rows="3"></textarea>
-            <hr>
+            <textarea id="description" name="description" class="form-control" rows="3" th:text="${recipe != null ? recipe.description : ''}"></textarea>
+        </div>
+        <hr>
+
+        <div class="form-group">
             <label for="image">Imagen</label>
-            <input type="file" id="image" name="image" accept="image/*" required class="form-control-file">
-            <hr>
+            <input type="file" id="image" name="image" accept="image/*" class="form-control-file" th:attr="required=${recipe == null} ? 'required' : null">
+        </div>
+        <hr>
+
+        <div class="form-group">
             <label for="difficulty">Dificultad</label>
             <select id="difficulty" name="difficulty" class="form-control col-md-3 ml-2" required>
-                <option th:each="dificultad : ${dificultades}" th:value="${dificultad}"
-                        th:text="${dificultad}"></option>
+                <option th:each="dificultad : ${dificultades}" th:value="${dificultad}" th:text="${dificultad}" th:selected="${recipe != null && recipe.difficulty == dificultad}"></option>
             </select>
-            <hr>
+        </div>
+        <hr>
+
+        <!-- Tiempo de preparación -->
+        <div class="form-group">
             <label for="prepTime">Tiempo de Preparación (minutos)</label>
-            <input type="number" id="prepTime" name="prepTime" required class="form-control" min="1">
-            <hr>
+            <input type="number" id="prepTime" name="prepTime" th:value="${recipe != null ? recipe.prepTime : ''}" required class="form-control" min="1">
+        </div>
+        <hr>
+
+        <!-- Cantidad de comensales -->
+        <div class="form-group">
             <label for="portions">Cantidad de comensales</label>
-            <input type="number" id="portions" name="portions" required class="form-control" min="1">
-            <hr>
-            <!-- Ingredientes -->
-            <label>Ingredientes</label>
-            <div id="ingredient-container">
-                <div class="form-row align-items-center mb-2">
-                    <input type="text" name="ingredients" class="form-control col-md-4 ingredient-input"
-                           placeholder="Ingrediente" required>
-                    <input type="number" name="quantities" class="form-control col-md-3 ml-2" step="0.01"
-                           placeholder="Cantidad" required>
-                    <select name="units" class="form-control col-md-3 ml-2" required>
-                        <option th:each="unidad : ${unidades}" th:value="${unidad}" th:text="${unidad}"></option>
+            <input type="number" id="portions" name="portions" th:value="${recipe != null ? recipe.portions : ''}" required class="form-control" min="1">
+        </div>
+        <hr>
+
+        <!-- Ingredientes -->
+        <label>Ingredientes</label>
+        <div id="ingredient-container">
+            <!-- Iteración sobre los ingredientes si la receta existe -->
+            <div th:each="index : ${#numbers.sequence(0, recipe != null ? recipe.ingredients.size() - 1 : -1)}" class="form-row align-items-center mb-2">
+                <!-- Campo para el nombre del ingrediente -->
+                <div class="col-md-4">
+                    <input type="text" name="ingredients" class="form-control ingredient-input" th:value="${recipe != null ? recipe.ingredients[index] : ''}" placeholder="Ingrediente" required>
+                </div>
+
+                <!-- Campo para la cantidad -->
+                <div class="col-md-3">
+                    <input type="number" name="quantities" class="form-control ml-2" step="any" th:value="${recipe != null && recipe.quantities != null ? recipe.quantities[index] : ''}" placeholder="Cantidad" required>
+                </div>
+
+                <!-- Campo para la unidad -->
+                <div class="col-md-3">
+                    <select name="units" class="form-control ml-2" required data-unit="${recipe != null && recipe.units != null ? recipe.units[index] : ''}">
+                        <option th:each="unidad : ${unidades}" th:value="${unidad}" th:text="${unidad}" th:selected="${recipe != null && recipe.units != null && recipe.units[index] == unidad}"></option>
                     </select>
                 </div>
             </div>
-            <div class="d-flex justify-content-center mt-3">
-                <button type="button" class="btn btn-secondary mt-2" onclick="addIngredient()">Añadir Ingrediente
-                </button>
-            </div>
-            <hr>
 
-            <!-- Instrucciones -->
-            <label>Instrucciones</label>
-            <div id="instruction-container">
-                <div class="input-group mb-2">
-                    <textarea name="instructions" class="form-control" rows="3" required></textarea>
+            <!-- Si `recipe` es null, mostrar un formulario vacío -->
+            <div th:if="${recipe == null}" class="form-row align-items-center mb-2">
+                <input type="text" name="ingredients" class="form-control col-md-4 ingredient-input" placeholder="Ingrediente" required>
+                <input type="number" name="quantities" class="form-control col-md-3 ml-2" step="0.01" placeholder="Cantidad" required>
+                <select name="units" class="form-control col-md-3 ml-2" required>
+                    <option th:each="unidad : ${unidades}" th:value="${unidad}" th:text="${unidad}"></option>
+                </select>
+            </div>
+        </div>
+        <button type="button" class="btn btn-secondary mt-2" onclick="addIngredient()">Añadir Ingrediente</button>
+        <hr>
+
+        <!-- Instrucciones -->
+        <label>Instrucciones</label>
+        <div id="instruction-container">
+            <div th:each="instruction : ${recipe != null ? recipe.instructions : new java.util.ArrayList()}" class="input-group mb-2">
+                <textarea name="instructions" class="form-control" rows="3" th:value="${instruction}" required></textarea>
+                <div class="input-group-append">
+                    <button class="btn btn-danger" type="button" onclick="removeInstruction(this)">Eliminar</button>
                 </div>
             </div>
-            <div class="d-flex justify-content-center mt-3">
-                <button type="button" class="btn btn-secondary mt-2" onclick="addInstruction()">Añadir Instrucción
-                </button>
+            <div th:if="${recipe == null}" class="input-group mb-2">
+                <textarea name="instructions" class="form-control" rows="3" required></textarea>
             </div>
-            <hr>
-            <div class="d-flex justify-content-center mt-3">
-                <button type="submit" class="btn btn-primary">Crear Receta</button>
-            </div>
+        </div>
+        <div class="d-flex justify-content-center mt-3">
+            <button type="button" class="btn btn-secondary mt-2" onclick="addInstruction()">Añadir Instrucción</button>
+        </div>
+        <hr>
+
+        <div class="d-flex justify-content-center mt-3">
+            <button type="submit" class="btn btn-primary">
+                <span th:text="${recipe != null ? 'Actualizar Receta' : 'Crear Receta'}"></span>
+            </button>
         </div>
     </form>
     <div th:if="${param.error}" class="alert alert-danger">
