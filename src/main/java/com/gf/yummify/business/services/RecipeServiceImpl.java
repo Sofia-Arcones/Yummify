@@ -128,13 +128,15 @@ public class RecipeServiceImpl implements RecipeService {
             quantities.add(recipeIngredient.getQuantity()); // Cantidad
             units.add(recipeIngredient.getUnitOfMeasure().name()); // Unidad de medida (en String)
         }
-        System.out.println(ingredients);
-        System.out.println(quantities);
-        System.out.println(units);
         recipeResponseDTO.setIngredients(ingredients);
         recipeResponseDTO.setQuantities(quantities);
         recipeResponseDTO.setUnits(units);
 
+        List<String> tags = new ArrayList<>();
+        for (Tag tag : recipe.getTags()) {
+            tags.add(tag.getName());
+        }
+        recipeResponseDTO.setTags(tags);
         return recipeResponseDTO;
     }
 

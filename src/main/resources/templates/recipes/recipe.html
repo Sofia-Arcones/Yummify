@@ -24,7 +24,13 @@
         <img th:src="@{${recipe.image}}" alt="Imagen de la receta" class="recipe-image mb-3 rounded">
         <h2 class="display-4 text-secondary mb-3" th:text="${recipe.title}">Título de la receta</h2>
     </div>
-
+    <div class="text-center mb-4">
+        <div class="d-flex flex-wrap justify-content-center">
+            <span th:each="tag : ${recipe.tags}" class="badge badge-info m-1 p-2">
+                <span th:text="${tag}"></span>
+            </span>
+        </div>
+    </div>
     <div class="row mb-4">
         <div class="col-md-4 text-center">
             <p><strong class="text-primary">Dificultad:</strong> <span th:text="${recipe.difficulty}"></span></p>
