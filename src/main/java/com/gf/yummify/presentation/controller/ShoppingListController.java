@@ -1,14 +1,13 @@
 package com.gf.yummify.presentation.controller;
 
 import com.gf.yummify.business.services.ShoppingListService;
+import com.gf.yummify.presentation.dto.ShoppingListRequestDTO;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -32,9 +31,9 @@ public class ShoppingListController {
     }
 
     @PostMapping()
-    public String createList(@RequestParam String title, Authentication authentication, RedirectAttributes redirectAttributes, HttpServletRequest request) {
+    public String createList(@ModelAttribute @Valid ShoppingListRequestDTO shoppingListRequestDTO, Authentication authentication, RedirectAttributes redirectAttributes, HttpServletRequest request) {
         try {
-            shoppingListService.saveList(title, authentication);
+            shoppingListService.saveList(shoppingListRequestDTO, authentication);
 
             redirectAttributes.addFlashAttribute("success", "Lista de compra creada con éxito.");
 

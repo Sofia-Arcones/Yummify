@@ -1,9 +1,12 @@
 package com.gf.yummify.business.services;
 
 import com.gf.yummify.data.entity.ShoppingList;
+import com.gf.yummify.data.entity.ShoppingListItem;
 import com.gf.yummify.data.entity.User;
 import com.gf.yummify.data.enums.ListStatus;
+import com.gf.yummify.data.repository.ShoppingListItemRepository;
 import com.gf.yummify.data.repository.ShoppingListRepository;
+import com.gf.yummify.presentation.dto.ShoppingListRequestDTO;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -14,30 +17,46 @@ import java.util.Optional;
 public class ShoppingListServiceImpl implements ShoppingListService {
     private ShoppingListRepository shoppingListRepository;
     private UserService userService;
+    private ShoppingListItemService shoppingListItemService;
+    private ShoppingListItemRepository shoppingListItemRepository;
 
-    public ShoppingListServiceImpl(ShoppingListRepository shoppingListRepository, UserService userService) {
+
+    public ShoppingListServiceImpl(ShoppingListRepository shoppingListRepository, UserService userService, ShoppingListItemService shoppingListItemService, ShoppingListItemRepository shoppingListItemRepository) {
         this.shoppingListRepository = shoppingListRepository;
         this.userService = userService;
+        this.shoppingListItemService = shoppingListItemService;
+        this.shoppingListItemRepository = shoppingListItemRepository;
     }
 
+    @Override
     public List<ShoppingList> findAllLists(Authentication authentication) {
         User user = userService.findUserByUsername(authentication.getName());
         System.out.println(shoppingListRepository.findByUser(user));
         return shoppingListRepository.findByUser(user);
     }
 
-    public void saveList(String title, Authentication authentication) {
+    @Override
+    public void saveList(ShoppingListRequestDTO shoppingListRequestDTO, Authentication authentication) {
         User user = userService.findUserByUsername(authentication.getName());
         List<ListStatus> statuses = List.of(ListStatus.IN_PROGRESS, ListStatus.CREATED);
-        Optional<ShoppingList> shoppingListOptional = shoppingListRepository.findByUserAndTitleAndListStatusIn(user, title, statuses);
+        Optional<ShoppingList> shoppingListOptional = shoppingListRepository.findByUserAndTitleAndListStatusIn(user, shoppingListRequestDTO.getTitle(), statuses);
+
         if (shoppingListOptional.isPresent()) {
             throw new IllegalArgumentException("Ya tienes una lista sin acabar con ese nombre.");
         } else {
             ShoppingList shoppingList = new ShoppingList();
             shoppingList.setUser(user);
-            shoppingList.setListStatus(ListStatus.CREATED);
-            shoppingList.setTitle(title);
+            shoppingList.setTitle(shoppingListRequestDTO.getTitle());
+
+            List<ShoppingListItem> shoppingListItemList = shoppingListItemService.generateShoppingListItems(shoppingListRequestDTO, shoppingList);
+
+            shoppingList.setListStatus(shoppingListItemList.isEmpty() ? ListStatus.CREATED : ListStatus.IN_PROGRESS);
+
+            shoppingList.setListItems(shoppingListItemList);
             shoppingListRepository.save(shoppingList);
+
+            shoppingListItemRepository.saveAll(shoppingListItemList);
         }
     }
+
 }
