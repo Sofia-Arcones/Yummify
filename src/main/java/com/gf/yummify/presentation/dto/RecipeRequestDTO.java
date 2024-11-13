@@ -13,7 +13,6 @@ import java.util.List;
 public class RecipeRequestDTO {
     @NotBlank(message = "El título es obligatorio.")
     private String title;
-    @NotBlank(message = "La descripción es obligatoria.")
     private String description;
     @NotNull(message = "La imagen es obligatoria.")
     private MultipartFile image;

@@ -29,8 +29,10 @@ public class TagServiceImpl implements TagService {
     @Override
     public Tag findOrCreateTag(String name) {
         String normalizedTagName = normalizeTagName(name);
+        if (normalizedTagName.equals("#")) {
+            return null;
+        }
         Optional<Tag> existingTag = tagRepository.findByName(normalizedTagName);
-
         if (existingTag.isPresent()) {
             return existingTag.get();
         } else {
@@ -40,16 +42,20 @@ public class TagServiceImpl implements TagService {
         }
     }
 
+
     private String normalizeTagName(String name) {
         if (name == null) {
             return null;
         }
         String normalized = name.trim().toLowerCase()
                 .replaceAll("\\s+", " ")
-                .replaceAll("[^a-z0-9# ]", "");
-        if (!normalized.startsWith("#")) {
-            normalized = "#" + normalized;
+                .replaceAll("[^a-z0-9áéíóúüñ# ]", "");
+
+        if (normalized.startsWith("#")) {
+            return normalized;
+        } else {
+            return "#" + normalized;
         }
-        return normalized;
     }
+
 }
