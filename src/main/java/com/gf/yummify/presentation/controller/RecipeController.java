@@ -75,4 +75,14 @@ public class RecipeController {
         }
     }
 
+    @GetMapping("/{id}")
+    public String showRecipe(@PathVariable UUID id, Model model) {
+        try {
+            model.addAttribute("recipe", recipeService.getRecipeResponseDTO(id));
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+        }
+        return "recipes/recipe";
+    }
+
 }

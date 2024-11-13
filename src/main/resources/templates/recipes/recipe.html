@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receta - Detalles</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <style>
+        .recipe-image {
+            height: 400px;
+            width: auto;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+<div class="container-fluid p-0">
+    <div th:replace="~{fragments/header :: header}"></div>
+</div>
+
+<div class="container my-5 p-4 shadow-lg rounded">
+    <div class="text-center mb-4">
+        <img th:src="@{${recipe.image}}" alt="Imagen de la receta" class="recipe-image mb-3 rounded">
+        <h2 class="display-4 text-secondary mb-3" th:text="${recipe.title}">Título de la receta</h2>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4 text-center">
+            <p><strong class="text-primary">Dificultad:</strong> <span th:text="${recipe.difficulty}"></span></p>
+        </div>
+        <div class="col-md-4 text-center">
+            <p><strong class="text-primary">Tiempo de preparación:</strong> <span th:text="${recipe.prepTime}"></span>
+                minutos</p>
+        </div>
+        <div class="col-md-4 text-center">
+            <p><strong class="text-primary">Porciones:</strong> <span th:text="${recipe.portions}"></span></p>
+        </div>
+    </div>
+    <p class="lead text-muted text-center mb-5" th:text="${recipe.description}">Descripción de la receta</p>
+    <table class="table table-primary table-bordered text-center">
+        <thead>
+        <tr>
+            <th>Ingrediente</th>
+            <th>Cantidad</th>
+            <th>Unidad</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="ingredient, iterStat : ${recipe.ingredients}">
+            <td th:text="${ingredient}"></td>
+            <td th:text="${recipe.quantities[iterStat.index]}"></td>
+            <td th:text="${recipe.units[iterStat.index]}"></td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="list-group">
+        <div th:each="instruction, iterStat : ${recipe.instructions}"
+             class="list-group-item list-group-item-light border-primary rounded mb-3 shadow-sm">
+            <div class="d-flex align-items-center">
+                <div class="badge badge-primary mr-3 p-2">Paso <span th:text="${iterStat.index + 1}">1</span></div>
+                <p class="mb-0" th:text="${instruction}"></p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
