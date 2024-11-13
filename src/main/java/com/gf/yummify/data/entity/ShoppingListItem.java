@@ -43,6 +43,20 @@ public class ShoppingListItem {
         this.creationDate = LocalDateTime.now();
         this.lastModification = LocalDateTime.now();
     }
+
+    @Override
+    public String toString() {
+        return "ShoppingListItem{" +
+                "shoppingListItemId=" + shoppingListItemId +
+                ", ingredient=" + ingredient +
+                ", quantity=" + quantity +
+                ", unitOfMeasure=" + unitOfMeasure +
+                ", isPurchased=" + isPurchased +
+                ", creationDate=" + creationDate +
+                ", lastModification=" + lastModification +
+                '}';
+    }
+
     @PreUpdate
     public void preUpdate() {
         this.lastModification = LocalDateTime.now();
