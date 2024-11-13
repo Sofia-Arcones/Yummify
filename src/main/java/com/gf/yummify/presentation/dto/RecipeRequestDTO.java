@@ -31,4 +31,5 @@ public class RecipeRequestDTO {
     private List<String> units;
     @NotNull(message = "Las instrucciones son obligatorias.")
     private List<String> instructions;
+    private List<String> tags;
 }

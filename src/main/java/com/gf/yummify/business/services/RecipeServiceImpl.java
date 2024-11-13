@@ -1,9 +1,6 @@
 package com.gf.yummify.business.services;
 
-import com.gf.yummify.data.entity.Ingredient;
-import com.gf.yummify.data.entity.Recipe;
-import com.gf.yummify.data.entity.RecipeIngredient;
-import com.gf.yummify.data.entity.User;
+import com.gf.yummify.data.entity.*;
 import com.gf.yummify.data.enums.Difficulty;
 import com.gf.yummify.data.enums.UnitOfMeasure;
 import com.gf.yummify.data.repository.RecipeIngredientRepository;
@@ -27,16 +24,17 @@ public class RecipeServiceImpl implements RecipeService {
     private final UserService userService;
     private final RecipeIngredientRepository recipeIngredientRepository;
     private final IngredientService ingredientService;
+    private final TagService tagService;
 
     private static final String UPLOAD_DIR = "src/main/resources/static/images/uploads/recipes";
     private static final List<String> ALLOWED_CONTENT_TYPES = Arrays.asList("image/jpeg", "image/png");
 
-    public RecipeServiceImpl(RecipeRepository recipeRepository, UserService userService,
-                             RecipeIngredientRepository recipeIngredientRepository, IngredientService ingredientService) {
+    public RecipeServiceImpl(RecipeRepository recipeRepository, UserService userService, RecipeIngredientRepository recipeIngredientRepository, IngredientService ingredientService, TagService tagService) {
         this.recipeRepository = recipeRepository;
         this.userService = userService;
         this.recipeIngredientRepository = recipeIngredientRepository;
         this.ingredientService = ingredientService;
+        this.tagService = tagService;
     }
 
     @Override
@@ -87,6 +85,13 @@ public class RecipeServiceImpl implements RecipeService {
         recipe.setIngredients(recipeIngredients);
 
         recipe.setInstructions(joinInstructions(recipeRequestDTO.getInstructions()));
+        if (!recipeRequestDTO.getTags().isEmpty()) {
+            List<Tag> tagList = new ArrayList<>();
+            for (String tag : recipeRequestDTO.getTags()) {
+                tagList.add(tagService.findOrCreateTag(tag));
+            }
+            recipe.setTags(tagList);
+        }
     }
 
     private List<RecipeIngredient> mapRecipeIngredients(RecipeRequestDTO recipeRequestDTO) {

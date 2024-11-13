@@ -8,7 +8,6 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-
     <style>
         body {
             margin: 0;
@@ -32,14 +31,13 @@
         }
     </style>
     <script th:inline="javascript">
-        var units = /*[[${unidades}]]*/ [];
-        var ingredients = /*[[${ingredientes}]]*/ [];
+        let units = [[${unidades}]];
+        let ingredients = [[${ingredientes}]];
 
-        $(document).ready(function() {
-            // Autocompletado en el campo de ingrediente base
+        $(document).ready(function () {
             $(".ingredient-input").autocomplete({
                 source: ingredients.map(item => item.name),
-                select: function(event, ui) {
+                select: function (event, ui) {
                     const selectedIngredientName = ui.item.value;
                     const selectedIngredient = ingredients.find(item => item.name === selectedIngredientName);
 
@@ -51,11 +49,21 @@
                 }
             });
 
-            // Aplica toggleQuantityField al campo de unidad base
+            $('#tags-input').on('keypress', function (event) {
+                if (event.which === 13) {
+                    event.preventDefault();
+                    let tagText = $(this).val().trim();
+                    if (tagText) {
+                        addTag(tagText);
+                        $(this).val('');
+                    }
+                }
+            });
+
             const baseUnitSelect = document.querySelector("select[name='units']");
             if (baseUnitSelect) {
-                toggleQuantityField(baseUnitSelect);  // Verifica el valor inicial por si ya es "AL_GUSTO"
-                baseUnitSelect.addEventListener("change", function() {
+                toggleQuantityField(baseUnitSelect);
+                baseUnitSelect.addEventListener("change", function () {
                     toggleQuantityField(baseUnitSelect);
                 });
             }
@@ -74,8 +82,7 @@
                 unitSelect.appendChild(option);
             });
 
-            // Aplica toggleQuantityField al nuevo campo de unidad creado
-            unitSelect.addEventListener("change", function() {
+            unitSelect.addEventListener("change", function () {
                 toggleQuantityField(unitSelect);
             });
 
@@ -107,7 +114,7 @@
             removeButton.setAttribute("class", "btn btn-danger col-md-2 ml-2");
             removeButton.setAttribute("type", "button");
             removeButton.textContent = "Eliminar";
-            removeButton.onclick = function() {
+            removeButton.onclick = function () {
                 ingredientDiv.remove();
             };
 
@@ -117,10 +124,9 @@
             ingredientDiv.appendChild(removeButton);
             ingredientContainer.appendChild(ingredientDiv);
 
-            // Activa el autocompletado en el nuevo campo de ingrediente
             $(ingredientInput).autocomplete({
                 source: ingredients.map(item => item.name),
-                select: function(event, ui) {
+                select: function (event, ui) {
                     const selectedIngredientName = ui.item.value;
                     const selectedIngredient = ingredients.find(item => item.name === selectedIngredientName);
 
@@ -133,15 +139,39 @@
             });
         }
 
+        function addTag(tagText) {
+            const tagsList = document.getElementById("tags-list");
+
+            const tagDiv = document.createElement("div");
+            tagDiv.className = "badge badge-primary m-1 p-2";
+            tagDiv.textContent = tagText;
+
+            const hiddenInput = document.createElement("input");
+            hiddenInput.type = "hidden";
+            hiddenInput.name = "tags";
+            hiddenInput.value = tagText;
+
+            const removeButton = document.createElement("button");
+            removeButton.className = "ml-1 btn btn-sm btn-danger";
+            removeButton.innerHTML = "&times;";
+            removeButton.onclick = function () {
+                tagsList.removeChild(tagDiv);
+            };
+
+            tagDiv.appendChild(hiddenInput);
+            tagDiv.appendChild(removeButton);
+            tagsList.appendChild(tagDiv);
+        }
+
         function toggleQuantityField(unitSelect) {
             const quantityInput = $(unitSelect).closest(".form-row").find("input[name='quantities']");
-
             if (unitSelect.value === "AL_GUSTO") {
-                quantityInput.prop("disabled", true).val("1");  // Desactiva y establece en 1
+                quantityInput.prop("disabled", true).val("1");
             } else {
-                quantityInput.prop("disabled", false).val("");  // Activa y limpia el valor
+                quantityInput.prop("disabled", false).val("");
             }
         }
+
         function addInstruction() {
             const instructionContainer = document.getElementById("instruction-container");
             const instructionDiv = document.createElement("div");
@@ -156,7 +186,7 @@
             const removeButton = document.createElement("div");
             removeButton.setAttribute("class", "input-group-append");
             removeButton.innerHTML = '<button class="btn btn-danger" type="button">Eliminar</button>';
-            removeButton.onclick = function() {
+            removeButton.onclick = function () {
                 instructionDiv.remove();
             };
 
@@ -165,7 +195,6 @@
             instructionContainer.appendChild(instructionDiv);
         }
     </script>
-
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -229,6 +258,13 @@
                 </button>
             </div>
             <hr>
+            <hr>
+            <!-- Tags -->
+            <label>Etiquetas</label>
+            <div id="tags-container" class="mb-3">
+                <input name="tags" type="text" id="tags-input" placeholder="Añadir etiqueta y presionar Enter" class="form-control">
+            </div>
+            <div id="tags-list" class="d-flex flex-wrap"></div>
             <div class="d-flex justify-content-center mt-3">
                 <button type="submit" class="btn btn-primary">Crear Receta</button>
             </div>
