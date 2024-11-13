@@ -12,10 +12,12 @@
     <div th:replace="~{fragments/header :: header}"></div>
 </div>
 <div class="container my-5">
-    <h2>Mis Listas de la Compra</h2>
-    <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#createListModal">
+    <h2 class="text-center text-secondary">Mis Listas de la Compra</h2>
+    <hr>
+    <button type="button" class="btn btn-primary btn-sm d-flex align-items-center" data-toggle="modal" data-target="#createListModal">
         Crear Nueva Lista
     </button>
+    <hr>
     <div class="modal fade" id="createListModal" tabindex="-1" role="dialog" aria-labelledby="createListModalLabel"
          aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -49,12 +51,12 @@
         <p th:text="${error}"></p>
     </div>
     <div th:each="shoppingList : ${shoppingLists}">
-        <div class="card mb-3">
+        <div class="card mb-3 bg-light">
             <div class="card-header">
                 <h5 th:text="${shoppingList.title}"></h5>
             </div>
             <div class="card-body">
-                <button class="btn btn-info" type="button" data-toggle="collapse"
+                <button class="btn btn-info btn-sm" type="button" data-toggle="collapse"
                         th:id="'toggleDetails-' + ${shoppingList.shoppingListId}"
                         th:data-target="'#listDetails-' + ${shoppingList.shoppingListId}"
                         aria-expanded="false"
@@ -63,13 +65,33 @@
                 </button>
 
                 <div class="collapse" th:id="'listDetails-' + ${shoppingList.shoppingListId}">
+                    <hr>
                     <h6>Items de la Lista:</h6>
                     <ul class="list-group">
-                        <li th:each="item : ${shoppingList.listItems}" class="list-group-item">
-                            <span th:text="${item.ingredient.ingredientName}">Ingrediente</span> -
-                            <span th:text="${item.quantity}">Cantidad</span>
-                            <span th:text="${item.unitOfMeasure}">Unidad</span>
-                        </li>
+                        <div class="row">
+                            <div th:each="item : ${shoppingList.listItems}" class="col-md-4 mb-4">
+                                <!-- Tarjeta para cada item -->
+                                <div class="card shadow-sm border-info border-3"
+                                     th:classappend="${item.isPurchased ? ' bg-success' : ' bg-light'}">                                    <div class="card-body">
+                                        <!-- Título del ingrediente -->
+                                        <h5 class="card-title text-info" th:text="${item.ingredient.ingredientName}">
+                                            Ingrediente</h5>
+                                        <p class="card-text">
+                                            <!-- Detalles de cantidad y unidad -->
+                                            <strong>Cantidad:</strong> <span
+                                                th:text="${item.quantity}">Cantidad</span><br>
+                                            <strong>Unidad:</strong> <span th:text="${item.unitOfMeasure}">Unidad</span>
+                                        </p>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="isPurchased" th:checked="${item.isPurchased}">
+                                            <label class="form-check-label" for="isPurchased">
+                                                Comprado
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </ul>
                 </div>
             </div>
