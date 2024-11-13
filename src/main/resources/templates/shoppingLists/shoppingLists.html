@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listas de la Compra</title>
+    <link href="https://stacktpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body class="d-flex flex-column min-vh-100">
+<div class="container-fluid p-0">
+    <div th:replace="~{fragments/header :: header}"></div>
+</div>
+<div class="container my-5">
+    <h2>Mis Listas de la Compra</h2>
+    <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#createListModal">
+        Crear Nueva Lista
+    </button>
+    <div class="modal fade" id="createListModal" tabindex="-1" role="dialog" aria-labelledby="createListModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createListModalLabel">Crear Nueva Lista de la Compra</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form th:action="@{/shoppingLists}" method="post">
+                        <div class="form-group">
+                            <label for="listTitle">Nombre de la Lista</label>
+                            <input type="text" id="listTitle" class="form-control" name="title"
+                                   placeholder="Ingresa el nombre de la lista" required>
+                        </div>
+                        <div class="text-right">
+                            <button type="submit" class="btn btn-primary">Crear</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:if="${success}" class="alert alert-success">
+        <p th:text="${success}"></p>
+    </div>
+    <div th:if="${error}" class="alert alert-danger">
+        <p th:text="${error}"></p>
+    </div>
+    <div th:each="shoppingList : ${shoppingLists}">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 th:text="${shoppingList.title}"></h5>
+            </div>
+            <div class="card-body">
+                <!-- Botón para desplegar los detalles de la lista -->
+                <button class="btn btn-info" type="button" data-toggle="collapse"
+                        data-target="#listDetails-${shoppingList.shoppingListId}" aria-expanded="false"
+                        aria-controls="listDetails-${shoppingList.shoppingListId}">
+                    Ver detalles
+                </button>
+
+                <!-- Detalles de la lista, ocultos por defecto -->
+                <div class="collapse" id="listDetails-${shoppingList.shoppingListId}">
+                    <h6>Items de la Lista:</h6>
+                    <ul class="list-group">
+                        <li th:each="item : ${shoppingList.listItems}" class="list-group-item">
+                            <span th:text="${item.ingredient.name}">Ingrediente</span> -
+                            <span th:text="${item.quantity}">Cantidad</span>
+                            <span th:text="${item.unitOfMeasure}">Unidad</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

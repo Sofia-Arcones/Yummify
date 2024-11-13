@@ -53,9 +53,12 @@
                 <th>Cantidad</th>
                 <th>Unidad</th>
                 <th sec:authorize="isAuthenticated()">
-                    <button type="submit" class="btn btn-sm btn-outline-secondary" name="addAll" value="true">Crear
-                        lista de la compra
-                    </button>
+                    <form th:action="@{/shoppingLists}" method="post">
+                        <input type="hidden" th:name="title" th:value="${recipe.title}"/>
+                        <button type="submit" class="btn btn-sm btn-outline-secondary" name="addAll" value="true">Crear
+                            lista de la compra
+                        </button>
+                    </form>
                 </th>
             </tr>
             </thead>
