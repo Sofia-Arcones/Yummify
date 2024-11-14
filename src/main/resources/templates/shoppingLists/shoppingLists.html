@@ -11,6 +11,7 @@
     function updateItemStatus(checkbox) {
         var itemId = checkbox.getAttribute('data-item-id');
         var isChecked = checkbox.checked;
+
         fetch(`/shoppingLists/updateItemStatus?itemId=${itemId}&isPurchased=${isChecked}`, {
             method: 'POST'
         })
@@ -29,14 +30,40 @@
                         card.classList.remove("bg-success");
                         card.classList.add("bg-light");
                     }
-                } else {
-                    console.error('Elemento de la tarjeta no encontrado para el itemId:', itemId);
                 }
+
+                // Actualizar el color de la tarjeta de la lista
+                var listCard = document.getElementById("listCard-" + data.shoppingListId);
+                if (listCard) {
+                    updateListCardColor(listCard, data.listStatus);
+                }
+
             } else {
                 console.error('Error al actualizar el estado:', data.error);
             }
         })
         .catch(error => console.error('Error en la solicitud AJAX:', error));
+    }
+
+    function updateListCardColor(listCard, listStatus) {
+        listCard.classList.remove("bg-light", "bg-warning", "bg-info", "bg-success");
+
+        switch(listStatus) {
+            case 'COMPLETED':
+                listCard.classList.add("bg-warning");
+                break;
+            case 'IN_PROGRESS':
+                listCard.classList.add("bg-light");
+                break;
+            case 'EMPTY':
+                listCard.classList.add("bg-light");
+                break;
+            case 'ARCHIVED':
+                listCard.classList.add("bg-danger");
+                break;
+            default:
+                listCard.classList.add("bg-light");
+        }
     }
 </script>
 <body class="d-flex flex-column min-vh-100">
@@ -47,31 +74,30 @@
 <div class="container my-5">
     <h2 class="text-center text-primary mb-4">Mis Listas de la Compra</h2>
 
-    <div class="container my-5">
-        <div class="form-row align-items-center mb-4">
-            <div class="col-auto">
-                <button type="button" class="btn btn-outline-secondary" data-toggle="modal"
-                        data-target="#createListModal">
-                    <i class="fas fa-plus"></i> Crear Nueva Lista
-                </button>
-            </div>
-            <form th:action="@{/shoppingLists}" method="get" class="form-row col-auto align-items-center ml-auto">
-                <div class="col-auto">
-                    <label for="status" class="col-form-label">Selecciona el Estado:</label>
-                    <div class="col-auto">
-                        <select name="status" class="custom-select" id="status">
-                            <option value="" disabled selected>-- Selecciona un Estado --</option>
-                            <option th:each="status : ${statuses}" th:value="${status}" th:text="${status}"></option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-outline-secondary">Filtrar Listas</button>
-                </div>
-            </form>
+    <div class="form-row align-items-center mb-4">
+        <!-- Botón para crear nueva lista -->
+        <div class="col-auto">
+            <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#createListModal">
+                <i class="fas fa-plus"></i> Crear Nueva Lista
+            </button>
         </div>
-    </div>
 
+        <!-- Formulario de filtro -->
+        <form th:action="@{/shoppingLists}" method="get" class="form-row align-items-center ml-auto">
+            <div class="col-auto">
+                <label for="status" class="col-form-label mb-0">Selecciona el Estado:</label>
+            </div>
+            <div class="col-auto">
+                <select name="status" class="custom-select" id="status">
+                    <option value="" disabled selected>-- Selecciona un Estado --</option>
+                    <option th:each="status : ${statuses}" th:value="${status}" th:text="${status}"></option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-outline-secondary">Filtrar Listas</button>
+            </div>
+        </form>
+    </div>
     <div class="modal fade" id="createListModal" tabindex="-1" role="dialog" aria-labelledby="createListModalLabel"
          aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -109,7 +135,10 @@
     <hr>
 
     <div th:each="shoppingList : ${shoppingListsPage.content}">
-        <div class="card mb-3 bg-light">
+        <div th:id="'listCard-' + ${shoppingList.shoppingListId}"
+             class="card mb-3"
+             th:classappend="${shoppingList.listStatus.name == 'COMPLETED' ? ' bg-warning' :
+                        (shoppingList.listStatus.name == 'ARCHIVED' ? ' bg-danger' : ' bg-light')}">
             <div class="card-header">
                 <h5 th:text="${shoppingList.title}"></h5>
             </div>
@@ -134,7 +163,8 @@
                                         <h5 class="card-title text-info"
                                             th:text="${item.ingredient.ingredientName}"></h5>
                                         <p class="card-text">
-                                            <strong>Cantidad:</strong> <span th:text="${item.quantity}">Cantidad</span><br>
+                                            <strong>Cantidad:</strong> <span
+                                                th:text="${item.quantity}">Cantidad</span><br>
                                             <strong>Unidad:</strong> <span th:text="${item.unitOfMeasure}">Unidad</span>
                                         </p>
                                         <form th:action="@{/shoppingLists/updateItemStatus}"

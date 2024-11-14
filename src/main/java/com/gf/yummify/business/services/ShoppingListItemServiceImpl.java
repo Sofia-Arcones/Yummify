@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -21,6 +21,7 @@ public class ShoppingListItemServiceImpl implements ShoppingListItemService {
         this.shoppingListItemRepository = shoppingListItemRepository;
         this.ingredientService = ingredientService;
     }
+
 
     @Override
     public List<ShoppingListItem> generateShoppingListItems(ShoppingListRequestDTO shoppingListRequestDTO, ShoppingList shoppingList) {
@@ -52,14 +53,15 @@ public class ShoppingListItemServiceImpl implements ShoppingListItemService {
     }
 
     @Override
-    public void updateIsPurchased(UUID itemId, Boolean isPurchased) {
-        Optional<ShoppingListItem> itemOptional = shoppingListItemRepository.findById(itemId);
-        if (itemOptional.isPresent()) {
-            ShoppingListItem item = itemOptional.get();
-            item.setIsPurchased(isPurchased);
-            shoppingListItemRepository.save(item);
-        } else {
-            throw new IllegalArgumentException("Item no encontrado.");
-        }
+    public ShoppingListItem updateIsPurchased(UUID itemId, Boolean isPurchased) {
+        ShoppingListItem shoppingListItem = findItemById(itemId);
+        shoppingListItem.setIsPurchased(isPurchased);
+        return shoppingListItemRepository.save(shoppingListItem);
+    }
+
+    @Override
+    public ShoppingListItem findItemById(UUID id) {
+        return shoppingListItemRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("El item de la lista con id: " + id + " no existe"));
     }
 }

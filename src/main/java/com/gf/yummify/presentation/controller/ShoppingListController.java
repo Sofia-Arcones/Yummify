@@ -80,14 +80,16 @@ public class ShoppingListController {
                                                               @RequestParam("isPurchased") Boolean isPurchased) {
         Map<String, Object> response = new HashMap<>();
         try {
-            shoppingListItemService.updateIsPurchased(itemId, isPurchased);
-
+            ShoppingList shoppingList = shoppingListService.updateListStatus(null, itemId, isPurchased, false);
             response.put("success", true);
             response.put("isPurchased", isPurchased);
+            response.put("listStatus", shoppingList.getListStatus());
+            response.put("shoppingListId", shoppingList.getShoppingListId());
         } catch (Exception e) {
             response.put("success", false);
             response.put("error", e.getMessage());
         }
         return response;
     }
+
 }

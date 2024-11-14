@@ -1,8 +1,8 @@
 package com.gf.yummify.data.enums;
 
 public enum ListStatus {
-    CREATED,
+    EMPTY,
     IN_PROGRESS,
-    PURCHASED,
+    COMPLETED,
     ARCHIVED
 }

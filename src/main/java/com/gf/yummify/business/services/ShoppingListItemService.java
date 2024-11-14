@@ -9,5 +9,8 @@ import java.util.UUID;
 
 public interface ShoppingListItemService {
     List<ShoppingListItem> generateShoppingListItems(ShoppingListRequestDTO shoppingListRequestDTO, ShoppingList shoppingList);
-    void updateIsPurchased(UUID itemId, Boolean isPurchased);
+
+    ShoppingListItem updateIsPurchased(UUID itemId, Boolean isPurchased);
+
+    ShoppingListItem findItemById(UUID id);
 }
