@@ -92,4 +92,9 @@ public class ShoppingListController {
         return response;
     }
 
+    @PostMapping("/archive")
+    public String updateListStatus(UUID id, Boolean archived) {
+        shoppingListService.updateListStatus(id, null, null, archived);
+        return "redirect:/shoppingLists";
+    }
 }

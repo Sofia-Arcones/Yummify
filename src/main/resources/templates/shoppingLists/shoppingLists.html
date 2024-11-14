@@ -143,13 +143,22 @@
                 <h5 th:text="${shoppingList.title}"></h5>
             </div>
             <div class="card-body">
-                <button class="btn btn-info btn-sm" type="button" data-toggle="collapse"
-                        th:id="'toggleDetails-' + ${shoppingList.shoppingListId}"
-                        th:data-target="'#listDetails-' + ${shoppingList.shoppingListId}"
-                        aria-expanded="false"
-                        th:aria-controls="'listDetails-' + ${shoppingList.shoppingListId}">
-                    Ver detalles
-                </button>
+                <div class="d-flex justify-content-start mb-3">
+                    <form th:action="@{/shoppingLists/archive(id=${shoppingList.shoppingListId}, archived=${shoppingList.listStatus.name == 'ARCHIVED' ? 'false' : 'true'})}"
+                          method="post">
+                        <button type="submit" class="btn btn-danger btn-sm"
+                                th:text="${shoppingList.listStatus.name == 'ARCHIVED' ? 'Desarchivar Lista' : 'Archivar Lista'}">
+                        </button>
+                    </form>
+                    <button class="btn btn-info btn-sm ml-2" type="button" data-toggle="collapse"
+                            th:id="'toggleDetails-' + ${shoppingList.shoppingListId}"
+                            th:data-target="'#listDetails-' + ${shoppingList.shoppingListId}"
+                            aria-expanded="false"
+                            th:aria-controls="'listDetails-' + ${shoppingList.shoppingListId}">
+                        Ver detalles
+                    </button>
+                </div>
+
 
                 <div class="collapse" th:id="'listDetails-' + ${shoppingList.shoppingListId}">
                     <hr>
