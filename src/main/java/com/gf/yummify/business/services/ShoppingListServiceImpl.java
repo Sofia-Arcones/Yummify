@@ -7,6 +7,10 @@ import com.gf.yummify.data.enums.ListStatus;
 import com.gf.yummify.data.repository.ShoppingListItemRepository;
 import com.gf.yummify.data.repository.ShoppingListRepository;
 import com.gf.yummify.presentation.dto.ShoppingListRequestDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -29,10 +33,12 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     }
 
     @Override
-    public List<ShoppingList> findAllLists(Authentication authentication) {
+    public Page<ShoppingList> findLists(Authentication authentication, int page, int size) {
         User user = userService.findUserByUsername(authentication.getName());
-        System.out.println(shoppingListRepository.findByUser(user));
-        return shoppingListRepository.findByUser(user);
+        List<ListStatus> statuses = List.of(ListStatus.IN_PROGRESS, ListStatus.CREATED, ListStatus.PURCHASED);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("creationDate").descending());
+
+        return shoppingListRepository.findByUserAndListStatusIn(user, statuses, pageable);
     }
 
     @Override
@@ -59,4 +65,9 @@ public class ShoppingListServiceImpl implements ShoppingListService {
         }
     }
 
+    public Page<ShoppingList> findByStatus(Authentication authentication, ListStatus status, int page, int size) {
+        User user = userService.findUserByUsername(authentication.getName());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("creationDate").descending());
+        return shoppingListRepository.findByUserAndListStatus(user, status, pageable);
+    }
 }
