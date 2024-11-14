@@ -1,5 +1,6 @@
 package com.gf.yummify.presentation.controller;
 
+import com.gf.yummify.business.services.ShoppingListItemService;
 import com.gf.yummify.business.services.ShoppingListService;
 import com.gf.yummify.data.entity.ShoppingList;
 import com.gf.yummify.data.enums.ListStatus;
@@ -13,17 +14,18 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/shoppingLists")
 public class ShoppingListController {
     private ShoppingListService shoppingListService;
+    private ShoppingListItemService shoppingListItemService;
 
-    public ShoppingListController(ShoppingListService shoppingListService) {
+    public ShoppingListController(ShoppingListService shoppingListService, ShoppingListItemService shoppingListItemService) {
         this.shoppingListService = shoppingListService;
+        this.shoppingListItemService = shoppingListItemService;
     }
 
     @GetMapping()
@@ -73,5 +75,19 @@ public class ShoppingListController {
         }
     }
 
+    @PostMapping("/updateItemStatus")
+    public @ResponseBody Map<String, Object> updateItemStatus(@RequestParam("itemId") UUID itemId,
+                                                              @RequestParam("isPurchased") Boolean isPurchased) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            shoppingListItemService.updateIsPurchased(itemId, isPurchased);
 
+            response.put("success", true);
+            response.put("isPurchased", isPurchased);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", e.getMessage());
+        }
+        return response;
+    }
 }

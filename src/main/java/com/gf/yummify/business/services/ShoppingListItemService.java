@@ -5,7 +5,9 @@ import com.gf.yummify.data.entity.ShoppingListItem;
 import com.gf.yummify.presentation.dto.ShoppingListRequestDTO;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface ShoppingListItemService {
     List<ShoppingListItem> generateShoppingListItems(ShoppingListRequestDTO shoppingListRequestDTO, ShoppingList shoppingList);
+    void updateIsPurchased(UUID itemId, Boolean isPurchased);
 }
