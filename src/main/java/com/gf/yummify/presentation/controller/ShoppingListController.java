@@ -4,6 +4,8 @@ import com.gf.yummify.business.services.ShoppingListItemService;
 import com.gf.yummify.business.services.ShoppingListService;
 import com.gf.yummify.data.entity.ShoppingList;
 import com.gf.yummify.data.enums.ListStatus;
+import com.gf.yummify.data.enums.UnitOfMeasure;
+import com.gf.yummify.presentation.dto.ShoppingListItemRequestDTO;
 import com.gf.yummify.presentation.dto.ShoppingListRequestDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -38,6 +40,8 @@ public class ShoppingListController {
                     .map(Enum::name)
                     .collect(Collectors.toList());
             model.addAttribute("statuses", listStatuses);
+            List<String> units = Arrays.stream(UnitOfMeasure.values()).map(Enum::name).collect(Collectors.toList());
+            model.addAttribute("units", units);
 
             Page<ShoppingList> shoppingListsPage;
 
@@ -48,6 +52,11 @@ public class ShoppingListController {
             }
             model.addAttribute("shoppingListsPage", shoppingListsPage);
             model.addAttribute("status", status);
+            if (shoppingListsPage.isEmpty()) {
+                model.addAttribute("error", "No se encontraron listas de la compra.");
+            }
+
+
         } catch (IllegalArgumentException ex) {
             model.addAttribute("error", "Estado de lista no válido.");
         } catch (Exception ex) {
@@ -97,4 +106,17 @@ public class ShoppingListController {
         shoppingListService.updateListStatus(id, null, null, archived);
         return "redirect:/shoppingLists";
     }
+
+    @PostMapping("/addIngredient")
+    public String addIngredient(@ModelAttribute @Valid ShoppingListItemRequestDTO shoppingListItemRequestDTO, RedirectAttributes redirectAttributes) {
+        try {
+            String result = shoppingListService.addIngredientToList(shoppingListItemRequestDTO);
+            System.out.println(result);
+            redirectAttributes.addFlashAttribute("success", result);
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage()); 
+        }
+        return "redirect:/shoppingLists";
+    }
+
 }

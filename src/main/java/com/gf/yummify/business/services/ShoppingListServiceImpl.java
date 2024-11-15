@@ -4,8 +4,10 @@ import com.gf.yummify.data.entity.ShoppingList;
 import com.gf.yummify.data.entity.ShoppingListItem;
 import com.gf.yummify.data.entity.User;
 import com.gf.yummify.data.enums.ListStatus;
+import com.gf.yummify.data.enums.UnitOfMeasure;
 import com.gf.yummify.data.repository.ShoppingListItemRepository;
 import com.gf.yummify.data.repository.ShoppingListRepository;
+import com.gf.yummify.presentation.dto.ShoppingListItemRequestDTO;
 import com.gf.yummify.presentation.dto.ShoppingListRequestDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,13 +27,14 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     private UserService userService;
     private ShoppingListItemService shoppingListItemService;
     private ShoppingListItemRepository shoppingListItemRepository;
+    private IngredientService ingredientService;
 
-
-    public ShoppingListServiceImpl(ShoppingListRepository shoppingListRepository, UserService userService, ShoppingListItemService shoppingListItemService, ShoppingListItemRepository shoppingListItemRepository) {
+    public ShoppingListServiceImpl(ShoppingListRepository shoppingListRepository, UserService userService, ShoppingListItemService shoppingListItemService, ShoppingListItemRepository shoppingListItemRepository, IngredientService ingredientService) {
         this.shoppingListRepository = shoppingListRepository;
         this.userService = userService;
         this.shoppingListItemService = shoppingListItemService;
         this.shoppingListItemRepository = shoppingListItemRepository;
+        this.ingredientService = ingredientService;
     }
 
     @Override
@@ -76,7 +79,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     @Override
     public ShoppingList updateListStatus(UUID id, UUID itemId, Boolean isPurchased, Boolean isArchived) {
         ShoppingList shoppingList = new ShoppingList();
-        if (itemId != null && id==null) {
+        if (itemId != null && id == null) {
             ShoppingListItem shoppingListItem = shoppingListItemService.updateIsPurchased(itemId, isPurchased);
             shoppingList = shoppingListItem.getShoppingList();
         } else {
@@ -107,5 +110,25 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     public ShoppingList findListById(UUID id) {
         return shoppingListRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("La lista con id: " + id + " no existe"));
+    }
+
+    @Override
+    public String addIngredientToList(ShoppingListItemRequestDTO shoppingListItemRequestDTO) {
+        ShoppingList shoppingList = findListById(shoppingListItemRequestDTO.getShoppingListId());
+        ShoppingListItem shoppingListItem = new ShoppingListItem();
+        shoppingListItem.setShoppingList(shoppingList);
+        shoppingListItem.setIngredient(ingredientService.findOrCreateIngredient(shoppingListItemRequestDTO.getIngredientName()));
+        shoppingListItem.setIsPurchased(false);
+        shoppingListItem.setQuantity(shoppingListItemRequestDTO.getQuantity());
+        shoppingListItem.setUnitOfMeasure(UnitOfMeasure.valueOf(shoppingListItemRequestDTO.getUnitOfMeasure()));
+        shoppingListItemRepository.save(shoppingListItem);
+
+        shoppingList.getListItems().add(shoppingListItem);
+        shoppingList.setListStatus(ListStatus.IN_PROGRESS);
+        shoppingListRepository.save(shoppingList);
+        String result = shoppingListItemRequestDTO.getIngredientName().toString() + " añadido correctamente a la lista: " + shoppingList.getTitle().toString();
+        System.out.println(result);
+        return result;
+
     }
 }
