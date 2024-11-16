@@ -118,8 +118,6 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     @Transactional
     public String addIngredientToList(ShoppingListItemRequestDTO shoppingListItemRequestDTO) {
         ShoppingList shoppingList = findListById(shoppingListItemRequestDTO.getShoppingListId());
-
-        // Validar el ingrediente antes de procesarlo
         Ingredient ingredient = ingredientService.findOrCreateIngredient(shoppingListItemRequestDTO.getIngredientName());
         if (ingredient == null) {
             throw new IllegalArgumentException("El ingrediente no pudo ser creado o encontrado.");
@@ -131,11 +129,8 @@ public class ShoppingListServiceImpl implements ShoppingListService {
         shoppingListItem.setIsPurchased(false);
         shoppingListItem.setQuantity(shoppingListItemRequestDTO.getQuantity());
         shoppingListItem.setUnitOfMeasure(UnitOfMeasure.valueOf(shoppingListItemRequestDTO.getUnitOfMeasure()));
-
-        // Guardar el ShoppingListItem primero
         shoppingListItemRepository.save(shoppingListItem);
 
-        // Actualizar la lista de compras
         shoppingList.getListItems().add(shoppingListItem);
         shoppingList.setListStatus(ListStatus.IN_PROGRESS);
         shoppingListRepository.save(shoppingList);

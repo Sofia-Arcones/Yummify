@@ -108,7 +108,9 @@ public class ShoppingListController {
     }
 
     @PostMapping("/addIngredient")
-    public String addIngredient(@ModelAttribute @Valid ShoppingListItemRequestDTO shoppingListItemRequestDTO, RedirectAttributes redirectAttributes) {
+    public String addIngredient(@ModelAttribute @Valid ShoppingListItemRequestDTO shoppingListItemRequestDTO,
+                                RedirectAttributes redirectAttributes,
+                                HttpServletRequest request) {
         try {
             System.out.println(shoppingListItemRequestDTO);
             String result = shoppingListService.addIngredientToList(shoppingListItemRequestDTO);
@@ -117,7 +119,9 @@ public class ShoppingListController {
         } catch (Exception ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
         }
-        return "redirect:/shoppingLists";
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/shoppingLists");
     }
+
 
 }
