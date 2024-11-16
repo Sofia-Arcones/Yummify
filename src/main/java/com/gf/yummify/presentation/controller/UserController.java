@@ -55,7 +55,12 @@ public class UserController {
             User profileUser = userService.findUserByUsername(username);
             model.addAttribute("user", profileUser);
             model.addAttribute("recipes", profileUser.getRecipes());
-            model.addAttribute("isOwnProfile", userService.checkUserAuthentication(authentication.getName(), profileUser.getUsername()));
+
+            if (authentication != null && authentication.isAuthenticated()) {
+                model.addAttribute("isOwnProfile", userService.checkUserAuthentication(authentication.getName(), profileUser.getUsername()));
+            } else {
+                model.addAttribute("isOwnProfile", false);
+            }
             return "users/profile";
         } catch (Exception ex) {
             model.addAttribute("error", ex.getMessage());

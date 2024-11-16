@@ -39,10 +39,12 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required class="form-control">
             </div>
-            <button type="submit" class="btn btn-primary">Login</button>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Login</button>
+            </div>
         </form>
-        <hr>
         <div th:if="${param.error}" class="alert alert-danger">
+            <hr>
             <p th:text="${error.message}"></p>
         </div>
     </div>

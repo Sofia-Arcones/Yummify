@@ -3,6 +3,7 @@ package com.gf.yummify.config;
 import com.gf.yummify.business.services.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,7 +20,9 @@ public class SecurityConfig {
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/login", "/user", "/register", "/error").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/recipe/{id}", "/users/profile/{username}").permitAll()
+                        .requestMatchers("/login", "/user", "/register", "/error", "/recipe/{id}").permitAll()
                         .requestMatchers("/admin/panel", "ingredients/management", "ingredients/update/**", "ingredients/delete/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .formLogin(form -> form

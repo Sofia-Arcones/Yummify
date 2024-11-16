@@ -46,4 +46,16 @@ public class ShoppingList {
     public void preUpdate() {
         this.lastModification = LocalDateTime.now();
     }
+
+    @Override
+    public String toString() {
+        return "ShoppingList{" +
+                "shoppingListId=" + shoppingListId +
+                ", title='" + title + '\'' +
+                ", listStatus=" + listStatus +
+                ", creationDate=" + creationDate +
+                ", lastModification=" + lastModification +
+                ", listItems=" + listItems +
+                '}';
+    }
 }

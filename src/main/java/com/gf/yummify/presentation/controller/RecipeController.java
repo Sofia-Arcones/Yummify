@@ -2,6 +2,7 @@ package com.gf.yummify.presentation.controller;
 
 import com.gf.yummify.business.services.IngredientService;
 import com.gf.yummify.business.services.RecipeService;
+import com.gf.yummify.business.services.ShoppingListService;
 import com.gf.yummify.data.entity.Recipe;
 import com.gf.yummify.data.enums.Difficulty;
 import com.gf.yummify.data.enums.UnitOfMeasure;
@@ -24,10 +25,12 @@ import java.util.stream.Collectors;
 public class RecipeController {
     private RecipeService recipeService;
     private IngredientService ingredientService;
+    private ShoppingListService shoppingListService;
 
-    public RecipeController(RecipeService recipeService, IngredientService ingredientService) {
+    public RecipeController(RecipeService recipeService, IngredientService ingredientService, ShoppingListService shoppingListService) {
         this.recipeService = recipeService;
         this.ingredientService = ingredientService;
+        this.shoppingListService = shoppingListService;
     }
 
     @GetMapping("/create")
@@ -76,8 +79,9 @@ public class RecipeController {
     }
 
     @GetMapping("/{id}")
-    public String showRecipe(@PathVariable UUID id, Model model) {
+    public String showRecipe(@PathVariable UUID id, Model model, Authentication authentication) {
         try {
+            model.addAttribute("shoppingLists", shoppingListService. findListsByUser(authentication));
             model.addAttribute("recipe", recipeService.getRecipeResponseDTO(id));
         } catch (Exception ex) {
             model.addAttribute("error", ex.getMessage());
