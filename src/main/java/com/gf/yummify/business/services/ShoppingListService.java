@@ -7,6 +7,7 @@ import com.gf.yummify.presentation.dto.ShoppingListRequestDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface ShoppingListService {
@@ -21,4 +22,6 @@ public interface ShoppingListService {
     ShoppingList updateListStatus(UUID id, UUID itemId, Boolean isPurchased, Boolean isArchived);
 
     String addIngredientToList(ShoppingListItemRequestDTO shoppingListItemRequestDTO);
+
+    List<ShoppingList> findListsByUser(Authentication authentication);
 }

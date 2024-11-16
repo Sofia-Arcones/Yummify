@@ -110,11 +110,12 @@ public class ShoppingListController {
     @PostMapping("/addIngredient")
     public String addIngredient(@ModelAttribute @Valid ShoppingListItemRequestDTO shoppingListItemRequestDTO, RedirectAttributes redirectAttributes) {
         try {
+            System.out.println(shoppingListItemRequestDTO);
             String result = shoppingListService.addIngredientToList(shoppingListItemRequestDTO);
             System.out.println(result);
             redirectAttributes.addFlashAttribute("success", result);
         } catch (Exception ex) {
-            redirectAttributes.addFlashAttribute("error", ex.getMessage()); 
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
         }
         return "redirect:/shoppingLists";
     }

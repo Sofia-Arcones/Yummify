@@ -1,5 +1,6 @@
 package com.gf.yummify.business.services;
 
+import com.gf.yummify.data.entity.Ingredient;
 import com.gf.yummify.data.entity.ShoppingList;
 import com.gf.yummify.data.entity.ShoppingListItem;
 import com.gf.yummify.data.entity.User;
@@ -9,6 +10,7 @@ import com.gf.yummify.data.repository.ShoppingListItemRepository;
 import com.gf.yummify.data.repository.ShoppingListRepository;
 import com.gf.yummify.presentation.dto.ShoppingListItemRequestDTO;
 import com.gf.yummify.presentation.dto.ShoppingListRequestDTO;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -113,22 +115,41 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     }
 
     @Override
+    @Transactional
     public String addIngredientToList(ShoppingListItemRequestDTO shoppingListItemRequestDTO) {
         ShoppingList shoppingList = findListById(shoppingListItemRequestDTO.getShoppingListId());
+
+        // Validar el ingrediente antes de procesarlo
+        Ingredient ingredient = ingredientService.findOrCreateIngredient(shoppingListItemRequestDTO.getIngredientName());
+        if (ingredient == null) {
+            throw new IllegalArgumentException("El ingrediente no pudo ser creado o encontrado.");
+        }
+
         ShoppingListItem shoppingListItem = new ShoppingListItem();
         shoppingListItem.setShoppingList(shoppingList);
-        shoppingListItem.setIngredient(ingredientService.findOrCreateIngredient(shoppingListItemRequestDTO.getIngredientName()));
+        shoppingListItem.setIngredient(ingredient);
         shoppingListItem.setIsPurchased(false);
         shoppingListItem.setQuantity(shoppingListItemRequestDTO.getQuantity());
         shoppingListItem.setUnitOfMeasure(UnitOfMeasure.valueOf(shoppingListItemRequestDTO.getUnitOfMeasure()));
+
+        // Guardar el ShoppingListItem primero
         shoppingListItemRepository.save(shoppingListItem);
 
+        // Actualizar la lista de compras
         shoppingList.getListItems().add(shoppingListItem);
         shoppingList.setListStatus(ListStatus.IN_PROGRESS);
         shoppingListRepository.save(shoppingList);
-        String result = shoppingListItemRequestDTO.getIngredientName().toString() + " añadido correctamente a la lista: " + shoppingList.getTitle().toString();
+
+        String result = shoppingListItemRequestDTO.getIngredientName() + " añadido correctamente a la lista: " + shoppingList.getTitle();
         System.out.println(result);
         return result;
+    }
 
+
+    @Override
+    public List<ShoppingList> findListsByUser(Authentication authentication) {
+        User user = userService.findUserByUsername(authentication.getName());
+        List<ListStatus> statuses = List.of(ListStatus.IN_PROGRESS, ListStatus.EMPTY, ListStatus.COMPLETED);
+        return shoppingListRepository.findByUserAndListStatusIn(user, statuses);
     }
 }
