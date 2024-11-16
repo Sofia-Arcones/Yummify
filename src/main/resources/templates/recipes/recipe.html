@@ -135,9 +135,34 @@
             </div>
         </div>
     </div>
+    <h3 class="text-secondary">Valorar y comentar</h3>
+    <form th:action="@{/recipe/addRating}" method="post">
+        <input type="hidden" name="recipeId" th:value="${recipeId}"/>
+        <div class="form-group">
+            <label for="rating">Calificación:</label>
+            <select id="rating" name="rating" class="form-control" required>
+                <option value="" disabled selected>Selecciona una calificación</option>
+                <option value="1">1 - Muy mala</option>
+                <option value="2">2 - Mala</option>
+                <option value="3">3 - Regular</option>
+                <option value="4">4 - Buena</option>
+                <option value="5">5 - Excelente</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="comment">Comentario (opcional):</label>
+            <textarea id="comment" name="comment" rows="3" class="form-control"
+                      placeholder="Escribe tu comentario"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Enviar valoración</button>
+    </form>
+    <div th:if="${ratingSuccess}" class="alert alert-success text-center">
+        <p th:text="${ratingSuccess}"></p>
+    </div>
+    <div th:if="${ratingError}" class="alert alert-danger text-center">
+        <p th:text="${ratingError}"></p>
+    </div>
 </div>
-</div>
-
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
