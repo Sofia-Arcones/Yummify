@@ -7,6 +7,7 @@ import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Data
@@ -31,9 +32,23 @@ public class Comment {
     private String comment;
     @NotNull
     private LocalDateTime commentDate;
+    @Transient
+    private String formattedCommentDate;
+    @Transient
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     public Comment() {
         this.commentDate = LocalDateTime.now();
+        updateFormattedDates();
+    }
+
+    @PostLoad
+    @PostPersist
+    @PostUpdate
+    public void updateFormattedDates() {
+        if (commentDate != null) {
+            this.formattedCommentDate = commentDate.format(FORMATTER);
+        }
     }
 }
 

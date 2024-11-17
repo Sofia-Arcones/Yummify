@@ -118,15 +118,17 @@ public class RecipeServiceImpl implements RecipeService {
         recipeResponseDTO.setPrepTime(recipe.getPrepTime());
         recipeResponseDTO.setInstructions(getInstructions(recipe.getInstructions()));
         recipeResponseDTO.setImage(recipe.getImage());
+        recipeResponseDTO.setRatings(recipe.getRatings());
+        recipeResponseDTO.setAverage(calculateAverage(recipe.getRatings()));
 
         List<String> ingredients = new ArrayList<>();
         List<Double> quantities = new ArrayList<>();
         List<String> units = new ArrayList<>();
 
         for (RecipeIngredient recipeIngredient : recipe.getIngredients()) {
-            ingredients.add(recipeIngredient.getIngredient().getIngredientName()); // Nombre del ingrediente
-            quantities.add(recipeIngredient.getQuantity()); // Cantidad
-            units.add(recipeIngredient.getUnitOfMeasure().name()); // Unidad de medida (en String)
+            ingredients.add(recipeIngredient.getIngredient().getIngredientName());
+            quantities.add(recipeIngredient.getQuantity());
+            units.add(recipeIngredient.getUnitOfMeasure().name());
         }
         recipeResponseDTO.setIngredients(ingredients);
         recipeResponseDTO.setQuantities(quantities);
@@ -136,10 +138,22 @@ public class RecipeServiceImpl implements RecipeService {
         for (Tag tag : recipe.getTags()) {
             tags.add(tag.getName());
         }
+        System.out.println("Total de valoraciones: " + recipeResponseDTO.getRatings().size());
+        System.out.println("Promedio de valoraciones: " + recipeResponseDTO.getAverage());
         recipeResponseDTO.setTags(tags);
         return recipeResponseDTO;
     }
 
+    private double calculateAverage(List<Rating> ratings) {
+        List<Double> rates = new ArrayList<>();
+        for (Rating rate : ratings) {
+            rates.add(rate.getRating());
+        }
+        return rates.stream()
+                .mapToDouble(Double::doubleValue)
+                .average()
+                .orElse(0.0);
+    }
 
     private String joinInstructions(List<String> instructionsList) {
         return String.join("|~|", instructionsList);

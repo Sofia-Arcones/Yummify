@@ -81,12 +81,14 @@ public class RecipeController {
     @GetMapping("/{id}")
     public String showRecipe(@PathVariable UUID id, Model model, Authentication authentication) {
         try {
-            model.addAttribute("shoppingLists", shoppingListService. findListsByUser(authentication));
+            model.addAttribute("shoppingLists", shoppingListService.findListsByUser(authentication));
             model.addAttribute("recipe", recipeService.getRecipeResponseDTO(id));
+            model.addAttribute("recipeId", id);
         } catch (Exception ex) {
             model.addAttribute("error", ex.getMessage());
         }
         return "recipes/recipe";
     }
+
 
 }
