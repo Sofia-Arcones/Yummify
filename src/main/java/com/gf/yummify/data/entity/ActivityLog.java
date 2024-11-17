@@ -9,6 +9,7 @@ import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Data
@@ -44,8 +45,22 @@ public class ActivityLog {
 
     @OneToOne(mappedBy = "activityLog", cascade = CascadeType.ALL)
     private Notification notification;
+    @Transient
+    private String formattedActivityDate;
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
 
     public ActivityLog() {
         this.activityDate = LocalDateTime.now();
+        updateFormattedDates();
+    }
+
+    @PostLoad
+    @PostPersist
+    @PostUpdate
+    public void updateFormattedDates() {
+        if (activityDate != null) {
+            this.formattedActivityDate = activityDate.format(FORMATTER);
+        }
     }
 }

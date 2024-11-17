@@ -10,7 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -46,11 +45,6 @@ public class IngredientController {
 
         //TODO CAMBIAR EL FORMATEO DE FECHAS A LA ENTIDAD
         if (ingredients.size() > 0) {
-            for (Ingredient ingredient : ingredients) {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-                ingredient.setFormattedCreationDate(ingredient.getCreationDate().format(formatter));
-                ingredient.setFormattedLastModification(ingredient.getLastModification().format(formatter));
-            }
             model.addAttribute("ingredients", ingredients);
         }
         return "ingredients/ingredientManagement";

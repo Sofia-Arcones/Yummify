@@ -6,6 +6,7 @@ import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,8 +26,21 @@ public class Tag {
 
     @ManyToMany(mappedBy = "tags")
     private List<Recipe> recipes;
+    @Transient
+    private String formattedCreationDate;
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     public Tag() {
         this.creationDate = LocalDateTime.now();
+        updateFormattedDates();
+    }
+
+    @PostLoad
+    @PostPersist
+    @PostUpdate
+    public void updateFormattedDates() {
+        if (creationDate != null) {
+            this.formattedCreationDate = creationDate.format(FORMATTER);
+        }
     }
 }
