@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -113,14 +114,33 @@ public class User implements UserDetails {
     @JsonManagedReference
     private List<ShoppingList> shoppingLists;
 
+    @Transient
+    private String formattedRegistrationDate;
+    @Transient
+    private String formattedLastModification;
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
     public User() {
         this.registrationDate = LocalDateTime.now();
         this.lastModification = LocalDateTime.now();
+        updateFormattedDates();
     }
 
     @PreUpdate
     public void setLastModification() {
         this.lastModification = LocalDateTime.now();
+    }
+
+    @PostLoad
+    @PostPersist
+    @PostUpdate
+    public void updateFormattedDates() {
+        if (registrationDate != null) {
+            this.formattedRegistrationDate = registrationDate.format(FORMATTER);
+        }
+        if (lastModification != null) {
+            this.formattedLastModification = lastModification.format(FORMATTER);
+        }
     }
 
     public Collection<? extends GrantedAuthority> getAuthorities() {

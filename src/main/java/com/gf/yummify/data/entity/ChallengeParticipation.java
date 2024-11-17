@@ -7,6 +7,7 @@ import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Data
@@ -31,10 +32,22 @@ public class ChallengeParticipation {
     @NotNull
     private Boolean isWinner;
     private @NotNull LocalDateTime participationDate;
+    @Transient
+    private String formattedParticipationDate;
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     public ChallengeParticipation() {
         this.participationDate = LocalDateTime.now();
+        updateFormattedDates();
     }
 
+    @PostLoad
+    @PostPersist
+    @PostUpdate
+    public void updateFormattedDates() {
+        if (participationDate != null) {
+            this.formattedParticipationDate = participationDate.format(FORMATTER);
+        }
+    }
 
 }

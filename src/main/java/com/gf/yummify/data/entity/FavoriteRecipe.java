@@ -7,6 +7,7 @@ import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Data
@@ -29,8 +30,21 @@ public class FavoriteRecipe {
     private User user;
 
     private @NotNull LocalDateTime creationDate;
+    @Transient
+    private String formattedCreationDate;
+    @Transient
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     public FavoriteRecipe() {
         this.creationDate = LocalDateTime.now();
+        updateFormattedDates();
+    }
+    @PostLoad
+    @PostPersist
+    @PostUpdate
+    public void updateFormattedDates() {
+        if (creationDate != null) {
+            this.formattedCreationDate = creationDate.format(FORMATTER);
+        }
     }
 }
