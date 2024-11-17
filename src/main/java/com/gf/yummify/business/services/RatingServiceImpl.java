@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -41,6 +42,20 @@ public class RatingServiceImpl implements RatingService {
         }
     }
 
+    @Override
+    public void addCommentToRating(UUID recipeId, String commentContent, Authentication authentication, UUID rateId) {
+        User user = userService.findUserByUsername(authentication.getName());
+        Recipe recipe = recipeService.findRecipeById(recipeId);
+        Rating rating = findRateById(rateId);
+        if (commentContent != null && !commentContent.trim().isEmpty()) {
+            commentService.addComment(rating, commentContent, user);
+        }
+    }
 
+    @Override
+    public Rating findRateById(UUID id) {
+        return ratingRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("El rate con id: " + id + " no existe"));
+    }
 
 }
