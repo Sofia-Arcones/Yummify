@@ -43,6 +43,8 @@ public class IngredientController {
         if (status != null && !status.isEmpty() && type != null && !type.isEmpty()) {
             ingredients = ingredientService.findIngredientsByStatusAndType(IngredientStatus.valueOf(status), IngredientType.valueOf(type));
         }
+
+        //TODO CAMBIAR EL FORMATEO DE FECHAS A LA ENTIDAD
         if (ingredients.size() > 0) {
             for (Ingredient ingredient : ingredients) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");

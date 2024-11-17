@@ -118,6 +118,7 @@ public class RecipeServiceImpl implements RecipeService {
         recipeResponseDTO.setPrepTime(recipe.getPrepTime());
         recipeResponseDTO.setInstructions(getInstructions(recipe.getInstructions()));
         recipeResponseDTO.setImage(recipe.getImage());
+        recipeResponseDTO.setRatings(recipe.getRatings());
 
         List<String> ingredients = new ArrayList<>();
         List<Double> quantities = new ArrayList<>();
