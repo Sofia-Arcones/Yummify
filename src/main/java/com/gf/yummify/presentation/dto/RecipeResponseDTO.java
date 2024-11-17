@@ -35,4 +35,5 @@ public class RecipeResponseDTO {
     private List<String> instructions;
     private List<String> tags;
     private List<Rating> ratings;
+    private Double average;
 }
