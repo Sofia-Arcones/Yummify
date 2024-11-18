@@ -2,7 +2,9 @@ package com.gf.yummify.presentation.controller;
 
 import com.gf.yummify.business.services.UserService;
 import com.gf.yummify.data.entity.User;
+import com.gf.yummify.presentation.dto.RegisterDTO;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
@@ -10,7 +12,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class UserController {
@@ -28,15 +29,21 @@ public class UserController {
         return "users/administratorPanel";
     }
 
-    @PostMapping("/user")
-    public String registerUser(@RequestParam("email") String email,
-                               @RequestParam("username") String username,
-                               @RequestParam("password") String password,
+    @PostMapping("/register")
+    public String registerUser(@Valid RegisterDTO registerDTO,
                                Model model) {
-        userService.createUser(username, email, password);
-        model.addAttribute("success", "Usuario registrado correctamente");
+
+        try {
+            userService.createUser(registerDTO);
+            model.addAttribute("success", "Usuario registrado correctamente");
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+            model.addAttribute("user", registerDTO);
+        }
+
         return "users/register";
     }
+
 
     @GetMapping("/login")
     public String login() {
