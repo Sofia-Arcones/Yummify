@@ -1,9 +1,10 @@
 package com.gf.yummify.business.services;
 
 import com.gf.yummify.data.entity.User;
+import com.gf.yummify.presentation.dto.RegisterDTO;
 
 public interface UserService {
-    User createUser(String username, String email, String password);
+    User createUser(RegisterDTO registerDTO);
 
     User findUserByUsername(String username);
 

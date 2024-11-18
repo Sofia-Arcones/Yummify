@@ -1,8 +1,9 @@
 package com.gf.yummify.business.services;
 
+import com.gf.yummify.business.mappers.UserMapper;
 import com.gf.yummify.data.entity.User;
-import com.gf.yummify.data.enums.Role;
 import com.gf.yummify.data.repository.UserRepository;
+import com.gf.yummify.presentation.dto.RegisterDTO;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,30 +13,35 @@ import java.util.NoSuchElementException;
 public class UserServiceImpl implements UserService {
 
     private UserRepository userRepository;
+    private UserMapper userMapper;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
     }
 
     @Override
-    public User createUser(String username, String email, String password) {
-        User user = new User();
-        user.setUsername(username);
-        user.setEmail(email);
-        String encodedPassword = new BCryptPasswordEncoder().encode(password);
+    public User createUser(RegisterDTO registerDTO) {
+        if (userRepository.findByUsername(registerDTO.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("Ya existe un usuario con ese nombre");
+        }
+        if (userRepository.findByEmail(registerDTO.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Ya existe un usuario con ese correo");
+        }
+        if (!registerDTO.getPassword().matches("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,16}$")) {
+            throw new IllegalArgumentException("La contraseña debe tener entre 8 y 16 caracteres, al menos una letra mayúscula, una letra minúscula, un número y ningún carácter especial.");
+        }
+        User user = userMapper.toUser(registerDTO);
+        String encodedPassword = new BCryptPasswordEncoder().encode(user.getPassword());
         user.setPassword(encodedPassword);
-        user.setRole(Role.ROLE_USER);
         return userRepository.save(user);
     }
 
     @Override
     public User findUserByUsername(String username) {
-        if (userRepository.findByUsername(username).isPresent()) {
-            return userRepository.findByUsername(username).get();
-        } else {
-            throw new NoSuchElementException("Usuario no encontrado");
-        }
+        return userRepository.findByUsername(username).orElseThrow(() -> new NoSuchElementException("Usuario no encontrado con usuario: " + username));
     }
+
     @Override
     public Boolean checkUserAuthentication(String loggedUsername, String profileUsername) {
         User loggedUser = findUserByUsername(loggedUsername);

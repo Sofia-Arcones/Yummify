@@ -27,11 +27,13 @@
 
     </style>
 </head>
-<body>
-<div th:replace="~{fragments/header :: header}"></div>
+<body class="d-flex flex-column min-vh-100">
+<div class="container-fluid p-0">
+    <div th:replace="~{fragments/header :: header}"></div>
+</div>
 <div class="login-container">
     <div class="jumbotron">
-        <h2>Login</h2>
+        <h2 class="mb-4 text-center">Login</h2>
         <form th:action="@{/login}" method="post">
             <div class="form-group">
                 <label for="username">Username</label>
@@ -43,6 +45,9 @@
                 <button type="submit" class="btn btn-primary">Login</button>
             </div>
         </form>
+        <div class="text-center mt-3">
+            <p>¿Aún no estás registrado? <a href="/register">Pulsa aquí</a> para registrarte.</p>
+        </div>
         <div th:if="${param.error}" class="alert alert-danger">
             <hr>
             <p th:text="${error.message}"></p>
