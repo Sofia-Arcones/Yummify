@@ -7,8 +7,10 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/custom.css">
 </head>
-<body>
-<div th:replace="~{fragments/headerAdmin :: headerAdmin}"></div>
+<body class="d-flex flex-column min-vh-100">
+<div class="container-fluid p-0">
+    <div th:replace="~{fragments/headerAdmin :: headerAdmin}"></div>
+</div>
 <div class="container mt-5">
     <h2 class="mb-4 text-center">Actualizar Ingrediente</h2>
     <form th:action="@{/ingredients/update}" th:object="${ingredient}" method="post">

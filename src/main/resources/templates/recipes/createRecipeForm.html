@@ -5,6 +5,7 @@
     <title>Crear Receta</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/custom.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
@@ -111,9 +112,9 @@
             const unitSelect = createUnitSelect();
 
             const removeButton = document.createElement("button");
-            removeButton.setAttribute("class", "btn btn-danger col-md-2 ml-2");
             removeButton.setAttribute("type", "button");
-            removeButton.textContent = "Eliminar";
+            removeButton.setAttribute("class", "btn btn-sm btn-danger ml-2");
+            removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
             removeButton.onclick = function () {
                 ingredientDiv.remove();
             };
@@ -143,7 +144,8 @@
             const tagsList = document.getElementById("tags-list");
 
             const tagDiv = document.createElement("div");
-            tagDiv.className = "badge badge-primary m-1 p-2";
+            tagDiv.className = "badge badge-primary m-1 p-2 d-flex align-items-center";
+
             tagDiv.textContent = tagText;
 
             const hiddenInput = document.createElement("input");
@@ -152,11 +154,19 @@
             hiddenInput.value = tagText;
 
             const removeButton = document.createElement("button");
-            removeButton.className = "ml-1 btn btn-sm btn-danger";
-            removeButton.innerHTML = "&times;";
+            removeButton.className = "ml-1 btn btn-xs btn-danger";
+            removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
             removeButton.onclick = function () {
                 tagsList.removeChild(tagDiv);
             };
+
+            removeButton.style.width = "18px";
+            removeButton.style.height = "18px";
+            removeButton.style.padding = "0";
+            removeButton.style.fontSize = "12px";
+            removeButton.style.display = "flex";
+            removeButton.style.justifyContent = "center";
+            removeButton.style.alignItems = "center";
 
             tagDiv.appendChild(hiddenInput);
             tagDiv.appendChild(removeButton);
@@ -183,18 +193,26 @@
             newInstruction.setAttribute("rows", "3");
             newInstruction.setAttribute("required", "required");
 
-            const removeButton = document.createElement("div");
-            removeButton.setAttribute("class", "input-group-append");
-            removeButton.innerHTML = '<button class="btn btn-danger" type="button">Eliminar</button>';
+            const removeButton = document.createElement("button");
+            removeButton.setAttribute("type", "button");
+            removeButton.setAttribute("class", "btn btn-sm btn-danger ml-2");
+            removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
             removeButton.onclick = function () {
                 instructionDiv.remove();
             };
+            removeButton.style.width = "30px";
+            removeButton.style.height = "30px";
+            removeButton.style.padding = "0";
+            removeButton.style.display = "flex";
+            removeButton.style.justifyContent = "center";
+            removeButton.style.alignItems = "center";
 
             instructionDiv.appendChild(newInstruction);
             instructionDiv.appendChild(removeButton);
             instructionContainer.appendChild(instructionDiv);
         }
     </script>
+
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -240,7 +258,7 @@
                 </div>
             </div>
             <div class="d-flex justify-content-center mt-3">
-                <button type="button" class="btn btn-secondary mt-2" onclick="addIngredient()">Añadir Ingrediente
+                <button type="button" class="btn btn-primary mt-2" onclick="addIngredient()">Añadir Ingrediente
                 </button>
             </div>
             <hr>
@@ -252,13 +270,14 @@
                 </div>
             </div>
             <div class="d-flex justify-content-center mt-3">
-                <button type="button" class="btn btn-secondary mt-2" onclick="addInstruction()">Añadir Instrucción
+                <button type="button" class="btn btn-primary mt-2" onclick="addInstruction()">Añadir Instrucción
                 </button>
             </div>
             <hr>
             <label>Etiquetas</label>
             <div id="tags-container" class="mb-3">
-                <input name="tags" type="text" id="tags-input" placeholder="Añadir etiqueta y presionar Enter" class="form-control">
+                <input name="tags" type="text" id="tags-input" placeholder="Añadir etiqueta y presionar Enter"
+                       class="form-control">
             </div>
             <div id="tags-list" class="d-flex flex-wrap"></div>
             <div class="d-flex justify-content-center mt-3">
