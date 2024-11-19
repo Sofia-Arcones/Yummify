@@ -98,7 +98,7 @@
             const ingredientInput = document.createElement("input");
             ingredientInput.setAttribute("name", "ingredients");
             ingredientInput.setAttribute("class", "form-control col-md-4 ingredient-input");
-            ingredientInput.setAttribute("placeholder", "Ingrediente");
+            ingredientInput.setAttribute("placeholder", "Nombre del ingrediente");
             ingredientInput.setAttribute("required", "required");
 
             const quantityInput = document.createElement("input");
@@ -191,6 +191,7 @@
             newInstruction.setAttribute("name", "instructions");
             newInstruction.setAttribute("class", "form-control");
             newInstruction.setAttribute("rows", "3");
+            newInstruction.setAttribute("placeholder", "Escribe aquí los pasos de la receta. Pulsa el botón 'Añadir Instrucción' para agregar más pasos.");
             newInstruction.setAttribute("required", "required");
 
             const removeButton = document.createElement("button");
@@ -212,9 +213,7 @@
             instructionContainer.appendChild(instructionDiv);
         }
     </script>
-
 </head>
-
 <body class="d-flex flex-column min-vh-100">
 <div class="container-fluid p-0">
     <div th:replace="~{fragments/header :: header}"></div>
@@ -225,10 +224,12 @@
     <form th:action="@{/recipe}" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label for="title">Título</label>
-            <input type="text" id="title" name="title" required class="form-control">
+            <input type="text" id="title" name="title" placeholder="Introduce el título de tu receta" required
+                   class="form-control">
             <hr>
             <label for="description">Descripción</label>
-            <textarea id="description" name="description" class="form-control" rows="3"></textarea>
+            <textarea id="description" name="description" class="form-control" rows="3"
+                      placeholder="Describe brevemente la receta (opcional)"></textarea>
             <hr>
             <label for="image">Imagen</label>
             <input type="file" id="image" name="image" accept="image/*" required class="form-control-file">
@@ -240,16 +241,19 @@
             </select>
             <hr>
             <label for="prepTime">Tiempo de Preparación (minutos)</label>
-            <input type="number" id="prepTime" name="prepTime" required class="form-control" min="1">
+            <input type="number" id="prepTime" name="prepTime"
+                   placeholder="Indica el tiempo aproximado de preparación en minutos" required class="form-control"
+                   min="1">
             <hr>
             <label for="portions">Cantidad de comensales</label>
-            <input type="number" id="portions" name="portions" required class="form-control" min="1">
+            <input type="number" id="portions" name="portions"
+                   placeholder="Especifica para cuántas personas es la receta" required class="form-control" min="1">
             <hr>
             <label>Ingredientes</label>
             <div id="ingredient-container">
                 <div class="form-row align-items-center mb-2">
                     <input type="text" name="ingredients" class="form-control col-md-4 ingredient-input"
-                           placeholder="Ingrediente" required>
+                           placeholder="Nombre del ingrediente" required>
                     <input type="number" name="quantities" class="form-control col-md-3 ml-2" step="0.01"
                            placeholder="Cantidad" required>
                     <select name="units" class="form-control col-md-3 ml-2" required>
@@ -266,7 +270,9 @@
             <label>Instrucciones</label>
             <div id="instruction-container">
                 <div class="input-group mb-2">
-                    <textarea name="instructions" class="form-control" rows="3" required></textarea>
+                    <textarea name="instructions" class="form-control" rows="3"
+                              placeholder="Escribe aquí los pasos de la receta. Pulsa el botón 'Añadir Instrucción' para agregar más pasos."
+                              required></textarea>
                 </div>
             </div>
             <div class="d-flex justify-content-center mt-3">
