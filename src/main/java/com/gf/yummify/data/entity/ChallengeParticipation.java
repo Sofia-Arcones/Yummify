@@ -31,7 +31,8 @@ public class ChallengeParticipation {
     private Challenge challenge;
     @NotNull
     private Boolean isWinner;
-    private @NotNull LocalDateTime participationDate;
+    @NotNull
+    private LocalDateTime participationDate;
     @Transient
     private String formattedParticipationDate;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");

@@ -35,6 +35,9 @@ public class Challenge {
     @NotNull
     private String reward;
 
+    @NotNull
+    private Boolean isFinished;
+
     @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
     private List<ChallengeParticipation> participations;
 

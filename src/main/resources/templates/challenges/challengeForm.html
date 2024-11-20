@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Reto</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body class="d-flex flex-column min-vh-100">
+<div class="container-fluid p-0">
+    <div th:replace="~{fragments/headerAdmin :: headerAdmin}"></div>
+</div>
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Crear Reto</h2>
+    <form th:action="@{/challenges}" method="post">
+        <div class="form-group">
+            <label for="title">Título:</label>
+            <input type="text" id="title" name="title" class="form-control" placeholder="Escribe el nombre del reto"
+                   th:value="${challenge != null ? challenge.title : ''}" required/>
+        </div>
+        <div class="form-group mt-3">
+            <label for="description">Descripción:</label>
+            <textarea id="description" name="description" class="form-control"
+                      placeholder="Escribe la descripción del reto"
+                      th:text="${challenge != null ? challenge.description : ''}" required></textarea>
+        </div>
+        <div class="form-group mt-3">
+            <label for="winnerQuantity">Número de Ganadores:</label>
+            <input type="number" id="winnerQuantity" name="winnerQuantity" class="form-control"
+                   placeholder="Escribe la cantidad de ganadores" min="1" th:value="${challenge != null ? challenge.winnerQuantity : ''}"
+                   required/>
+        </div>
+        <div class="form-group mt-3">
+            <label for="startDate">Fecha de Inicio:</label>
+            <input type="date" id="startDate" name="startDate" class="form-control"
+                   th:value="${challenge != null ? challenge.startDate : ''}" required/>
+        </div>
+        <div class="form-group mt-3">
+            <label for="endDate">Fecha de Fin:</label>
+            <input type="date" id="endDate" name="endDate" class="form-control"
+                   th:value="${challenge != null ? challenge.endDate : ''}" required/>
+        </div>
+        <div class="form-group mt-3">
+            <label for="reward">Recompensa:</label>
+            <input type="text" id="reward" name="reward" class="form-control" placeholder="Escribe el premio por ganar"
+                   th:value="${challenge!= null ? challenge.reward : ''}" required/>
+        </div>
+        <button type="submit" class="btn btn-primary mt-4">Crear Reto</button>
+        <a href="/challenges" class="btn btn-secondary mt-4">Cancelar</a>
+    </form>
+    <div th:if="${error}" class="alert alert-danger mt-4">
+        <p th:text="${error}"></p>
+    </div>
+</div>
+<br>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
