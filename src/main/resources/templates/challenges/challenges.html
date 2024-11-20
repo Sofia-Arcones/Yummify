@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,11 +10,12 @@
 </head>
 <body class="d-flex flex-column min-vh-100">
 <div class="container-fluid p-0">
-    <div th:replace="~{fragments/headerAdmin :: headerAdmin}"></div>
+    <div th:replace="~{fragments/headerAdmin :: headerAdmin}" sec:authorize="hasRole('ROLE_ADMIN')"></div>
+    <div th:replace="~{fragments/header :: header}" sec:authorize="hasRole('ROLE_USER')"></div>
 </div>
 <div class="container mt-5">
-    <h2 class="text-center text-secondary mb-4">Gestionar retos</h2>
-    <div class="form-row align-items-center mb-4">
+    <h2 class="text-center text-secondary mb-4">Desafíos</h2>
+    <div class="form-row align-items-center mb-4" sec:authorize="hasRole('ROLE_ADMIN')">
         <div class="col-auto">
             <button type="button" class="btn btn-primary" onclick="window.location.href='/challenges/create'">
                 <i class="fas fa-plus"></i> Crear Nuevo Desafío
@@ -62,7 +63,7 @@
                     <p class="card-text"><strong>Fecha de fin:</strong> <span th:text="${challenge.endDate}"></span></p>
                     <p class="card-text"><strong>Ganadores:</strong> <span th:text="${challenge.winnerQuantity}"></span>
                     </p>
-                    <form th:action="@{/challenges/{id}/participations(id=${challenge.challengeId})}" method="get">
+                    <form th:action="@{/challenges/{id}/participations(id=${challenge.challengeId})}" method="get" sec:authorize="hasRole('ROLE_ADMIN')">
                         <button type="submit" class="btn btn-secondary btn-sm mt-3">
                             Ver Participantes
                         </button>
