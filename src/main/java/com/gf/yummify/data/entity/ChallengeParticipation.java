@@ -29,7 +29,6 @@ public class ChallengeParticipation {
     @ManyToOne
     @JoinColumn(name = "challenge_id", nullable = false)
     private Challenge challenge;
-    @NotNull
     private Boolean isWinner;
     @NotNull
     private LocalDateTime participationDate;

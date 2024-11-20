@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participaciones del desafío</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+</head>
+<body class="d-flex flex-column min-vh-100">
+<header th:replace="~{fragments/headerAdmin :: headerAdmin}"></header>
+<div class="container mt-5">
+    <div class="mb-4">
+        <h1 class="text-center mb-3 text-secondary">Desafío: <span
+                th:text="${challenge.title}">Título del desafío</span></h1>
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <p><strong>Descripción:</strong> <span th:text="${challenge.description}">Descripción del desafío</span>
+                </p>
+            </div>
+            <div class="col-md-6 mb-3">
+                <p><strong>Fecha de inicio:</strong> <span th:text="${challenge.startDate}"></span></p>
+            </div>
+            <div class="col-md-6 mb-3">
+                <p><strong>Fecha de fin:</strong> <span th:text="${challenge.endDate}"></span></p>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <p><strong>Recompensa:</strong> <span th:text="${challenge.reward}"></span></p>
+            </div>
+            <div class="col-md-6 mb-3">
+                <p><strong>Ganadores esperados:</strong> <span th:text="${challenge.winnerQuantity}"></span></p>
+            </div>
+            <div class="col-md-12">
+                <p><strong>Estado:</strong>
+                    <span th:if="${challenge.isFinished}" class="badge bg-success">Finalizado</span>
+                    <span th:unless="${challenge.isFinished}" class="badge bg-warning text-dark">En Curso</span>
+                </p>
+            </div>
+        </div>
+        <h2 class="mb-3 text-center">Participaciones</h2>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                <tr>
+                    <th>Usuario</th>
+                    <th>Fecha de Participación</th>
+                    <th>Estado</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="participation : ${challenge.participations.content}">
+                    <td>
+                        <a th:href="@{/recipes/{id}(id=${participation.recipeId})}"
+                           th:text="${participation.username}">
+                            Nombre del usuario
+                        </a>
+                    </td>
+                    <td th:text="${participation.formattedParticipationDate}">Fecha de participación</td>
+                    <td>
+                        <span th:if="${participation.isWinner}" class="badge bg-success">Ganador</span>
+                        <span th:unless="${participation.isWinner}" class="badge bg-secondary">Participante</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <nav class="d-flex justify-content-center" aria-label="Paginación de participaciones">
+            <ul class="pagination">
+                <li class="page-item" th:classappend="${!challenge.participations.hasPrevious()} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/challenges/{id}/participations(page=${challenge.participations.number - 1}, size=${challenge.participations.size})}"
+                       th:aria-disabled="${!challenge.participations.hasPrevious()}" aria-label="Página anterior">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+
+                <li class="page-item disabled">
+                    <a class="page-link"
+                       th:text="'Página ' + (${challenge.participations.number + 1}) + ' de ' + ${challenge.participations.totalPages}"
+                       aria-disabled="true"></a>
+                </li>
+
+                <li class="page-item" th:classappend="${!challenge.participations.hasNext()} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/challenges/{id}/participations(page=${challenge.participations.number + 1}, size=${challenge.participations.size})}"
+                       th:aria-disabled="${!challenge.participations.hasNext()}" aria-label="Página siguiente">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+</body>
+</html>

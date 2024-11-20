@@ -1,15 +1,16 @@
 package com.gf.yummify.presentation.controller;
 
 import com.gf.yummify.business.services.ChallengeService;
+import com.gf.yummify.data.entity.Challenge;
 import com.gf.yummify.presentation.dto.ChallengeRequestDTO;
 import com.gf.yummify.presentation.dto.ChallengeResponseDTO;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/challenges")
@@ -43,4 +44,47 @@ public class ChallengeController {
         }
     }
 
+    @GetMapping()
+    public String showChallenges(@RequestParam(value = "status", required = false) String status,
+                                 @RequestParam(value = "page", defaultValue = "0") int page,
+                                 @RequestParam(value = "size", defaultValue = "5") int size,
+                                 Model model) {
+        try {
+            Page<Challenge> challengePage;
+            if (status == null || status.isEmpty()) {
+                challengePage = challengeService.findChallenges(page, size);
+            } else {
+                Boolean isFinished = null;
+                if (status.equals("finalizado")) {
+                    isFinished = true;
+                } else if (status.equals("en_curso")) {
+                    isFinished = false;
+                } else {
+                    throw new IllegalArgumentException("Estado desconocido: " + status);
+                }
+
+                challengePage = challengeService.findChallengesByIsFinished(page, size, isFinished);
+            }
+            System.out.println(challengePage);
+            model.addAttribute("challengesPage", challengePage);
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+            return "error";
+        }
+        return "challenges/challenges";
+    }
+
+    @GetMapping("/{id}/participations")
+    public String getChallengeParticipations(@PathVariable UUID id,
+                                             @RequestParam(value = "page", defaultValue = "0") int page,
+                                             @RequestParam(value = "size", defaultValue = "5") int size,
+                                             Model model) {
+        try {
+            ChallengeResponseDTO challengeResponseDTO = challengeService.findChallengeWithPageParticipations(id, size, page);
+            model.addAttribute("challenge", challengeResponseDTO);
+        } catch (Exception ex) {
+
+        }
+        return "challenges/challengeParticipations";
+    }
 }

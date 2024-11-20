@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: 202420111100
+      author: Sofia Arcones
+      changes:
+        - dropColumn:
+            tableName: challenge_participations
+            columnName: is_winner
+
+        - addColumn:
+            tableName: challenge_participations
+            columns:
+              - column:
+                  name: is_winner
+                  type: boolean
+                  constraints:
+                    nullable: true
+

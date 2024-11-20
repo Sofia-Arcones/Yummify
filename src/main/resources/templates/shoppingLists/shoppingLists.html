@@ -6,6 +6,7 @@
     <title>Listas de la Compra</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/custom.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
 <script th:inline="javascript">
     function updateItemStatus(checkbox) {
@@ -70,10 +71,8 @@
 <div class="container-fluid p-0">
     <div th:replace="~{fragments/header :: header}"></div>
 </div>
-
 <div class="container my-5">
     <h2 class="text-center text-secondary mb-4">Mis Listas de la Compra</h2>
-
     <div class="form-row align-items-center mb-4">
         <div class="col-auto">
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createListModal">
@@ -129,7 +128,6 @@
         <p th:text="${error}"></p>
     </div>
     <hr>
-
     <div th:each="shoppingList : ${shoppingListsPage.content}">
         <div th:id="'listCard-' + ${shoppingList.shoppingListId}"
              class="card mb-3"
