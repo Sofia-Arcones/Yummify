@@ -5,6 +5,7 @@
     <title>Crear Receta</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/custom.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
@@ -97,7 +98,7 @@
             const ingredientInput = document.createElement("input");
             ingredientInput.setAttribute("name", "ingredients");
             ingredientInput.setAttribute("class", "form-control col-md-4 ingredient-input");
-            ingredientInput.setAttribute("placeholder", "Ingrediente");
+            ingredientInput.setAttribute("placeholder", "Nombre del ingrediente");
             ingredientInput.setAttribute("required", "required");
 
             const quantityInput = document.createElement("input");
@@ -111,9 +112,9 @@
             const unitSelect = createUnitSelect();
 
             const removeButton = document.createElement("button");
-            removeButton.setAttribute("class", "btn btn-danger col-md-2 ml-2");
             removeButton.setAttribute("type", "button");
-            removeButton.textContent = "Eliminar";
+            removeButton.setAttribute("class", "btn btn-sm btn-danger ml-2");
+            removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
             removeButton.onclick = function () {
                 ingredientDiv.remove();
             };
@@ -143,7 +144,8 @@
             const tagsList = document.getElementById("tags-list");
 
             const tagDiv = document.createElement("div");
-            tagDiv.className = "badge badge-primary m-1 p-2";
+            tagDiv.className = "badge badge-primary m-1 p-2 d-flex align-items-center";
+
             tagDiv.textContent = tagText;
 
             const hiddenInput = document.createElement("input");
@@ -152,11 +154,19 @@
             hiddenInput.value = tagText;
 
             const removeButton = document.createElement("button");
-            removeButton.className = "ml-1 btn btn-sm btn-danger";
-            removeButton.innerHTML = "&times;";
+            removeButton.className = "ml-1 btn btn-xs btn-danger";
+            removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
             removeButton.onclick = function () {
                 tagsList.removeChild(tagDiv);
             };
+
+            removeButton.style.width = "18px";
+            removeButton.style.height = "18px";
+            removeButton.style.padding = "0";
+            removeButton.style.fontSize = "12px";
+            removeButton.style.display = "flex";
+            removeButton.style.justifyContent = "center";
+            removeButton.style.alignItems = "center";
 
             tagDiv.appendChild(hiddenInput);
             tagDiv.appendChild(removeButton);
@@ -181,14 +191,22 @@
             newInstruction.setAttribute("name", "instructions");
             newInstruction.setAttribute("class", "form-control");
             newInstruction.setAttribute("rows", "3");
+            newInstruction.setAttribute("placeholder", "Escribe aquí los pasos de la receta. Pulsa el botón 'Añadir Instrucción' para agregar más pasos.");
             newInstruction.setAttribute("required", "required");
 
-            const removeButton = document.createElement("div");
-            removeButton.setAttribute("class", "input-group-append");
-            removeButton.innerHTML = '<button class="btn btn-danger" type="button">Eliminar</button>';
+            const removeButton = document.createElement("button");
+            removeButton.setAttribute("type", "button");
+            removeButton.setAttribute("class", "btn btn-sm btn-danger ml-2");
+            removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
             removeButton.onclick = function () {
                 instructionDiv.remove();
             };
+            removeButton.style.width = "30px";
+            removeButton.style.height = "30px";
+            removeButton.style.padding = "0";
+            removeButton.style.display = "flex";
+            removeButton.style.justifyContent = "center";
+            removeButton.style.alignItems = "center";
 
             instructionDiv.appendChild(newInstruction);
             instructionDiv.appendChild(removeButton);
@@ -196,7 +214,6 @@
         }
     </script>
 </head>
-
 <body class="d-flex flex-column min-vh-100">
 <div class="container-fluid p-0">
     <div th:replace="~{fragments/header :: header}"></div>
@@ -207,10 +224,12 @@
     <form th:action="@{/recipe}" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label for="title">Título</label>
-            <input type="text" id="title" name="title" required class="form-control">
+            <input type="text" id="title" name="title" placeholder="Introduce el título de tu receta" required
+                   class="form-control">
             <hr>
             <label for="description">Descripción</label>
-            <textarea id="description" name="description" class="form-control" rows="3"></textarea>
+            <textarea id="description" name="description" class="form-control" rows="3"
+                      placeholder="Describe brevemente la receta (opcional)"></textarea>
             <hr>
             <label for="image">Imagen</label>
             <input type="file" id="image" name="image" accept="image/*" required class="form-control-file">
@@ -222,16 +241,19 @@
             </select>
             <hr>
             <label for="prepTime">Tiempo de Preparación (minutos)</label>
-            <input type="number" id="prepTime" name="prepTime" required class="form-control" min="1">
+            <input type="number" id="prepTime" name="prepTime"
+                   placeholder="Indica el tiempo aproximado de preparación en minutos" required class="form-control"
+                   min="1">
             <hr>
             <label for="portions">Cantidad de comensales</label>
-            <input type="number" id="portions" name="portions" required class="form-control" min="1">
+            <input type="number" id="portions" name="portions"
+                   placeholder="Especifica para cuántas personas es la receta" required class="form-control" min="1">
             <hr>
             <label>Ingredientes</label>
             <div id="ingredient-container">
                 <div class="form-row align-items-center mb-2">
                     <input type="text" name="ingredients" class="form-control col-md-4 ingredient-input"
-                           placeholder="Ingrediente" required>
+                           placeholder="Nombre del ingrediente" required>
                     <input type="number" name="quantities" class="form-control col-md-3 ml-2" step="0.01"
                            placeholder="Cantidad" required>
                     <select name="units" class="form-control col-md-3 ml-2" required>
@@ -240,7 +262,7 @@
                 </div>
             </div>
             <div class="d-flex justify-content-center mt-3">
-                <button type="button" class="btn btn-secondary mt-2" onclick="addIngredient()">Añadir Ingrediente
+                <button type="button" class="btn btn-primary mt-2" onclick="addIngredient()">Añadir Ingrediente
                 </button>
             </div>
             <hr>
@@ -248,17 +270,20 @@
             <label>Instrucciones</label>
             <div id="instruction-container">
                 <div class="input-group mb-2">
-                    <textarea name="instructions" class="form-control" rows="3" required></textarea>
+                    <textarea name="instructions" class="form-control" rows="3"
+                              placeholder="Escribe aquí los pasos de la receta. Pulsa el botón 'Añadir Instrucción' para agregar más pasos."
+                              required></textarea>
                 </div>
             </div>
             <div class="d-flex justify-content-center mt-3">
-                <button type="button" class="btn btn-secondary mt-2" onclick="addInstruction()">Añadir Instrucción
+                <button type="button" class="btn btn-primary mt-2" onclick="addInstruction()">Añadir Instrucción
                 </button>
             </div>
             <hr>
             <label>Etiquetas</label>
             <div id="tags-container" class="mb-3">
-                <input name="tags" type="text" id="tags-input" placeholder="Añadir etiqueta y presionar Enter" class="form-control">
+                <input name="tags" type="text" id="tags-input" placeholder="Añadir etiqueta y presionar Enter"
+                       class="form-control">
             </div>
             <div id="tags-list" class="d-flex flex-wrap"></div>
             <div class="d-flex justify-content-center mt-3">
