@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 202421111620
+      author: Sofia Arcones
+      changes:
+        - loadUpdateData:
+            file: user.csv
+            primaryKey: user_id
+            relativeToChangeLogFile: true
+            tableName: users
