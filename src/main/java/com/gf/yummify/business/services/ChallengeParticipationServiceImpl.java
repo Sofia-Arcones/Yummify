@@ -13,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+
 @Service
 public class ChallengeParticipationServiceImpl implements ChallengeParticipationService {
     private ChallengeParticipationRepository challengeParticipationRepository;
@@ -33,10 +35,20 @@ public class ChallengeParticipationServiceImpl implements ChallengeParticipation
 
     @Override
     public void addChallengeParticipation(Challenge challenge, Recipe recipe, User user) {
+        if (challengeParticipationRepository.findByChallengeAndUser(challenge, user).isPresent()) {
+            throw new IllegalArgumentException("Ya tienes una participación en este desafío");
+        }
         ChallengeParticipation challengeParticipation = new ChallengeParticipation();
         challengeParticipation.setChallenge(challenge);
         challengeParticipation.setRecipe(recipe);
         challengeParticipation.setUser(user);
         challengeParticipationRepository.save(challengeParticipation);
     }
+
+    @Override
+    public ChallengeParticipation findParticipationByChallengeAndUser(Challenge challenge, User user) {
+        return challengeParticipationRepository.findByChallengeAndUser(challenge, user)
+                .orElseThrow(() -> new NoSuchElementException("No existe ninguna participación con ese usuario."));
+    }
 }
+
