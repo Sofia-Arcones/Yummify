@@ -14,8 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -47,20 +47,16 @@ public class RecipeController {
     }
 
     @PostMapping()
-    public String createRecipe(@ModelAttribute @Valid RecipeRequestDTO requestDTO, Model model, Authentication authentication, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("recipeRequestDTO", requestDTO);
-            return "recipes/createRecipeForm";
-        }
+    public String createRecipe(@ModelAttribute @Valid RecipeRequestDTO requestDTO, Model model, Authentication authentication, RedirectAttributes redirectAttributes) {
         try {
             Recipe recipe = recipeService.saveRecipe(requestDTO, authentication);
             model.addAttribute("successMessage", "Receta creada correctamente.");
             model.addAttribute("recipe", recipe);
             return "recipes/recipeSuccess";
         } catch (Exception ex) {
-            model.addAttribute("error", ex.getMessage());
-            model.addAttribute("recipeRequestDTO", requestDTO);
-            return "recipes/createRecipeForm";
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+            redirectAttributes.addFlashAttribute("recipe", requestDTO);
+            return "redirect:/recipe/create";
         }
     }
 

@@ -14,7 +14,8 @@
     <div th:replace="~{fragments/header :: header}" sec:authorize="hasRole('ROLE_USER')"></div>
 </div>
 <div class="container mt-5">
-    <h2 class="text-center text-secondary mb-4">Desafíos</h2>
+    <h2 class="text-center text-secondary mb-4" sec:authorize="hasRole('ROLE_ADMIN')">Gestión de Desafíos</h2>
+    <h2 class="text-center text-secondary mb-4" sec:authorize="hasRole('ROLE_USER')">Desafíos activos</h2>
     <div class="form-row align-items-center mb-4" sec:authorize="hasRole('ROLE_ADMIN')">
         <div class="col-auto">
             <button type="button" class="btn btn-primary" onclick="window.location.href='/challenges/create'">
@@ -63,12 +64,55 @@
                     <p class="card-text"><strong>Fecha de fin:</strong> <span th:text="${challenge.endDate}"></span></p>
                     <p class="card-text"><strong>Ganadores:</strong> <span th:text="${challenge.winnerQuantity}"></span>
                     </p>
-                    <form th:action="@{/challenges/{id}/participations(id=${challenge.challengeId})}" method="get" sec:authorize="hasRole('ROLE_ADMIN')">
+                    <form th:action="@{/challenges/{id}/participations(id=${challenge.challengeId})}" method="get"
+                          sec:authorize="hasRole('ROLE_ADMIN')">
                         <button type="submit" class="btn btn-secondary btn-sm mt-3">
                             Ver Participantes
                         </button>
                     </form>
+                    <form>
+                        <button type="button" class="btn btn-secondary btn-sm mt-3"
+                                onclick="document.getElementById('challengeIdInput').value = [[${challenge.challengeId}]]"
+                                data-toggle="modal" data-target="#participationModal">
+                            Participar
+                        </button>
+                    </form>
                 </div>
+                <!-- Modal -->
+                <!-- Modal -->
+                <div class="modal fade" id="participationModal" tabindex="-1" role="dialog" aria-labelledby="participationModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="participationModalLabel">Participar en el desafío</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form th:action="@{/challenges/participate}" method="post">
+                                    <input type="hidden" id="challengeIdInput" name="challengeId">
+                                    <div class="form-group">
+                                        <label for="recipeSelect">Selecciona una receta:</label>
+                                        <select class="form-control" id="recipeSelect" name="recipeId" required>
+                                            <option value="" disabled selected>-- Elige una receta --</option>
+                                            <option th:each="recipe : ${userRecipes}"
+                                                    th:value="${recipe.recipeId}"
+                                                    th:text="${recipe.title}"></option>
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Participar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
             </div>
         </div>
     </div>

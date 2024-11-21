@@ -66,6 +66,12 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
+    public List<Recipe> findRecipesByUser(Authentication authentication) {
+        User user = userService.findUserByUsername(authentication.getName());
+        return recipeRepository.findByUser(user);
+    }
+
+    @Override
     public RecipeResponseDTO getRecipeResponseDTO(UUID id) {
         Recipe recipe = findRecipeById(id);
         return mapToRecipeResponseDTO(recipe);

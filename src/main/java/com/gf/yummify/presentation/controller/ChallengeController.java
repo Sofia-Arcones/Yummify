@@ -1,7 +1,9 @@
 package com.gf.yummify.presentation.controller;
 
 import com.gf.yummify.business.services.ChallengeService;
+import com.gf.yummify.business.services.RecipeService;
 import com.gf.yummify.data.entity.Challenge;
+import com.gf.yummify.data.entity.Recipe;
 import com.gf.yummify.presentation.dto.ChallengeRequestDTO;
 import com.gf.yummify.presentation.dto.ChallengeResponseDTO;
 import jakarta.validation.Valid;
@@ -11,15 +13,18 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Controller
 @RequestMapping("/challenges")
 public class ChallengeController {
     private ChallengeService challengeService;
+    private RecipeService recipeService;
 
-    public ChallengeController(ChallengeService challengeService) {
+    public ChallengeController(ChallengeService challengeService, RecipeService recipeService) {
         this.challengeService = challengeService;
+        this.recipeService = recipeService;
     }
 
     @GetMapping("/create")
@@ -61,6 +66,8 @@ public class ChallengeController {
 
             if (isUser) {
                 challengePage = challengeService.findChallengesByIsFinished(page, size, false);
+                List<Recipe> userRecipes = recipeService.findRecipesByUser(authentication);
+                model.addAttribute("userRecipes", userRecipes);
             } else if (isAdmin) {
                 if (status == null || status.isEmpty()) {
                     challengePage = challengeService.findChallenges(page, size);

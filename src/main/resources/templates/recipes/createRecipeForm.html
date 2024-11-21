@@ -173,15 +173,25 @@
             tagsList.appendChild(tagDiv);
         }
 
-        function toggleQuantityField(unitSelect) {
-            const quantityInput = $(unitSelect).closest(".form-row").find("input[name='quantities']");
-            if (unitSelect.value === "AL_GUSTO") {
-                quantityInput.prop("disabled", true).val("1");
-            } else {
-                quantityInput.prop("disabled", false).val("");
-            }
-        }
+function toggleQuantityField(unitSelect) {
+    const quantityInput = $(unitSelect).closest(".form-row").find("input[name='quantities']");
+    const hiddenField = $(unitSelect).closest(".form-row").find("input[name='hiddenQuantity']");
 
+    if (unitSelect.value === "AL_GUSTO") {
+        if (hiddenField.length === 0) {
+            const hiddenQuantity = $('<input>')
+                .attr('type', 'hidden')
+                .attr('name', 'quantities')
+                .attr('class', 'hiddenQuantity')
+                .val('1');
+            $(unitSelect).closest(".form-row").append(hiddenQuantity);
+        }
+        quantityInput.prop("disabled", true).val("");
+    } else {
+        hiddenField.remove();
+        quantityInput.prop("disabled", false).val("");
+    }
+}
         function addInstruction() {
             const instructionContainer = document.getElementById("instruction-container");
             const instructionDiv = document.createElement("div");
@@ -291,7 +301,7 @@
             </div>
         </div>
     </form>
-    <div th:if="${param.error}" class="alert alert-danger">
+    <div th:if="${error}" class="alert alert-danger">
         <p th:text="${error}"></p>
     </div>
 </div>
