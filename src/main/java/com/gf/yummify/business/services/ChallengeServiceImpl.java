@@ -2,6 +2,8 @@ package com.gf.yummify.business.services;
 
 import com.gf.yummify.business.mappers.ChallengeMapper;
 import com.gf.yummify.data.entity.Challenge;
+import com.gf.yummify.data.entity.Recipe;
+import com.gf.yummify.data.entity.User;
 import com.gf.yummify.data.repository.ChallengeRepository;
 import com.gf.yummify.presentation.dto.ChallengeRequestDTO;
 import com.gf.yummify.presentation.dto.ChallengeResponseDTO;
@@ -9,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -20,11 +23,15 @@ public class ChallengeServiceImpl implements ChallengeService {
     private ChallengeRepository challengeRepository;
     private ChallengeMapper challengeMapper;
     private ChallengeParticipationService challengeParticipationService;
+    private RecipeService recipeService;
+    private UserService userService;
 
-    public ChallengeServiceImpl(ChallengeRepository challengeRepository, ChallengeMapper challengeMapper, ChallengeParticipationService challengeParticipationService) {
+    public ChallengeServiceImpl(ChallengeRepository challengeRepository, ChallengeMapper challengeMapper, ChallengeParticipationService challengeParticipationService, RecipeService recipeService, UserService userService) {
         this.challengeRepository = challengeRepository;
         this.challengeMapper = challengeMapper;
         this.challengeParticipationService = challengeParticipationService;
+        this.recipeService = recipeService;
+        this.userService = userService;
     }
 
     @Override
@@ -94,5 +101,13 @@ public class ChallengeServiceImpl implements ChallengeService {
         ChallengeResponseDTO challengeResponseDTO = challengeMapper.toChallengeResponseDTO(challenge);
         challengeResponseDTO.setParticipations(challengeParticipationService.findChallengeParticipationPage(size, page, challenge));
         return challengeResponseDTO;
+    }
+
+    @Override
+    public void addParticipationToChallenge(UUID challengeId, UUID recipeId, Authentication authentication) {
+        User user = userService.findUserByUsername(authentication.getName());
+        Recipe recipe = recipeService.findRecipeById(recipeId);
+        Challenge challenge = findChallengeById(challengeId);
+        challengeParticipationService.addChallengeParticipation(challenge, recipe, user);
     }
 }

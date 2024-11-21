@@ -1,5 +1,6 @@
 package com.gf.yummify.presentation.controller;
 
+import com.gf.yummify.business.services.ChallengeParticipationService;
 import com.gf.yummify.business.services.ChallengeService;
 import com.gf.yummify.business.services.RecipeService;
 import com.gf.yummify.data.entity.Challenge;
@@ -12,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,10 +23,12 @@ import java.util.UUID;
 public class ChallengeController {
     private ChallengeService challengeService;
     private RecipeService recipeService;
+    private ChallengeParticipationService challengeParticipationService;
 
-    public ChallengeController(ChallengeService challengeService, RecipeService recipeService) {
+    public ChallengeController(ChallengeService challengeService, RecipeService recipeService, ChallengeParticipationService challengeParticipationService) {
         this.challengeService = challengeService;
         this.recipeService = recipeService;
+        this.challengeParticipationService = challengeParticipationService;
     }
 
     @GetMapping("/create")
@@ -106,5 +110,20 @@ public class ChallengeController {
 
         }
         return "challenges/challengeParticipations";
+    }
+
+    @PostMapping("/participate")
+    public String participateInChallenge(@RequestParam("recipeId") UUID recipeId,
+                                         @RequestParam("challengeId") UUID challengeId,
+                                         Model model,
+                                         Authentication authentication,
+                                         RedirectAttributes redirectAttributes) {
+        try {
+            challengeService.addParticipationToChallenge(challengeId, recipeId, authentication);
+            redirectAttributes.addFlashAttribute("successParticipation", "Has añadido correctamente tu participación");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("errorParticipation", ex.getMessage());
+        }
+        return "redirect:/challenges";
     }
 }

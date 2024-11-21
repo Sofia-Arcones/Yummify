@@ -12,4 +12,5 @@ public interface ChallengeParticipationMapper {
     @Mapping(source = "isWinner", target = "isWinner")
     @Mapping(source = "formattedParticipationDate", target = "formattedParticipationDate")
     ChallengeParticipationResponseDTO toChallengeParticipationResponseDto(ChallengeParticipation challengeParticipation);
+
 }

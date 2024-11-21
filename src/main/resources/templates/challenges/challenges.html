@@ -16,6 +16,12 @@
 <div class="container mt-5">
     <h2 class="text-center text-secondary mb-4" sec:authorize="hasRole('ROLE_ADMIN')">Gestión de Desafíos</h2>
     <h2 class="text-center text-secondary mb-4" sec:authorize="hasRole('ROLE_USER')">Desafíos activos</h2>
+    <div th:if="${successParticipation}" class="alert alert-success text-center">
+        <p th:text="${successParticipation}"></p>
+    </div>
+    <div th:if="${errorParticipation}" class="alert alert-danger text-center">
+        <p th:text="${errorParticipation}"></p>
+    </div>
     <div class="form-row align-items-center mb-4" sec:authorize="hasRole('ROLE_ADMIN')">
         <div class="col-auto">
             <button type="button" class="btn btn-primary" onclick="window.location.href='/challenges/create'">
@@ -47,6 +53,7 @@
             <div class="card-header">
                 <h5 class="card-title" th:text="${challenge.title}">Título del Desafío</h5>
             </div>
+            <br>
             <div class="card-body">
                 <button class="btn btn-info btn-sm ml-2" type="button" data-toggle="collapse"
                         th:id="'toggleDetails-' + ${challenge.challengeId}"
@@ -78,9 +85,8 @@
                         </button>
                     </form>
                 </div>
-                <!-- Modal -->
-                <!-- Modal -->
-                <div class="modal fade" id="participationModal" tabindex="-1" role="dialog" aria-labelledby="participationModalLabel"
+                <div class="modal fade" id="participationModal" tabindex="-1" role="dialog"
+                     aria-labelledby="participationModalLabel"
                      aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
@@ -92,7 +98,7 @@
                             </div>
                             <div class="modal-body">
                                 <form th:action="@{/challenges/participate}" method="post">
-                                    <input type="hidden" id="challengeIdInput" name="challengeId">
+                                    <input type="hidden" name="challengeId" th:value="${challenge.challengeId}">
                                     <div class="form-group">
                                         <label for="recipeSelect">Selecciona una receta:</label>
                                         <select class="form-control" id="recipeSelect" name="recipeId" required>
@@ -102,17 +108,14 @@
                                                     th:text="${recipe.title}"></option>
                                         </select>
                                     </div>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">Participar</button>
                                 </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                                <button type="submit" class="btn btn-primary">Participar</button>
                             </div>
                         </div>
                     </div>
                 </div>
-
-
             </div>
         </div>
     </div>
