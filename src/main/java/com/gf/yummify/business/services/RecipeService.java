@@ -5,6 +5,7 @@ import com.gf.yummify.presentation.dto.RecipeRequestDTO;
 import com.gf.yummify.presentation.dto.RecipeResponseDTO;
 import org.springframework.security.core.Authentication;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface RecipeService {
@@ -13,5 +14,8 @@ public interface RecipeService {
     Recipe findRecipeById(UUID id);
 
     void deleteRecipe(UUID id);
+
     RecipeResponseDTO getRecipeResponseDTO(UUID id);
+
+    List<Recipe> findRecipesByUser(Authentication authentication);
 }

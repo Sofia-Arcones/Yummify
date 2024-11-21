@@ -17,5 +17,6 @@ public enum UnitOfMeasure {
     BOTELLA,
     LATA,
     PIZCA,
+    UNIDAD,
     AL_GUSTO
 }

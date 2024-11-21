@@ -22,9 +22,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/recipe/{id}", "/users/profile/{username}").permitAll()
-                        .requestMatchers("/login", "/user", "/register", "/error", "/recipe/{id}").permitAll()
+                        .requestMatchers( "/user", "/register", "/error", "/recipe/{id}").permitAll()
+                        .requestMatchers("/login").anonymous()
                         .requestMatchers("/admin/panel", "ingredients/management", "ingredients/update/**", "ingredients/delete/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
+
                 .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/home", true)

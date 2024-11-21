@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20241120
+      author: Sofia Arcones
+      changes:
+        - addColumn:
+            tableName: challenges
+            columns:
+              - column:
+                  name: is_finished
+                  type: boolean
+                  constraints:
+                    nullable: false

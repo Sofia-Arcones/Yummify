@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Desafío Creado con Éxito!</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body class="d-flex flex-column min-vh-100">
+<div class="container-fluid p-0">
+    <div th:replace="~{fragments/header :: header}"></div>
+</div>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card text-center bg-info text-white">
+                <div class="card-body">
+                    <h1 class="card-title">¡Desafío Creado!</h1>
+                    <p class="card-text">Tu desafío ha sido creado exitosamente. Aquí están los detalles:</p>
+                    <div class="alert alert-success">
+                        <strong>Título:</strong> <span th:text="${challenge.title}"></span><br>
+                        <strong>Descripción:</strong> <span th:text="${challenge.description}"></span><br>
+                        <strong>Cantidad de Ganadores:</strong> <span th:text="${challenge.winnerQuantity}"></span><br>
+                        <strong>Fecha de Inicio:</strong> <span th:text="${challenge.startDate}"></span><br>
+                        <strong>Fecha de Finalización:</strong> <span th:text="${challenge.endDate}"></span><br>
+                        <strong>Recompensa:</strong> <span th:text="${challenge.reward}"></span>
+                    </div>
+                    <p>¿Qué te gustaría hacer a continuación?</p>
+                    <a class="btn btn-primary" href="/challenges" role="button">Volver a los desafíos</a>
+                    <a class="btn btn-secondary" href="/challenges/create" role="button">Crear otro desafío</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+</body>
+</html>

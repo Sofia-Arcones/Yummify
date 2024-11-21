@@ -35,7 +35,10 @@ public class Challenge {
     @NotNull
     private String reward;
 
-    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
+    @NotNull
+    private Boolean isFinished;
+
+    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ChallengeParticipation> participations;
 
     private @NotNull LocalDateTime creationDate;

@@ -21,12 +21,16 @@
             <li class="nav-item">
                 <a class="nav-link text-white" href="#">Inicio</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link text-white" href="#">Recetas</a>
+            <li class="nav-item" sec:authorize="hasRole('ROLE_USER')">
+                <form th:action="@{/challenges}" method="get">
+                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">Desafíos
+                    </button>
+                </form>
             </li>
             <li class="nav-item" sec:authorize="isAuthenticated()">
                 <form th:action="@{/shoppingLists}" method="get">
-                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">Listas de la compra
+                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">Listas de la
+                        compra
                     </button>
                 </form>
             </li>
