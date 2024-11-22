@@ -27,6 +27,18 @@
                     </button>
                 </form>
             </li>
+            <li class="nav-item" sec:authorize="hasRole('ROLE_USER')">
+                <form th:action="@{/recipe/favorites}" method="get">
+                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">Mis favoritas
+                    </button>
+                </form>
+            </li>
+            <li class="nav-item" sec:authorize="hasRole('ROLE_USER')">
+                <form th:action="@{/recipe/create}" method="get">
+                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">Subir receta
+                    </button>
+                </form>
+            </li>
             <li class="nav-item" sec:authorize="isAuthenticated()">
                 <form th:action="@{/shoppingLists}" method="get">
                     <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">Listas de la

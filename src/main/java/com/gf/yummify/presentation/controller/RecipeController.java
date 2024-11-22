@@ -6,9 +6,11 @@ import com.gf.yummify.business.services.ShoppingListService;
 import com.gf.yummify.data.entity.Recipe;
 import com.gf.yummify.data.enums.Difficulty;
 import com.gf.yummify.data.enums.UnitOfMeasure;
+import com.gf.yummify.presentation.dto.FavoriteRecipeDTO;
 import com.gf.yummify.presentation.dto.IngredientAutocompleteDTO;
 import com.gf.yummify.presentation.dto.RecipeRequestDTO;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -90,9 +92,9 @@ public class RecipeController {
     }
 
     @PostMapping("/favorite")
-    public String addFavoriteRecipe(@RequestParam("recipeId") UUID recipeId,
-                                    Model model, RedirectAttributes redirectAttributes,
-                                    Authentication authentication) {
+    public String addOrDeleteFavoriteRecipe(@RequestParam("recipeId") UUID recipeId,
+                                            Model model, RedirectAttributes redirectAttributes,
+                                            Authentication authentication) {
         try {
             recipeService.addOrDeleteRecipeFavorite(authentication, recipeId);
             redirectAttributes.addAttribute("id", recipeId);
@@ -102,5 +104,17 @@ public class RecipeController {
         return "redirect:/recipe/{id}";
     }
 
-
+    @GetMapping("/favorites")
+    public String showFavoriteRecipes(Authentication authentication,
+                                      Model model,
+                                      @RequestParam(value = "page", defaultValue = "0") int page,
+                                      @RequestParam(value = "size", defaultValue = "3") int size) {
+        try {
+            Page<FavoriteRecipeDTO> favoriteRecipeDTOPage = recipeService.findAllFavorites(authentication, page, size);
+            model.addAttribute("recipes", favoriteRecipeDTOPage);
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+        }
+        return "/recipes/favoriteRecipes";
+    }
 }

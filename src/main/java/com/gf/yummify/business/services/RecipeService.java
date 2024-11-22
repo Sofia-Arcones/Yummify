@@ -1,7 +1,7 @@
 package com.gf.yummify.business.services;
 
-import com.gf.yummify.data.entity.FavoriteRecipe;
 import com.gf.yummify.data.entity.Recipe;
+import com.gf.yummify.presentation.dto.FavoriteRecipeDTO;
 import com.gf.yummify.presentation.dto.RecipeRequestDTO;
 import com.gf.yummify.presentation.dto.RecipeResponseDTO;
 import org.springframework.data.domain.Page;
@@ -25,5 +25,5 @@ public interface RecipeService {
 
     Boolean findRecipeFavorite(Authentication authentication, UUID recipeId);
 
-    Page<FavoriteRecipe> findAllFavorites(Authentication authentication, int page, int size);
+    Page<FavoriteRecipeDTO> findAllFavorites(Authentication authentication, int page, int size);
 }
