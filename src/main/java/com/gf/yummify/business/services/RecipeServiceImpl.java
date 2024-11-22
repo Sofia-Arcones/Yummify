@@ -1,12 +1,18 @@
 package com.gf.yummify.business.services;
 
+import com.gf.yummify.business.mappers.RecipeMapper;
 import com.gf.yummify.data.entity.*;
 import com.gf.yummify.data.enums.Difficulty;
 import com.gf.yummify.data.enums.UnitOfMeasure;
+import com.gf.yummify.data.repository.FavoriteRecipeRepository;
 import com.gf.yummify.data.repository.RecipeIngredientRepository;
 import com.gf.yummify.data.repository.RecipeRepository;
+import com.gf.yummify.presentation.dto.FavoriteRecipeDTO;
 import com.gf.yummify.presentation.dto.RecipeRequestDTO;
 import com.gf.yummify.presentation.dto.RecipeResponseDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,25 +22,30 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class RecipeServiceImpl implements RecipeService {
 
     private final RecipeRepository recipeRepository;
+    private final FavoriteRecipeRepository favoriteRecipeRepository;
     private final UserService userService;
     private final RecipeIngredientRepository recipeIngredientRepository;
     private final IngredientService ingredientService;
     private final TagService tagService;
+    private final RecipeMapper recipeMapper;
 
     private static final String UPLOAD_DIR = "src/main/resources/static/images/uploads/recipes";
     private static final List<String> ALLOWED_CONTENT_TYPES = Arrays.asList("image/jpeg", "image/png");
 
-    public RecipeServiceImpl(RecipeRepository recipeRepository, UserService userService, RecipeIngredientRepository recipeIngredientRepository, IngredientService ingredientService, TagService tagService) {
+    public RecipeServiceImpl(RecipeRepository recipeRepository, FavoriteRecipeRepository favoriteRecipeRepository, UserService userService, RecipeIngredientRepository recipeIngredientRepository, IngredientService ingredientService, TagService tagService, RecipeMapper recipeMapper) {
         this.recipeRepository = recipeRepository;
+        this.favoriteRecipeRepository = favoriteRecipeRepository;
         this.userService = userService;
         this.recipeIngredientRepository = recipeIngredientRepository;
         this.ingredientService = ingredientService;
         this.tagService = tagService;
+        this.recipeMapper = recipeMapper;
     }
 
     @Override
@@ -77,6 +88,45 @@ public class RecipeServiceImpl implements RecipeService {
         return mapToRecipeResponseDTO(recipe);
     }
 
+    @Override
+    public void addOrDeleteRecipeFavorite(Authentication authentication, UUID recipeId) {
+        Optional<FavoriteRecipe> favoriteRecipeOpt = findFavoriteRecipe(authentication, recipeId);
+        if (favoriteRecipeOpt.isPresent()) {
+            favoriteRecipeRepository.delete(favoriteRecipeOpt.get());
+        } else {
+            FavoriteRecipe favoriteRecipe = new FavoriteRecipe();
+            favoriteRecipe.setUser(userService.findUserByUsername(authentication.getName()));
+            favoriteRecipe.setRecipe(findRecipeById(recipeId));
+            favoriteRecipeRepository.save(favoriteRecipe);
+        }
+    }
+
+    @Override
+    public Boolean findRecipeFavorite(Authentication authentication, UUID recipeId) {
+        return findFavoriteRecipe(authentication, recipeId).isPresent();
+    }
+
+    @Override
+    public Page<FavoriteRecipeDTO> findAllFavorites(Authentication authentication, int page, int size) {
+        User user = userService.findUserByUsername(authentication.getName());
+        List<FavoriteRecipe> favoriteRecipeList = user.getFavoriteRecipes();
+        List<FavoriteRecipeDTO> favoriteRecipeDTOS = favoriteRecipeList.stream()
+                .map(recipeMapper::toFavoriteRecipeDTO)
+                .collect(Collectors.toList());
+        int start = (int) PageRequest.of(page, size).getOffset();
+        int end = Math.min((start + size), favoriteRecipeDTOS.size());
+        if (start > end) {
+            return new PageImpl<>(Collections.emptyList(), PageRequest.of(page, size), favoriteRecipeDTOS.size());
+        }
+        List<FavoriteRecipeDTO> subList = favoriteRecipeDTOS.subList(start, end);
+        return new PageImpl<>(subList, PageRequest.of(page, size), favoriteRecipeDTOS.size());
+    }
+
+    private Optional<FavoriteRecipe> findFavoriteRecipe(Authentication authentication, UUID recipeId) {
+        User user = userService.findUserByUsername(authentication.getName());
+        Recipe recipe = findRecipeById(recipeId);
+        return favoriteRecipeRepository.findByUserAndRecipe(user, recipe);
+    }
 
     private void setRecipeFields(Recipe recipe, RecipeRequestDTO recipeRequestDTO, User user) {
         recipe.setTitle(recipeRequestDTO.getTitle());

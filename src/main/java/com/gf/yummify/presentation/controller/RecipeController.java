@@ -6,9 +6,11 @@ import com.gf.yummify.business.services.ShoppingListService;
 import com.gf.yummify.data.entity.Recipe;
 import com.gf.yummify.data.enums.Difficulty;
 import com.gf.yummify.data.enums.UnitOfMeasure;
+import com.gf.yummify.presentation.dto.FavoriteRecipeDTO;
 import com.gf.yummify.presentation.dto.IngredientAutocompleteDTO;
 import com.gf.yummify.presentation.dto.RecipeRequestDTO;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -79,6 +81,7 @@ public class RecipeController {
         try {
             if (authentication != null) {
                 model.addAttribute("shoppingLists", shoppingListService.findListsByUser(authentication));
+                model.addAttribute("isFavorited", recipeService.findRecipeFavorite(authentication, id));
             }
             model.addAttribute("recipe", recipeService.getRecipeResponseDTO(id));
             model.addAttribute("recipeId", id);
@@ -88,5 +91,30 @@ public class RecipeController {
         return "recipes/recipe";
     }
 
+    @PostMapping("/favorite")
+    public String addOrDeleteFavoriteRecipe(@RequestParam("recipeId") UUID recipeId,
+                                            Model model, RedirectAttributes redirectAttributes,
+                                            Authentication authentication) {
+        try {
+            recipeService.addOrDeleteRecipeFavorite(authentication, recipeId);
+            redirectAttributes.addAttribute("id", recipeId);
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
+        return "redirect:/recipe/{id}";
+    }
 
+    @GetMapping("/favorites")
+    public String showFavoriteRecipes(Authentication authentication,
+                                      Model model,
+                                      @RequestParam(value = "page", defaultValue = "0") int page,
+                                      @RequestParam(value = "size", defaultValue = "3") int size) {
+        try {
+            Page<FavoriteRecipeDTO> favoriteRecipeDTOPage = recipeService.findAllFavorites(authentication, page, size);
+            model.addAttribute("recipes", favoriteRecipeDTOPage);
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+        }
+        return "/recipes/favoriteRecipes";
+    }
 }
