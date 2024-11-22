@@ -1,5 +1,6 @@
 package com.gf.yummify.business.services;
 
+import com.gf.yummify.data.entity.Comment;
 import com.gf.yummify.data.entity.Rating;
 import com.gf.yummify.data.entity.Recipe;
 import com.gf.yummify.data.entity.User;
@@ -8,8 +9,10 @@ import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class RatingServiceImpl implements RatingService {
@@ -50,6 +53,11 @@ public class RatingServiceImpl implements RatingService {
         if (commentContent != null && !commentContent.trim().isEmpty()) {
             commentService.addComment(rating, commentContent, user);
         }
+        rating.setComments(
+                rating.getComments().stream()
+                        .sorted(Comparator.comparing(Comment::getCommentDate)) // Ordenar por fecha
+                        .collect(Collectors.toList())
+        );
     }
 
     @Override

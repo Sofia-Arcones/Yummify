@@ -79,6 +79,7 @@ public class RecipeController {
         try {
             if (authentication != null) {
                 model.addAttribute("shoppingLists", shoppingListService.findListsByUser(authentication));
+                model.addAttribute("isFavorited", recipeService.findRecipeFavorite(authentication, id));
             }
             model.addAttribute("recipe", recipeService.getRecipeResponseDTO(id));
             model.addAttribute("recipeId", id);
@@ -86,6 +87,19 @@ public class RecipeController {
             model.addAttribute("error", ex.getMessage());
         }
         return "recipes/recipe";
+    }
+
+    @PostMapping("/favorite")
+    public String addFavoriteRecipe(@RequestParam("recipeId") UUID recipeId,
+                                    Model model, RedirectAttributes redirectAttributes,
+                                    Authentication authentication) {
+        try {
+            recipeService.addOrDeleteRecipeFavorite(authentication, recipeId);
+            redirectAttributes.addAttribute("id", recipeId);
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
+        return "redirect:/recipe/{id}";
     }
 
 
