@@ -23,5 +23,6 @@ public enum IngredientType {
     FRUTO_SECO,
     SEMILLA,
     CONDIMENTO,
+    ENDULZANTE,
     OTRO
 }

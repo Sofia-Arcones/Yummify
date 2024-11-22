@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20242211
+      author: Sofia Arcones
+      changes:
+        - loadUpdateData:
+            file: desafios.csv
+            primaryKey: challenge_id
+            relativeToChangeLogFile: true
+            tableName: challenges
+        - loadUpdateData:
+            file: tags.csv
+            primaryKey: tag_id
+            relativeToChangeLogFile: true
+            tableName: tags
