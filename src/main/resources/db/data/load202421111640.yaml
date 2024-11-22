@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 202421111640
+      author: Sofia Arcones
+      changes:
+        - loadUpdateData:
+            file: ingredients2.csv
+            primaryKey: ingredient_id
+            relativeToChangeLogFile: true
+            tableName: ingredients
