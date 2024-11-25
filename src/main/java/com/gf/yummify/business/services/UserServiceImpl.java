@@ -8,6 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -47,5 +48,11 @@ public class UserServiceImpl implements UserService {
         User loggedUser = findUserByUsername(loggedUsername);
         User profileUser = findUserByUsername(profileUsername);
         return profileUser.getUserId().equals(loggedUser.getUserId());
+    }
+
+    @Override
+    public User findUserById(UUID userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("El usuario con id: " + userId + " no existe"));
     }
 }
