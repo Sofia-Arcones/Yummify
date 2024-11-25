@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/custom.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <title>Encabezado</title>
 </head>
 <body>
@@ -19,49 +20,57 @@
         </button>
         <ul class="nav nav-pills ml-auto">
             <li class="nav-item">
-                <a class="nav-link text-white" href="#">Inicio</a>
+                <a class="nav-link text-white" href="/home">
+                    <i class="fas fa-home"></i> Inicio</a>
             </li>
             <li class="nav-item" sec:authorize="hasRole('ROLE_USER')">
                 <form th:action="@{/challenges}" method="get">
-                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">Desafíos
+                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">
+                        <i class="fas fa-trophy"></i> Desafíos
                     </button>
                 </form>
             </li>
             <li class="nav-item" sec:authorize="hasRole('ROLE_USER')">
                 <form th:action="@{/recipe/favorites}" method="get">
-                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">Mis favoritas
+                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">
+                        <i class="fas fa-heart"></i> Mis favoritas
                     </button>
                 </form>
             </li>
             <li class="nav-item" sec:authorize="hasRole('ROLE_USER')">
                 <form th:action="@{/recipe/create}" method="get">
-                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">Subir receta
+                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">
+                        <i class="fas fa-utensils"></i> Subir receta
                     </button>
                 </form>
             </li>
             <li class="nav-item" sec:authorize="isAuthenticated()">
                 <form th:action="@{/shoppingLists}" method="get">
-                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">Listas de la
-                        compra
+                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">
+                        <i class="fas fa-list"></i> Listas de la compra
                     </button>
                 </form>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white" th:href="@{/users/profile/{username}(username=${#authentication.name})}">Perfil</a>
+                <a class="nav-link text-white" th:href="@{/users/profile/{username}(username=${#authentication.name})}"
+                   sec:authorize="isAuthenticated()">
+                    <i class="fas fa-user"></i> Perfil</a>
             </li>
             <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
                 <form th:action="@{/admin/panel}" method="get">
-                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">Consola de
-                        administrador
+                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">
+                        <i class="fas fa-tools"></i> Consola de administrador
                     </button>
                 </form>
             </li>
             <li class="nav-item" sec:authorize="isAnonymous()">
-                <a class="nav-link text-white" href="/login">Login</a>
+                <a class="nav-link text-white" href="/login">
+                    <i class="fas fa-sign-in-alt"></i> Login</a>
             </li>
             <li class="nav-item" sec:authorize="isAuthenticated()">
                 <form th:action="@{/logout}" method="post">
-                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">Logout
+                    <button type="submit" class="btn btn-link nav-link text-white">
+                        <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
                 </form>
             </li>

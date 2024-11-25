@@ -4,6 +4,7 @@ import com.gf.yummify.business.mappers.UserMapper;
 import com.gf.yummify.data.entity.User;
 import com.gf.yummify.data.repository.UserRepository;
 import com.gf.yummify.presentation.dto.RegisterDTO;
+import com.gf.yummify.presentation.dto.UserResponseDTO;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +49,15 @@ public class UserServiceImpl implements UserService {
         User loggedUser = findUserByUsername(loggedUsername);
         User profileUser = findUserByUsername(profileUsername);
         return profileUser.getUserId().equals(loggedUser.getUserId());
+    }
+
+    @Override
+    public UserResponseDTO findProfileUser(String username, int followers, int friends) {
+        User user = findUserByUsername(username);
+        UserResponseDTO userResponseDTO = userMapper.toUserResponseDTO(user);
+        userResponseDTO.setFollowers(followers);
+        userResponseDTO.setFriends(friends);
+        return userResponseDTO;
     }
 
     @Override

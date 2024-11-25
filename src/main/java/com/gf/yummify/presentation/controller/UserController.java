@@ -4,6 +4,7 @@ import com.gf.yummify.business.services.RelationshipService;
 import com.gf.yummify.business.services.UserService;
 import com.gf.yummify.data.entity.User;
 import com.gf.yummify.presentation.dto.RegisterDTO;
+import com.gf.yummify.presentation.dto.UserResponseDTO;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
@@ -61,10 +62,8 @@ public class UserController {
     @GetMapping("/users/profile/{username}")
     public String viewProfile(@PathVariable String username, Model model, Authentication authentication) {
         try {
-            User profileUser = userService.findUserByUsername(username);
+            UserResponseDTO profileUser = userService.findProfileUser(username,relationshipService.followersNumber(username),relationshipService.friendsNumber(username));
             model.addAttribute("user", profileUser);
-            model.addAttribute("recipes", profileUser.getRecipes());
-
             if (authentication != null && authentication.isAuthenticated()) {
                 model.addAttribute("isOwnProfile", userService.checkUserAuthentication(authentication.getName(), profileUser.getUsername()));
                 model.addAttribute("isFriend", relationshipService.isFriend(authentication, username));

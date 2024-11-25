@@ -7,10 +7,11 @@ import com.gf.yummify.data.enums.RelationshipStatus;
 import com.gf.yummify.data.enums.RelationshipType;
 import com.gf.yummify.data.repository.RelationshipRepository;
 import com.gf.yummify.presentation.dto.RelationshipRequestDTO;
+import com.gf.yummify.presentation.dto.RelationshipResponseDTO;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class RelationshipServiceImpl implements RelationshipService {
@@ -24,6 +25,93 @@ public class RelationshipServiceImpl implements RelationshipService {
         this.userService = userService;
         this.relationshipMapper = relationshipMapper;
     }
+
+    @Override
+    public void acceptFriendRequest(Authentication authentication, UUID relationshipId) {
+        User user = userService.findUserByUsername(authentication.getName());
+        Relationship relationship = findRelationshipById(relationshipId);
+        relationship.setRelationshipStatus(RelationshipStatus.ACCEPTED);
+        relationshipRepository.save(relationship);
+        Relationship relationshipInverse = findRelathionshipByStatus(user, relationship.getSender(), RelationshipStatus.UNFRIENDED);
+        if (relationshipInverse != null) {
+            relationshipInverse.setRelationshipStatus(RelationshipStatus.ACCEPTED);
+            relationshipRepository.save(relationshipInverse);
+        } else {
+            RelationshipRequestDTO reverseRelationshipDTO = new RelationshipRequestDTO(user, relationship.getSender(), RelationshipType.FRIEND, RelationshipStatus.ACCEPTED);
+            relationshipRepository.save(relationshipMapper.toRelationship(reverseRelationshipDTO));
+        }
+    }
+
+    @Override
+    public void removeFollower(Authentication authentication, UUID relationshipId) {
+        User user = userService.findUserByUsername(authentication.getName());
+        Relationship relationship = findRelationshipById(relationshipId);
+        relationship.setRelationshipStatus(RelationshipStatus.UNFOLLOWED);
+        relationshipRepository.save(relationship);
+    }
+
+    @Override
+    public void rejectFriendRequest(Authentication authentication, UUID relationshipId) {
+        User user = userService.findUserByUsername(authentication.getName());
+        Relationship relationship = findRelationshipById(relationshipId);
+        relationship.setRelationshipStatus(RelationshipStatus.REJECTED);
+        relationshipRepository.save(relationship);
+    }
+
+    @Override
+    public Relationship findRelationshipById(UUID relationshipId) {
+        return relationshipRepository.findById(relationshipId)
+                .orElseThrow(() -> new NoSuchElementException("La relación con id: " + relationshipId + " no encontrada"));
+    }
+
+    @Override
+    public List<RelationshipResponseDTO> findReceivedFriendRequests(Authentication authentication) {
+        User user = userService.findUserByUsername(authentication.getName());
+        List<Relationship> friendRequestsList = relationshipRepository.findByReceiverAndRelationshipStatusAndRelationshipType(user, RelationshipStatus.PENDING, RelationshipType.FRIEND);
+        List<RelationshipResponseDTO> relationshipResponseDTOS = new ArrayList<>();
+        for (Relationship friendRequest : friendRequestsList) {
+            RelationshipResponseDTO relationshipResponseDTO = new RelationshipResponseDTO(friendRequest.getRelationshipId(), friendRequest.getSender().getAvatar(), friendRequest.getSender().getUsername());
+            relationshipResponseDTOS.add(relationshipResponseDTO);
+        }
+        return relationshipResponseDTOS;
+    }
+
+    @Override
+    public List<RelationshipResponseDTO> findFriends(Authentication authentication) {
+        User user = userService.findUserByUsername(authentication.getName());
+        List<Relationship> friendsList = relationshipRepository.findByReceiverAndRelationshipStatusAndRelationshipType(user, RelationshipStatus.ACCEPTED, RelationshipType.FRIEND);
+        List<RelationshipResponseDTO> relationshipResponseDTOS = new ArrayList<>();
+        for (Relationship friend : friendsList) {
+            RelationshipResponseDTO relationshipResponseDTO = new RelationshipResponseDTO(friend.getRelationshipId(), friend.getSender().getAvatar(), friend.getSender().getUsername());
+            relationshipResponseDTOS.add(relationshipResponseDTO);
+        }
+        return relationshipResponseDTOS;
+    }
+
+    @Override
+    public List<RelationshipResponseDTO> findFolloweds(Authentication authentication) {
+        User user = userService.findUserByUsername(authentication.getName());
+        List<Relationship> followedList = relationshipRepository.findBySenderAndRelationshipStatusAndRelationshipType(user, RelationshipStatus.FOLLOWING, RelationshipType.FOLLOW);
+        List<RelationshipResponseDTO> relationshipResponseDTOS = new ArrayList<>();
+        for (Relationship followed : followedList) {
+            RelationshipResponseDTO relationshipResponseDTO = new RelationshipResponseDTO(followed.getRelationshipId(), followed.getReceiver().getAvatar(), followed.getReceiver().getUsername());
+            relationshipResponseDTOS.add(relationshipResponseDTO);
+        }
+        return relationshipResponseDTOS;
+    }
+
+    @Override
+    public List<RelationshipResponseDTO> findFollowers(Authentication authentication) {
+        User user = userService.findUserByUsername(authentication.getName());
+        List<Relationship> followersList = relationshipRepository.findByReceiverAndRelationshipStatusAndRelationshipType(user, RelationshipStatus.FOLLOWING, RelationshipType.FOLLOW);
+        List<RelationshipResponseDTO> relationshipResponseDTOS = new ArrayList<>();
+        for (Relationship follower : followersList) {
+            RelationshipResponseDTO relationshipResponseDTO = new RelationshipResponseDTO(follower.getRelationshipId(), follower.getSender().getAvatar(), follower.getSender().getUsername());
+            relationshipResponseDTOS.add(relationshipResponseDTO);
+        }
+        return relationshipResponseDTOS;
+    }
+
 
     @Override
     public void followOrUnfollow(Authentication authentication, String username) {
@@ -61,7 +149,12 @@ public class RelationshipServiceImpl implements RelationshipService {
                 relationshipRepository.save(relationship);
                 relationshipRepository.save(relationshipInverse);
             }
+            if (relationship.getRelationshipStatus() == RelationshipStatus.UNFRIENDED) {
+                relationship.setRelationshipStatus(RelationshipStatus.PENDING);
+                relationshipRepository.save(relationship);
+            }
         } else if (relationship != null) {
+            System.out.println(relationship.getRelationshipStatus());
             if (relationship.getRelationshipStatus() == RelationshipStatus.PENDING) {
                 relationship.setRelationshipStatus(RelationshipStatus.REJECTED);
                 relationshipRepository.save(relationship);
@@ -73,6 +166,20 @@ public class RelationshipServiceImpl implements RelationshipService {
             RelationshipRequestDTO relationshipDTO = new RelationshipRequestDTO(sender, receiver, RelationshipType.FRIEND, RelationshipStatus.PENDING);
             relationshipRepository.save(relationshipMapper.toRelationship(relationshipDTO));
         }
+    }
+
+    @Override
+    public int followersNumber(String username) {
+        User user = userService.findUserByUsername(username);
+        List<Relationship> followersList = relationshipRepository.findByReceiverAndRelationshipStatusAndRelationshipType(user, RelationshipStatus.FOLLOWING, RelationshipType.FOLLOW);
+        return followersList.size();
+    }
+
+    @Override
+    public int friendsNumber(String username) {
+        User user = userService.findUserByUsername(username);
+        List<Relationship> friendsList = relationshipRepository.findByReceiverAndRelationshipStatusAndRelationshipType(user, RelationshipStatus.ACCEPTED, RelationshipType.FRIEND);
+        return friendsList.size();
     }
 
     @Override
@@ -107,7 +214,8 @@ public class RelationshipServiceImpl implements RelationshipService {
         return isFollowed != null ? isFollowed : false;
     }
 
-    private Boolean hasValidRelationship(User sender, User receiver, RelationshipType type, RelationshipStatus status) {
+    private Boolean hasValidRelationship(User sender, User receiver, RelationshipType type, RelationshipStatus
+            status) {
         Optional<Relationship> relationship = relationshipRepository.findBySenderAndReceiverAndRelationshipType(sender, receiver, type);
         if (relationship.isPresent() && relationship.get().getRelationshipStatus() == status) {
             return true;
@@ -123,7 +231,8 @@ public class RelationshipServiceImpl implements RelationshipService {
         return null;
     }
 
-    private Relationship findRelathionshipByStatus(User sender, User receiver, RelationshipStatus relationshipStatus) {
+    private Relationship findRelathionshipByStatus(User sender, User receiver, RelationshipStatus
+            relationshipStatus) {
         Optional<Relationship> optionalRelationship = relationshipRepository.findBySenderAndReceiverAndRelationshipStatus(sender, receiver, relationshipStatus);
         if (optionalRelationship.isPresent()) {
             return optionalRelationship.get();
