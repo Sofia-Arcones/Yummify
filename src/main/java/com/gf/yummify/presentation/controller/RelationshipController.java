@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.UUID;
+
 @Controller
 public class RelationshipController {
     private RelationshipService relationshipService;
@@ -37,7 +39,7 @@ public class RelationshipController {
     }
 
     @PostMapping("/friend-request")
-    public String addOrChangeFriend(Authentication authentication,
+    public String addOrDeleteFriend(Authentication authentication,
                                     @RequestParam("username") String username,
                                     Model model,
                                     RedirectAttributes redirectAttributes,
@@ -59,10 +61,39 @@ public class RelationshipController {
             model.addAttribute("friends", relationshipService.findFriends(authentication));
             model.addAttribute("followedList", relationshipService.findFolloweds(authentication));
             model.addAttribute("followersList", relationshipService.findFollowers(authentication));
-            System.out.println(relationshipService.findFolloweds(authentication));
         } catch (Exception ex) {
             model.addAttribute("error", ex.getMessage());
         }
         return "/relationships/relationships";
+    }
+
+    @PostMapping("/friend-request/accept")
+    public String acceptFriend(Authentication authentication,
+                               @RequestParam("relationshipId") UUID relationshipId,
+                               Model model,
+                               RedirectAttributes redirectAttributes,
+                               HttpServletRequest request) {
+        try {
+            relationshipService.acceptFriendRequest(authentication, relationshipId);
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+        }
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/relationships");
+    }
+
+    @PostMapping("/friend-request/reject")
+    public String rejectFriend(Authentication authentication,
+                               @RequestParam("relationshipId") UUID relationshipId,
+                               Model model,
+                               RedirectAttributes redirectAttributes,
+                               HttpServletRequest request) {
+        try {
+            relationshipService.rejectFriendRequest(authentication, relationshipId);
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+        }
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/relationships");
     }
 }
