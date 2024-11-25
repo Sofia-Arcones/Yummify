@@ -16,7 +16,7 @@
 </style>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
-<div class="container mt-5">
+<div class="container mt-5" th:if="${!(isBlocked != null ? isBlocked : false)}">
     <div class="row mb-4">
         <div class="col-md-4 text-center">
             <img th:src="@{${user.avatar}}" class="rounded-circle img-fluid"
@@ -27,7 +27,22 @@
             <p>Email: <span th:text="${user.email}">email@ejemplo.com</span></p>
             <p>Ubicación: <span th:text="${user.location}">Ciudad, País</span></p>
             <p>Bio: <span th:text="${user.bio}">Esta es una breve biografía del usuario...</span></p>
-            <a th:href="@{/profile/edit}" class="btn btn-primary" th:if="${isOwnProfile}">Editar Perfil</a>
+            <div class="d-flex align-items-center" th:if="${!isOwnProfile}">
+                <form th:action="@{/follow}" method="post" class="mr-2">
+                    <input type="hidden" name="username" th:value="${user.username}">
+                    <button type="submit" class="btn btn-primary"
+                            th:text="${(isFollowed != null && isFollowed) ? 'Dejar de seguir' : 'Seguir'}">
+                    </button>
+                </form>
+                <form th:action="@{/friend-request}" method="post">
+                    <input type="hidden" name="userId" th:value="${user.userId}">
+                    <button type="submit" class="btn btn-primary"
+                            th:text="${(isPending != null && isPending) ? 'Cancelar solicitud' :
+                      (isFriend != null && isFriend ? 'Dejar de ser amigos' : 'Enviar Solicitud de Amistad')}">
+                    </button>
+                </form>
+            </div>
+            <a th:href="@{/profile/edit}" class="btn btn-primary mt-3" th:if="${isOwnProfile}">Editar Perfil</a>
         </div>
     </div>
     <hr>
@@ -54,6 +69,7 @@
     </div>
 </div>
 
+
 <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog"
      aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -72,6 +88,11 @@
                 <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
             </div>
         </div>
+    </div>
+</div>
+<div class="container mt-5" th:if="${isBlocked != null ? isBlocked : false}">
+    <div th:if="${isBlocked}" class="alert alert-danger text-center">
+        <p>Usuario no encontrado</p>
     </div>
 </div>
 

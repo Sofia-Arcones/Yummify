@@ -1,5 +1,6 @@
 package com.gf.yummify.presentation.controller;
 
+import com.gf.yummify.business.services.RelationshipService;
 import com.gf.yummify.business.services.UserService;
 import com.gf.yummify.data.entity.User;
 import com.gf.yummify.presentation.dto.RegisterDTO;
@@ -17,11 +18,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class UserController {
     private UserService userService;
     private UserDetailsService userDetailsService;
+    private RelationshipService relationshipService;
 
-
-    public UserController(UserService userService, UserDetailsService userDetailsService) {
+    public UserController(UserService userService, UserDetailsService userDetailsService, RelationshipService relationshipService) {
         this.userService = userService;
         this.userDetailsService = userDetailsService;
+        this.relationshipService = relationshipService;
     }
 
     @GetMapping("/admin/panel")
@@ -59,12 +61,21 @@ public class UserController {
     @GetMapping("/users/profile/{username}")
     public String viewProfile(@PathVariable String username, Model model, Authentication authentication) {
         try {
+            if (authentication != null && authentication.isAuthenticated() && relationshipService.isBlocked(authentication, username)) {
+                System.out.println("Primer if");
+                return "users/profile";
+            }
+
             User profileUser = userService.findUserByUsername(username);
             model.addAttribute("user", profileUser);
             model.addAttribute("recipes", profileUser.getRecipes());
 
             if (authentication != null && authentication.isAuthenticated()) {
                 model.addAttribute("isOwnProfile", userService.checkUserAuthentication(authentication.getName(), profileUser.getUsername()));
+                model.addAttribute("isFriend", relationshipService.isFriend(authentication, username));
+                model.addAttribute("isFollowed", relationshipService.isFollowed(authentication, username));
+                model.addAttribute("isPending", relationshipService.isPending(authentication, username));
+                model.addAttribute("isBlocked", relationshipService.isBlocked(authentication, username));
             } else {
                 model.addAttribute("isOwnProfile", false);
             }
@@ -74,5 +85,4 @@ public class UserController {
             return "error";
         }
     }
-
 }
