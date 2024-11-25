@@ -168,6 +168,19 @@ public class RelationshipServiceImpl implements RelationshipService {
         }
     }
 
+    @Override
+    public int followersNumber(String username) {
+        User user = userService.findUserByUsername(username);
+        List<Relationship> followersList = relationshipRepository.findByReceiverAndRelationshipStatusAndRelationshipType(user, RelationshipStatus.FOLLOWING, RelationshipType.FOLLOW);
+        return followersList.size();
+    }
+
+    @Override
+    public int friendsNumber(String username) {
+        User user = userService.findUserByUsername(username);
+        List<Relationship> friendsList = relationshipRepository.findByReceiverAndRelationshipStatusAndRelationshipType(user, RelationshipStatus.ACCEPTED, RelationshipType.FRIEND);
+        return friendsList.size();
+    }
 
     @Override
     public Boolean isFriend(Authentication authentication, String username) {

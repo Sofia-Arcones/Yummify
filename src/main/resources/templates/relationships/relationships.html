@@ -42,7 +42,6 @@
     </ul>
 
     <div class="tab-content mt-4" id="relationshipTabsContent">
-
         <div class="tab-pane fade show active" id="requests" role="tabpanel">
             <div th:each="request : ${receivedFriendRequests}" class="d-flex align-items-center mb-3">
                 <a th:href="@{/users/profile/{username}(username=${request.username})}"

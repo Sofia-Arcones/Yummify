@@ -35,4 +35,8 @@ public interface RelationshipService {
     void removeFollower(Authentication authentication, UUID relationshipId);
 
     Relationship findRelationshipById(UUID relationshipId);
+
+    int followersNumber(String username);
+
+    int friendsNumber(String username);
 }

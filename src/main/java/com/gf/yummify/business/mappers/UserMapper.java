@@ -2,6 +2,7 @@ package com.gf.yummify.business.mappers;
 
 import com.gf.yummify.data.entity.User;
 import com.gf.yummify.presentation.dto.RegisterDTO;
+import com.gf.yummify.presentation.dto.UserResponseDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -18,6 +19,12 @@ public interface UserMapper {
     @Mapping(target = "lastModification", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "role", constant = "ROLE_USER")
     User toUser(RegisterDTO registerDTO);
+
     RegisterDTO toRegisterDTO(User user);
+
+    @Mapping(target = "followers", ignore = true)
+    @Mapping(target = "friends", ignore = true)
+    @Mapping(target = "recipes", source = "user.recipes")
+    UserResponseDTO toUserResponseDTO(User user);
 }
 
