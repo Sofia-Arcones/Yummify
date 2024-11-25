@@ -32,5 +32,7 @@ public interface RelationshipService {
 
     void rejectFriendRequest(Authentication authentication, UUID relationshipId);
 
+    void removeFollower(Authentication authentication, UUID relationshipId);
+
     Relationship findRelationshipById(UUID relationshipId);
 }

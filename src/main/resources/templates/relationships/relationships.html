@@ -53,11 +53,15 @@
                 <div class="ms-auto">
                     <form th:action="@{/friend-request/accept}" method="post" class="d-inline">
                         <input type="hidden" name="relationshipId" th:value="${request.relationshipId}">
-                        <button type="submit" class="btn btn-success btn-sm">Aceptar</button>
+                        <button type="submit" class="btn btn-success btn-sm">
+                            <i class="fas fa-user-check"></i> Aceptar
+                        </button>
                     </form>
                     <form th:action="@{/friend-request/reject}" method="post" class="d-inline">
                         <input type="hidden" name="relationshipId" th:value="${request.relationshipId}">
-                        <button type="submit" class="btn btn-danger btn-sm">Rechazar</button>
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fas fa-user-times"></i> Rechazar
+                        </button>
                     </form>
                 </div>
             </div>
@@ -72,7 +76,9 @@
                 <div class="ms-auto">
                     <form th:action="@{/friend-request}" method="post" class="d-inline">
                         <input type="hidden" name="username" th:value="${friend.username}">
-                        <button type="submit" class="btn btn-warning btn-sm">Eliminar</button>
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fas fa-user-times"></i> Eliminar
+                        </button>
                     </form>
                 </div>
             </div>
@@ -88,7 +94,9 @@
                     <form th:action="@{/follow}" method="post" class="d-inline">
                         <input type="hidden" name="username" th:value="${followed.username}"
                                class="text-decoration-none text-dark">
-                        <button type="submit" class="btn btn-warning btn-sm">Dejar de Seguir</button>
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fas fa-user-times"></i> Dejar de Seguir
+                        </button>
                     </form>
                 </div>
             </div>
@@ -102,8 +110,10 @@
                 </a>
                 <div class="ms-auto">
                     <form th:action="@{/follower/remove}" method="post" class="d-inline">
-                        <input type="hidden" name="username" th:value="${follower.username}">
-                        <button type="submit" class="btn btn-warning btn-sm">Eliminar</button>
+                        <input type="hidden" name="relationshipId" th:value="${follower.relationshipId}">
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fas fa-user-times"></i>Eliminar
+                        </button>
                     </form>
                 </div>
             </div>

@@ -43,6 +43,14 @@ public class RelationshipServiceImpl implements RelationshipService {
     }
 
     @Override
+    public void removeFollower(Authentication authentication, UUID relationshipId) {
+        User user = userService.findUserByUsername(authentication.getName());
+        Relationship relationship = findRelationshipById(relationshipId);
+        relationship.setRelationshipStatus(RelationshipStatus.UNFOLLOWED);
+        relationshipRepository.save(relationship);
+    }
+
+    @Override
     public void rejectFriendRequest(Authentication authentication, UUID relationshipId) {
         User user = userService.findUserByUsername(authentication.getName());
         Relationship relationship = findRelationshipById(relationshipId);
@@ -144,21 +152,22 @@ public class RelationshipServiceImpl implements RelationshipService {
             if (relationship.getRelationshipStatus() == RelationshipStatus.UNFRIENDED) {
                 relationship.setRelationshipStatus(RelationshipStatus.PENDING);
                 relationshipRepository.save(relationship);
-            } else if (relationship != null) {
-                System.out.println(relationship.getRelationshipStatus());
-                if (relationship.getRelationshipStatus() == RelationshipStatus.PENDING) {
-                    relationship.setRelationshipStatus(RelationshipStatus.REJECTED);
-                    relationshipRepository.save(relationship);
-                } else if (relationship.getRelationshipStatus() == RelationshipStatus.REJECTED) {
-                    relationship.setRelationshipStatus(RelationshipStatus.PENDING);
-                    relationshipRepository.save(relationship);
-                }
-            } else if (relationship == null) {
-                RelationshipRequestDTO relationshipDTO = new RelationshipRequestDTO(sender, receiver, RelationshipType.FRIEND, RelationshipStatus.PENDING);
-                relationshipRepository.save(relationshipMapper.toRelationship(relationshipDTO));
             }
+        } else if (relationship != null) {
+            System.out.println(relationship.getRelationshipStatus());
+            if (relationship.getRelationshipStatus() == RelationshipStatus.PENDING) {
+                relationship.setRelationshipStatus(RelationshipStatus.REJECTED);
+                relationshipRepository.save(relationship);
+            } else if (relationship.getRelationshipStatus() == RelationshipStatus.REJECTED) {
+                relationship.setRelationshipStatus(RelationshipStatus.PENDING);
+                relationshipRepository.save(relationship);
+            }
+        } else if (relationship == null) {
+            RelationshipRequestDTO relationshipDTO = new RelationshipRequestDTO(sender, receiver, RelationshipType.FRIEND, RelationshipStatus.PENDING);
+            relationshipRepository.save(relationshipMapper.toRelationship(relationshipDTO));
         }
     }
+
 
     @Override
     public Boolean isFriend(Authentication authentication, String username) {

@@ -96,4 +96,19 @@ public class RelationshipController {
         String referer = request.getHeader("Referer");
         return "redirect:" + (referer != null ? referer : "/relationships");
     }
+
+    @PostMapping("/follower/remove")
+    public String removeFollower(Authentication authentication,
+                                 @RequestParam("relationshipId") UUID relationshipId,
+                                 Model model,
+                                 RedirectAttributes redirectAttributes,
+                                 HttpServletRequest request) {
+        try {
+            relationshipService.removeFollower(authentication, relationshipId);
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+        }
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/relationships");
+    }
 }

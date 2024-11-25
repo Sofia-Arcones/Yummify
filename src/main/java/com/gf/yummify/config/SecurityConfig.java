@@ -15,14 +15,13 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/recipe/{id}", "/users/profile/{username}").permitAll()
-                        .requestMatchers( "/user", "/register", "/error", "/recipe/{id}").permitAll()
+                        .requestMatchers("/user", "/register", "/error", "/recipe/{id}", "/home").permitAll()
                         .requestMatchers("/login").anonymous()
                         .requestMatchers("/admin/panel", "ingredients/management", "ingredients/update/**", "ingredients/delete/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
