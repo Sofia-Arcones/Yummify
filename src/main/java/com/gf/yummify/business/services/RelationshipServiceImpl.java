@@ -7,9 +7,12 @@ import com.gf.yummify.data.enums.RelationshipStatus;
 import com.gf.yummify.data.enums.RelationshipType;
 import com.gf.yummify.data.repository.RelationshipRepository;
 import com.gf.yummify.presentation.dto.RelationshipRequestDTO;
+import com.gf.yummify.presentation.dto.RelationshipResponseDTO;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,6 +27,55 @@ public class RelationshipServiceImpl implements RelationshipService {
         this.userService = userService;
         this.relationshipMapper = relationshipMapper;
     }
+
+    @Override
+    public List<RelationshipResponseDTO> findReceivedFriendRequests(Authentication authentication) {
+        User user = userService.findUserByUsername(authentication.getName());
+        List<Relationship> friendRequestsList = relationshipRepository.findByReceiverAndRelationshipStatusAndRelationshipType(user, RelationshipStatus.PENDING, RelationshipType.FRIEND);
+        List<RelationshipResponseDTO> relationshipResponseDTOS = new ArrayList<>();
+        for (Relationship friendRequest : friendRequestsList) {
+            RelationshipResponseDTO relationshipResponseDTO = new RelationshipResponseDTO(friendRequest.getSender().getAvatar(), friendRequest.getSender().getUsername());
+            relationshipResponseDTOS.add(relationshipResponseDTO);
+        }
+        return relationshipResponseDTOS;
+    }
+
+    @Override
+    public List<RelationshipResponseDTO> findFriends(Authentication authentication) {
+        User user = userService.findUserByUsername(authentication.getName());
+        List<Relationship> friendsList = relationshipRepository.findByReceiverAndRelationshipStatusAndRelationshipType(user, RelationshipStatus.ACCEPTED, RelationshipType.FRIEND);
+        List<RelationshipResponseDTO> relationshipResponseDTOS = new ArrayList<>();
+        for (Relationship friends : friendsList) {
+            RelationshipResponseDTO relationshipResponseDTO = new RelationshipResponseDTO(friends.getSender().getAvatar(), friends.getSender().getUsername());
+            relationshipResponseDTOS.add(relationshipResponseDTO);
+        }
+        return relationshipResponseDTOS;
+    }
+
+    @Override
+    public List<RelationshipResponseDTO> findFolloweds(Authentication authentication) {
+        User user = userService.findUserByUsername(authentication.getName());
+        List<Relationship> followedList = relationshipRepository.findBySenderAndRelationshipStatusAndRelationshipType(user, RelationshipStatus.FOLLOWING, RelationshipType.FOLLOW);
+        List<RelationshipResponseDTO> relationshipResponseDTOS = new ArrayList<>();
+        for (Relationship followed : followedList) {
+            RelationshipResponseDTO relationshipResponseDTO = new RelationshipResponseDTO(followed.getReceiver().getAvatar(), followed.getReceiver().getUsername());
+            relationshipResponseDTOS.add(relationshipResponseDTO);
+        }
+        return relationshipResponseDTOS;
+    }
+
+    @Override
+    public List<RelationshipResponseDTO> findFollowers(Authentication authentication) {
+        User user = userService.findUserByUsername(authentication.getName());
+        List<Relationship> followersList = relationshipRepository.findByReceiverAndRelationshipStatusAndRelationshipType(user, RelationshipStatus.FOLLOWING, RelationshipType.FOLLOW);
+        List<RelationshipResponseDTO> relationshipResponseDTOS = new ArrayList<>();
+        for (Relationship follower : followersList) {
+            RelationshipResponseDTO relationshipResponseDTO = new RelationshipResponseDTO(follower.getSender().getAvatar(), follower.getSender().getUsername());
+            relationshipResponseDTOS.add(relationshipResponseDTO);
+        }
+        return relationshipResponseDTOS;
+    }
+
 
     @Override
     public void followOrUnfollow(Authentication authentication, String username) {
