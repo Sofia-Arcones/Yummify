@@ -61,11 +61,6 @@ public class UserController {
     @GetMapping("/users/profile/{username}")
     public String viewProfile(@PathVariable String username, Model model, Authentication authentication) {
         try {
-            if (authentication != null && authentication.isAuthenticated() && relationshipService.isBlocked(authentication, username)) {
-                System.out.println("Primer if");
-                return "users/profile";
-            }
-
             User profileUser = userService.findUserByUsername(username);
             model.addAttribute("user", profileUser);
             model.addAttribute("recipes", profileUser.getRecipes());

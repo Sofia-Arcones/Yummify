@@ -30,7 +30,7 @@ public class RelationshipServiceImpl implements RelationshipService {
         User sender = userService.findUserByUsername(authentication.getName());
         User receiver = userService.findUserByUsername(username);
         validateRequest(sender, receiver);
-        Relationship relationship = findRelathionshipByType(sender, receiver, RelationshipType.FOLLOW);
+        Relationship relationship = findRelationshipByType(sender, receiver, RelationshipType.FOLLOW);
         if (relationship != null) {
             if (relationship.getRelationshipStatus() == RelationshipStatus.FOLLOWING) {
                 relationship.setRelationshipStatus(RelationshipStatus.UNFOLLOWED);
@@ -42,6 +42,36 @@ public class RelationshipServiceImpl implements RelationshipService {
         } else {
             RelationshipRequestDTO relationshipRequestDTO = new RelationshipRequestDTO(sender, receiver, RelationshipType.FOLLOW, RelationshipStatus.FOLLOWING);
             relationshipRepository.save(relationshipMapper.toRelationship(relationshipRequestDTO));
+        }
+    }
+
+    @Override
+    public void addOrChangeFriend(Authentication authentication, String username) {
+        User sender = userService.findUserByUsername(authentication.getName());
+        User receiver = userService.findUserByUsername(username);
+        validateRequest(sender, receiver);
+
+        Relationship relationship = findRelationshipByType(sender, receiver, RelationshipType.FRIEND);
+        Relationship relationshipInverse = findRelationshipByType(receiver, sender, RelationshipType.FRIEND);
+
+        if (relationship != null && relationshipInverse != null) {
+            if (relationship.getRelationshipStatus() == RelationshipStatus.ACCEPTED && relationshipInverse.getRelationshipStatus() == RelationshipStatus.ACCEPTED) {
+                relationship.setRelationshipStatus(RelationshipStatus.UNFRIENDED);
+                relationshipInverse.setRelationshipStatus(RelationshipStatus.UNFRIENDED);
+                relationshipRepository.save(relationship);
+                relationshipRepository.save(relationshipInverse);
+            }
+        } else if (relationship != null) {
+            if (relationship.getRelationshipStatus() == RelationshipStatus.PENDING) {
+                relationship.setRelationshipStatus(RelationshipStatus.REJECTED);
+                relationshipRepository.save(relationship);
+            } else if (relationship.getRelationshipStatus() == RelationshipStatus.REJECTED) {
+                relationship.setRelationshipStatus(RelationshipStatus.PENDING);
+                relationshipRepository.save(relationship);
+            }
+        } else if (relationship == null) {
+            RelationshipRequestDTO relationshipDTO = new RelationshipRequestDTO(sender, receiver, RelationshipType.FRIEND, RelationshipStatus.PENDING);
+            relationshipRepository.save(relationshipMapper.toRelationship(relationshipDTO));
         }
     }
 
@@ -77,7 +107,6 @@ public class RelationshipServiceImpl implements RelationshipService {
         return isFollowed != null ? isFollowed : false;
     }
 
-
     private Boolean hasValidRelationship(User sender, User receiver, RelationshipType type, RelationshipStatus status) {
         Optional<Relationship> relationship = relationshipRepository.findBySenderAndReceiverAndRelationshipType(sender, receiver, type);
         if (relationship.isPresent() && relationship.get().getRelationshipStatus() == status) {
@@ -86,7 +115,7 @@ public class RelationshipServiceImpl implements RelationshipService {
         return false;
     }
 
-    private Relationship findRelathionshipByType(User sender, User receiver, RelationshipType relationshipType) {
+    private Relationship findRelationshipByType(User sender, User receiver, RelationshipType relationshipType) {
         Optional<Relationship> optionalRelationship = relationshipRepository.findBySenderAndReceiverAndRelationshipType(sender, receiver, relationshipType);
         if (optionalRelationship.isPresent()) {
             return optionalRelationship.get();

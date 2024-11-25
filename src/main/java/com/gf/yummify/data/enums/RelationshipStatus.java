@@ -7,6 +7,5 @@ public enum RelationshipStatus {
     BLOCKED,
     UNFRIENDED,
     FOLLOWING,
-    MUTUAL,
     UNFOLLOWED
 }

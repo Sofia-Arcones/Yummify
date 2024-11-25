@@ -31,4 +31,17 @@ public class RelationshipController {
         }
         return "redirect:/users/profile/" + username;
     }
+
+    @PostMapping("/friend-request")
+    public String addOrChangeFriend(Authentication authentication,
+                                    @RequestParam("username") String username,
+                                    Model model,
+                                    RedirectAttributes redirectAttributes) {
+        try {
+            relationshipService.addOrChangeFriend(authentication, username);
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
+        return "redirect:/users/profile/" + username;
+    }
 }

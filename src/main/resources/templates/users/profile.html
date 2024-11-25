@@ -16,7 +16,7 @@
 </style>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
-<div class="container mt-5" th:if="${!(isBlocked != null ? isBlocked : false)}">
+<div class="container mt-5">
     <div class="row mb-4">
         <div class="col-md-4 text-center">
             <img th:src="@{${user.avatar}}" class="rounded-circle img-fluid"
@@ -35,12 +35,15 @@
                     </button>
                 </form>
                 <form th:action="@{/friend-request}" method="post">
-                    <input type="hidden" name="userId" th:value="${user.userId}">
+                    <input type="hidden" name="username" th:value="${user.username}">
                     <button type="submit" class="btn btn-primary"
                             th:text="${(isPending != null && isPending) ? 'Cancelar solicitud' :
                       (isFriend != null && isFriend ? 'Dejar de ser amigos' : 'Enviar Solicitud de Amistad')}">
                     </button>
                 </form>
+                <div th:if="${error}" class="alert alert-danger text-center">
+                    <p th:text="${error}"></p>
+                </div>
             </div>
             <a th:href="@{/profile/edit}" class="btn btn-primary mt-3" th:if="${isOwnProfile}">Editar Perfil</a>
         </div>
@@ -88,11 +91,6 @@
                 <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
             </div>
         </div>
-    </div>
-</div>
-<div class="container mt-5" th:if="${isBlocked != null ? isBlocked : false}">
-    <div th:if="${isBlocked}" class="alert alert-danger text-center">
-        <p>Usuario no encontrado</p>
     </div>
 </div>
 
