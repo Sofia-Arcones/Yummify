@@ -116,38 +116,6 @@
     const searchInput = document.getElementById("searchInput");
     const filtersForm = document.getElementById("filtersForm");
 
-    searchInput.addEventListener('input', function () {
-        const searchTerm = searchInput.value.trim();
-        const urlParams = new URLSearchParams(window.location.search);
-        urlParams.set('search', searchTerm);
-        urlParams.set('isAjax', 'true');
-
-        history.pushState(null, '', '/home?' + urlParams.toString());
-
-        loadRecipes('/home?' + urlParams.toString());
-    });
-
-    // Función para cargar las recetas con AJAX
-    function loadRecipes(url) {
-        fetch(url)
-            .then(response => response.text())
-            .then(data => {
-                console.log("Respuesta recibida:", data);
-
-                const recipesContainer = document.getElementById('recipesContainer');
-                recipesContainer.innerHTML = '';
-
-                if (data.includes("recipe-card")) {
-                    recipesContainer.innerHTML = data;
-                } else {
-                    console.error("No se encontraron recetas o la respuesta es inválida.");
-                }
-            })
-            .catch(error => {
-                console.error("Error al cargar las recetas:", error);
-            });
-    }
-
     let tags = [];
     let ingredients = [];
 
@@ -155,11 +123,88 @@
         document.getElementById(fieldId).value = items.join(',');
     }
 
-    // Agregar una nueva etiqueta
+    function buildURL() {
+        const urlParams = new URLSearchParams();
+
+        const difficulty = document.getElementById("difficulty").value;
+        const portions = document.getElementById("portions").value;
+        const ingredientType = document.getElementById("ingredientType").value;
+
+        if (searchInput.value.trim() !== "") {
+            urlParams.set('search', searchInput.value.trim());
+        }
+        if (difficulty) {
+            urlParams.set('difficulty', difficulty);
+        }
+        if (portions) {
+            urlParams.set('portions', portions);
+        }
+        if (ingredientType) {
+            urlParams.set('ingredientType', ingredientType);
+        }
+        if (tags.length > 0) {
+            urlParams.set('tags', tags.join(','));
+        }
+        if (ingredients.length > 0) {
+            urlParams.set('ingredients', ingredients.join(','));
+        }
+
+        urlParams.set('isAjax', 'true');
+        return '/home?' + urlParams.toString();
+    }
+
+    function loadRecipes() {
+        const url = buildURL();
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error en la respuesta: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                const recipesContainer = document.getElementById('recipesContainer');
+                recipesContainer.innerHTML = data.includes("recipe-card") ? data : "<p>No se encontraron recetas.</p>";
+            })
+            .catch(error => {
+                console.error("Error al cargar las recetas:", error);
+            });
+    }
+
+    searchInput.addEventListener('input', function () {
+        loadRecipes();
+    });
+
+    filtersForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        loadRecipes();
+    });
+
+    document.getElementById("tags-input").addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && this.value.trim() !== "") {
+            event.preventDefault();
+            addTag(this.value.trim());
+            this.value = "";
+        }
+    });
+
+    document.getElementById("ingredients-input").addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && this.value.trim() !== "") {
+            event.preventDefault();
+            addIngredient(this.value.trim());
+            this.value = "";
+        }
+    });
+
     function addTag(tagText) {
         const tagsList = document.getElementById("tags-list");
         if (!tagText.startsWith('#')) {
             tagText = '#' + tagText.trim();
+        }
+
+        if (tags.includes(tagText)) {
+            alert("Esta etiqueta ya ha sido añadida.");
+            return;
         }
 
         const tagDiv = document.createElement("div");
@@ -167,7 +212,7 @@
         tagDiv.textContent = tagText;
 
         const removeButton = document.createElement("button");
-        removeButton.className = "ml-1 btn btn-xs btn-danger";
+        removeButton.className = "ml-1 btn btn-sm btn-danger";
         removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
         removeButton.onclick = function () {
             tagsList.removeChild(tagDiv);
@@ -180,27 +225,24 @@
 
         tags.push(tagText);
         updateHiddenField("hidden-tags", tags);
+        loadRecipes();
     }
 
-    // Agregar un nuevo ingrediente
     function addIngredient(ingredientText) {
         const ingredientsList = document.getElementById("ingredients-list");
         const formattedIngredient = ingredientText.charAt(0).toUpperCase() + ingredientText.slice(1).toLowerCase();
 
-        const existingIngredient = Array.from(ingredientsList.children).find(
-            ingredient => ingredient.textContent.trim() === formattedIngredient
-        );
-        if (existingIngredient) {
+        if (ingredients.includes(formattedIngredient)) {
             alert("Este ingrediente ya ha sido añadido.");
             return;
         }
 
         const ingredientDiv = document.createElement("div");
-        ingredientDiv.className = "badge badge-success m-1 p-2 d-flex align-items-center";
+        ingredientDiv.className = "badge badge-primary m-1 p-2 d-flex align-items-center";
         ingredientDiv.textContent = formattedIngredient;
 
         const removeButton = document.createElement("button");
-        removeButton.className = "ml-1 btn btn-xs btn-danger";
+        removeButton.className = "ml-1 btn btn-sm btn-danger";
         removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
         removeButton.onclick = function () {
             ingredientsList.removeChild(ingredientDiv);
@@ -213,46 +255,8 @@
 
         ingredients.push(formattedIngredient);
         updateHiddenField("hidden-ingredients", ingredients);
+        loadRecipes();
     }
-
-    // Evento para añadir etiquetas con "Enter"
-    document.getElementById("tags-input").addEventListener("keydown", function (event) {
-        if (event.key === "Enter" && this.value.trim() !== "") {
-            event.preventDefault();  // Evitar el envío del formulario
-            addTag(this.value.trim());
-            this.value = "";  // Limpiar el campo de entrada
-        }
-    });
-
-    // Evento para añadir ingredientes con "Enter"
-    document.getElementById("ingredients-input").addEventListener("keydown", function (event) {
-        if (event.key === "Enter" && this.value.trim() !== "") {
-            event.preventDefault();  // Evitar el envío del formulario
-            addIngredient(this.value.trim());
-            this.value = "";  // Limpiar el campo de entrada
-        }
-    });
-
-    // Prevenir el envío del formulario cuando se presiona Enter
-    filtersForm.addEventListener('submit', function (event) {
-        event.preventDefault();  // Prevenir el envío del formulario normal
-        tags = [...new Set(tags.filter(tag => tag.trim() !== ""))];
-        ingredients = [...new Set(ingredients.filter(ing => ing.trim() !== ""))];
-
-        document.getElementById("hidden-tags").value = tags.join(',');
-        document.getElementById("hidden-ingredients").value = ingredients.join(',');
-
-        // Si no hay tags o ingredientes, limpiar los valores ocultos
-        if (tags.length === 0) {
-            document.getElementById("hidden-tags").value = null;
-        }
-        if (ingredients.length === 0) {
-            document.getElementById("hidden-ingredients").value = null;
-        }
-
-        // Aquí se podría hacer un envío de formulario AJAX si lo necesitas
-        loadRecipes(window.location.href);
-    });
 });
 </script>
 </body>
