@@ -38,12 +38,12 @@ public class ChallengeController {
 
     @PostMapping
     public String createChallenge(@ModelAttribute @Valid ChallengeRequestDTO challengeRequestDTO,
-                                  Model model) {
+                                  Model model, Authentication authentication) {
         try {
             System.out.println("Start Date: " + challengeRequestDTO.getStartDate());
             System.out.println("End Date: " + challengeRequestDTO.getEndDate());
             System.out.println(challengeRequestDTO.getTitle());
-            ChallengeResponseDTO challengeResponseDTO = challengeService.addChallenge(challengeRequestDTO);
+            ChallengeResponseDTO challengeResponseDTO = challengeService.addChallenge(challengeRequestDTO, authentication);
             model.addAttribute("challenge", challengeResponseDTO);
             return "challenges/challengeSuccess";
         } catch (Exception ex) {
