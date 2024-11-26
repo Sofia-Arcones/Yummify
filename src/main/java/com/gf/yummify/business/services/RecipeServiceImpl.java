@@ -3,24 +3,32 @@ package com.gf.yummify.business.services;
 import com.gf.yummify.business.mappers.RecipeMapper;
 import com.gf.yummify.data.entity.*;
 import com.gf.yummify.data.enums.Difficulty;
+import com.gf.yummify.data.enums.IngredientType;
 import com.gf.yummify.data.enums.UnitOfMeasure;
 import com.gf.yummify.data.repository.FavoriteRecipeRepository;
 import com.gf.yummify.data.repository.RecipeIngredientRepository;
 import com.gf.yummify.data.repository.RecipeRepository;
+import com.gf.yummify.data.repository.specifications.RecipeSpecifications;
 import com.gf.yummify.presentation.dto.FavoriteRecipeDTO;
 import com.gf.yummify.presentation.dto.RecipeRequestDTO;
 import com.gf.yummify.presentation.dto.RecipeResponseDTO;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
+import com.gf.yummify.presentation.dto.ShortRecipeResponseDTO;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -76,10 +84,48 @@ public class RecipeServiceImpl implements RecipeService {
                 .orElseThrow(() -> new NoSuchElementException("La receta con id: " + id + " no existe"));
     }
 
+    public Page<ShortRecipeResponseDTO> findFilteredRecipes(int page, int size, Difficulty difficulty, Integer portions, List<String> tags, List<String> ingredients, IngredientType ingredientType) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("creationDate").descending());
+        Specification<Recipe> specification = Specification.where(null);
+        if (difficulty != null) {
+            specification = specification.and(RecipeSpecifications.hasDifficulty(difficulty));
+        }
+        if (portions != null) {
+            specification = specification.and(RecipeSpecifications.hasPortions(portions));
+        }
+        if (tags != null) {
+            specification = specification.and(RecipeSpecifications.hasTags(tags));
+        }
+        if (ingredients != null) {
+            specification = specification.and(RecipeSpecifications.hasIngredients(ingredients));
+        }
+        if (ingredientType != null) {
+            specification = specification.and(RecipeSpecifications.hasIngredientType(ingredientType));
+        }
+
+        Page<Recipe> recipePage = recipeRepository.findAll(specification, pageable);
+        List<ShortRecipeResponseDTO> shortRecipeDTOs = recipePage
+                .stream()
+                .map(recipeMapper::toShortRecipeResponseDTO)
+                .toList();
+        return new PageImpl<>(shortRecipeDTOs, pageable, recipePage.getTotalElements());
+    }
+
     @Override
     public List<Recipe> findRecipesByUser(Authentication authentication) {
         User user = userService.findUserByUsername(authentication.getName());
         return recipeRepository.findByUser(user);
+    }
+
+    @Override
+    public Page<ShortRecipeResponseDTO> searchRecipes(String searchTerm, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("creationDate").descending());
+        Page<Recipe> recipePage = recipeRepository.findByTitleContainingIgnoreCase(searchTerm, pageable);
+        List<ShortRecipeResponseDTO> shortRecipeDTOs = recipePage
+                .stream()
+                .map(recipeMapper::toShortRecipeResponseDTO)
+                .toList();
+        return new PageImpl<>(shortRecipeDTOs, pageable, recipePage.getTotalElements());
     }
 
     @Override
@@ -219,21 +265,32 @@ public class RecipeServiceImpl implements RecipeService {
         return Arrays.asList(instructions.split("\\|~\\|"));
     }
 
-    private String handleImageUpload(MultipartFile image) {
+    public String handleImageUpload(MultipartFile image) {
         if (!isImageValid(image)) {
             throw new IllegalArgumentException("Tipo de archivo no permitido o archivo vacío. Solo se permiten: JPEG, PNG.");
         }
 
         String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
-        Path imagePath = Paths.get(UPLOAD_DIR, fileName);
+        File outputFile = new File(UPLOAD_DIR, fileName);
 
         try {
-            Files.createDirectories(imagePath.getParent());
-            Files.write(imagePath, image.getBytes());
+            InputStream inputStream = image.getInputStream();
+            BufferedImage bufferedImage = ImageIO.read(inputStream);
+
+            int width = 1200;
+            int height = 800;
+            Image resizedImage = bufferedImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+
+            BufferedImage outputImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            Graphics2D graphics = outputImage.createGraphics();
+            graphics.drawImage(resizedImage, 0, 0, null);
+            graphics.dispose();
+
+            ImageIO.write(outputImage, "jpg", outputFile);
+
         } catch (IOException e) {
             throw new RuntimeException("Error al guardar la imagen: " + e.getMessage(), e);
         }
-
         return "/images/uploads/recipes/" + fileName;
     }
 

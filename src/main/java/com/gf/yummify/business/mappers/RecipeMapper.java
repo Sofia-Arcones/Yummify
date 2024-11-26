@@ -1,8 +1,10 @@
 package com.gf.yummify.business.mappers;
 
 import com.gf.yummify.data.entity.FavoriteRecipe;
+import com.gf.yummify.data.entity.Recipe;
 import com.gf.yummify.data.entity.Tag;
 import com.gf.yummify.presentation.dto.FavoriteRecipeDTO;
+import com.gf.yummify.presentation.dto.ShortRecipeResponseDTO;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,8 +21,16 @@ public interface RecipeMapper {
     @Mapping(target = "tags", source = "favoriteRecipe.recipe.tags")
     FavoriteRecipeDTO toFavoriteRecipeDTO(FavoriteRecipe favoriteRecipe);
 
+    @Mapping(target = "recipeId", source = "recipe.recipeId")
+    @Mapping(target = "image", source = "recipe.image")
+    @Mapping(target = "title", source = "recipe.title")
+    @Mapping(target = "description", source = "recipe.description")
+    @Mapping(target = "tags", source = "recipe.tags")
+    ShortRecipeResponseDTO toShortRecipeResponseDTO(Recipe recipe);
+
     @IterableMapping(elementTargetType = String.class)
     List<String> mapTagsToNames(List<Tag> tags);
+
     default String mapTagToName(Tag tag) {
         return tag.getName();
     }

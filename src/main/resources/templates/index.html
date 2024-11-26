@@ -10,9 +10,256 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.min.js"></script>
 </head>
+<style>
+    body {
+        overflow-x: hidden;
+    }
+    .recipe-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 300px;
+    }
+
+    .recipe-card .card-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        flex-grow: 1;
+    }
+
+    .recipe-image-container {
+        width: 100%;
+        height: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .recipe-image {
+        padding-top: 20px;
+        padding-left: 60px;
+        padding-right: 20px;
+        height: 270px;
+        width: auto;
+        object-fit: cover;
+    }
+</style>
+
 <body class="d-flex flex-column min-vh-100">
 <div class="container-fluid p-0">
     <div th:replace="~{fragments/header :: header}"></div>
 </div>
+<div class="row mt-3">
+    <aside class="col-md-3 col-lg-3 text-center p-4 ">
+        <form id="filtersForm" th:action="@{/home}" method="get">
+            <input type="hidden" id="hidden-tags" name="tags">
+            <input type="hidden" id="hidden-ingredients" name="ingredients">
+            <div class="p-3 border border-3 border-info rounded shadow-sm"
+                 style="min-height: 70%; display: flex; flex-direction: column; justify-content: space-between;">
+                <h5 class="mb-4 text-secondary">Filtros</h5>
+                <div class="mb-4">
+                    <label for="difficulty" class="form-label">Dificultad</label>
+                    <div class="input-group">
+                        <select class="form-control" id="difficulty" name="difficulty">
+                            <option value="" disabled selected>Filtro por dificultad</option>
+                            <option th:each="difficulty : ${difficulties}" th:value="${difficulty}"
+                                    th:text="${difficulty}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="portions" class="form-label">Porciones</label>
+                    <input type="number" class="form-control" id="portions" name="portions" min="1" max="20" step="1"
+                           placeholder="Número de porciones">
+                </div>
+                <div class="mb-4">
+                    <label for="tags-input" class="form-label">Etiquetas</label>
+                    <input name="tags-input" type="text" id="tags-input" placeholder="Añadir etiqueta y presionar Enter"
+                           class="form-control">
+                    <div id="tags-list" class="d-flex flex-wrap mt-2"></div>
+                </div>
+                <div class="mb-4">
+                    <label for="ingredients-input" class="form-label">Ingredientes</label>
+                    <input name="ingredients-input" type="text" id="ingredients-input"
+                           placeholder="Añadir ingrediente y presionar Enter" class="form-control">
+                    <div id="ingredients-list" class="d-flex flex-wrap mt-2"></div>
+                </div>
+                <div class="mb-4">
+                    <label for="ingredientType" class="form-label">Tipo de Ingrediente</label>
+                    <select class="form-control" id="ingredientType" name="ingredientType">
+                        <option value="" disabled selected>Filtro por tipo de ingrediente</option>
+                        <option th:each="ingredientType : ${ingredientTypes}" th:value="${ingredientType}"
+                                th:text="${ingredientType}"></option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-md">Filtrar</button>
+            </div>
+        </form>
+    </aside>
+    <main class="col-md-9">
+        <div class="row p-3">
+            <div class="col-md-12">
+                <input type="text" class="form-control" id="searchInput" placeholder="Buscar recetas...">
+            </div>
+        </div>
+        <div id="recipesContainer" class="row p-3">
+            <div th:replace="~{fragments/recipeContainer}"></div>
+        </div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById("searchInput");
+    const filtersForm = document.getElementById("filtersForm");
+
+    let tags = [];
+    let ingredients = [];
+
+    function updateHiddenField(fieldId, items) {
+        document.getElementById(fieldId).value = items.join(',');
+    }
+
+    function buildURL() {
+        const urlParams = new URLSearchParams();
+
+        const difficulty = document.getElementById("difficulty").value;
+        const portions = document.getElementById("portions").value;
+        const ingredientType = document.getElementById("ingredientType").value;
+
+        if (searchInput.value.trim() !== "") {
+            urlParams.set('search', searchInput.value.trim());
+        }
+        if (difficulty) {
+            urlParams.set('difficulty', difficulty);
+        }
+        if (portions) {
+            urlParams.set('portions', portions);
+        }
+        if (ingredientType) {
+            urlParams.set('ingredientType', ingredientType);
+        }
+        if (tags.length > 0) {
+            urlParams.set('tags', tags.join(','));
+        }
+        if (ingredients.length > 0) {
+            urlParams.set('ingredients', ingredients.join(','));
+        }
+
+        urlParams.set('isAjax', 'true');
+        return '/home?' + urlParams.toString();
+    }
+
+    function loadRecipes() {
+        const url = buildURL();
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error en la respuesta: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                const recipesContainer = document.getElementById('recipesContainer');
+                recipesContainer.innerHTML = data.includes("recipe-card") ? data : "<p>No se encontraron recetas.</p>";
+            })
+            .catch(error => {
+                console.error("Error al cargar las recetas:", error);
+            });
+    }
+
+    searchInput.addEventListener('input', function () {
+        loadRecipes();
+    });
+
+    filtersForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        loadRecipes();
+    });
+
+    document.getElementById("tags-input").addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && this.value.trim() !== "") {
+            event.preventDefault();
+            addTag(this.value.trim());
+            this.value = "";
+        }
+    });
+
+    document.getElementById("ingredients-input").addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && this.value.trim() !== "") {
+            event.preventDefault();
+            addIngredient(this.value.trim());
+            this.value = "";
+        }
+    });
+
+    function addTag(tagText) {
+        const tagsList = document.getElementById("tags-list");
+        if (!tagText.startsWith('#')) {
+            tagText = '#' + tagText.trim();
+        }
+
+        if (tags.includes(tagText)) {
+            alert("Esta etiqueta ya ha sido añadida.");
+            return;
+        }
+
+        const tagDiv = document.createElement("div");
+        tagDiv.className = "badge badge-primary m-1 p-2 d-flex align-items-center";
+        tagDiv.textContent = tagText;
+
+        const removeButton = document.createElement("button");
+        removeButton.className = "ml-1 btn btn-sm btn-danger";
+        removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        removeButton.onclick = function () {
+            tagsList.removeChild(tagDiv);
+            tags = tags.filter(tag => tag !== tagText);
+            updateHiddenField("hidden-tags", tags);
+        };
+
+        tagDiv.appendChild(removeButton);
+        tagsList.appendChild(tagDiv);
+
+        tags.push(tagText);
+        updateHiddenField("hidden-tags", tags);
+        loadRecipes();
+    }
+
+    function addIngredient(ingredientText) {
+        const ingredientsList = document.getElementById("ingredients-list");
+        const formattedIngredient = ingredientText.charAt(0).toUpperCase() + ingredientText.slice(1).toLowerCase();
+
+        if (ingredients.includes(formattedIngredient)) {
+            alert("Este ingrediente ya ha sido añadido.");
+            return;
+        }
+
+        const ingredientDiv = document.createElement("div");
+        ingredientDiv.className = "badge badge-primary m-1 p-2 d-flex align-items-center";
+        ingredientDiv.textContent = formattedIngredient;
+
+        const removeButton = document.createElement("button");
+        removeButton.className = "ml-1 btn btn-sm btn-danger";
+        removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        removeButton.onclick = function () {
+            ingredientsList.removeChild(ingredientDiv);
+            ingredients = ingredients.filter(ing => ing !== formattedIngredient);
+            updateHiddenField("hidden-ingredients", ingredients);
+        };
+
+        ingredientDiv.appendChild(removeButton);
+        ingredientsList.appendChild(ingredientDiv);
+
+        ingredients.push(formattedIngredient);
+        updateHiddenField("hidden-ingredients", ingredients);
+        loadRecipes();
+    }
+});
+</script>
+</body>
+</html>
 </body>
 </html>
