@@ -5,7 +5,10 @@ import com.gf.yummify.data.entity.Challenge;
 import com.gf.yummify.data.entity.ChallengeParticipation;
 import com.gf.yummify.data.entity.Recipe;
 import com.gf.yummify.data.entity.User;
+import com.gf.yummify.data.enums.ActivityType;
+import com.gf.yummify.data.enums.RelatedEntity;
 import com.gf.yummify.data.repository.ChallengeParticipationRepository;
+import com.gf.yummify.presentation.dto.ActivityLogRequestDTO;
 import com.gf.yummify.presentation.dto.ChallengeParticipationResponseDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,10 +22,12 @@ import java.util.NoSuchElementException;
 public class ChallengeParticipationServiceImpl implements ChallengeParticipationService {
     private ChallengeParticipationRepository challengeParticipationRepository;
     private ChallengeParticipationMapper challengeParticipationMapper;
+    private ActivityLogService activityLogService;
 
-    public ChallengeParticipationServiceImpl(ChallengeParticipationRepository challengeParticipationRepository, ChallengeParticipationMapper challengeParticipationMapper) {
+    public ChallengeParticipationServiceImpl(ChallengeParticipationRepository challengeParticipationRepository, ChallengeParticipationMapper challengeParticipationMapper, ActivityLogService activityLogService) {
         this.challengeParticipationRepository = challengeParticipationRepository;
         this.challengeParticipationMapper = challengeParticipationMapper;
+        this.activityLogService = activityLogService;
     }
 
     @Override
@@ -43,6 +48,9 @@ public class ChallengeParticipationServiceImpl implements ChallengeParticipation
         challengeParticipation.setRecipe(recipe);
         challengeParticipation.setUser(user);
         challengeParticipationRepository.save(challengeParticipation);
+        String description = "El usuario '" + user.getUsername() + "' participó en el desafío '" + challenge.getTitle() + "' (ID: " + challenge.getChallengeId() + ") con su receta '" + recipe.getTitle() + "' (ID: " + recipe.getRecipeId() + ").";
+        ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, challengeParticipation.getChallengeParticipationId(), RelatedEntity.CHALLENGE_PARTICIPATION, ActivityType.CHALLENGE_JOINED, description);
+        activityLogService.createActivityLog(activityLogRequestDTO);
     }
 
     @Override

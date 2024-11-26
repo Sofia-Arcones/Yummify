@@ -6,6 +6,7 @@ public enum RelatedEntity {
     INGREDIENT,
     SHOPPING_LIST,
     CHALLENGE,
+    CHALLENGE_PARTICIPATION,
     COMMENT,
     RATING,
     TAG
