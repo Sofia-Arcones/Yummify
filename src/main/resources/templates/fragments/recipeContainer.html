@@ -7,6 +7,39 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <title>Contenedor de recetas</title>
 </head>
+<style>
+    .recipe-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 300px;
+    }
+
+    .recipe-card .card-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        flex-grow: 1;
+    }
+
+    .recipe-image-container {
+        width: 100%;
+        height: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .recipe-image {
+        padding-top: 20px;
+        padding-left: 60px;
+        padding-right: 20px;
+        height: 270px;
+        width: auto;
+        object-fit: cover;
+    }
+</style>
 <body>
 <!-- Fragmento de Thymeleaf para el contenedor de recetas -->
 <div th:fragment="recipesContainer">
