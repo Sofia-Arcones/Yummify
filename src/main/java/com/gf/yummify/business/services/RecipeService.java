@@ -1,6 +1,8 @@
 package com.gf.yummify.business.services;
 
 import com.gf.yummify.data.entity.Recipe;
+import com.gf.yummify.data.enums.Difficulty;
+import com.gf.yummify.data.enums.IngredientType;
 import com.gf.yummify.presentation.dto.FavoriteRecipeDTO;
 import com.gf.yummify.presentation.dto.RecipeRequestDTO;
 import com.gf.yummify.presentation.dto.RecipeResponseDTO;
@@ -29,4 +31,6 @@ public interface RecipeService {
     Page<FavoriteRecipeDTO> findAllFavorites(Authentication authentication, int page, int size);
 
     Page<ShortRecipeResponseDTO> findAllRecipes(int page, int size);
+
+    Page<ShortRecipeResponseDTO> findFilteredRecipes(int page, int size, Difficulty difficulty, Integer portions, String tags, String ingredients, IngredientType ingredientType);
 }
