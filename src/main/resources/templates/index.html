@@ -51,28 +51,48 @@
     <div th:replace="~{fragments/header :: header}"></div>
 </div>
 <div class="row mt-3">
-    <aside class="col-md-2 text-center">
-        <br><br><br>
-        <h5>Filtros</h5>
+    <aside class="col-md-3 col-lg-3 text-center p-4 ">
         <form id="filtersForm" th:action="@{/recipes/filter}" method="get">
-            <div class="mb-3">
-                <label for="category" class="form-label">Categoría</label>
-                <select class="form-select" id="category" name="category">
-                    <option value="">Todas</option>
-                    <option value="postres">Postres</option>
-                    <option value="saludables">Saludables</option>
-                </select>
+            <div class="p-3 border border-3 border-info rounded shadow-sm"
+                 style="min-height: 70%; display: flex; flex-direction: column; justify-content: space-between;">
+                <h5 class="mb-4 text-secondary">Filtros</h5>
+                <div class="mb-4">
+                    <label for="difficulty" class="form-label">Dificultad</label>
+                    <div class="input-group">
+                        <select class="form-control" id="difficulty" name="difficulty">
+                            <option value="" disabled selected>Filtro por dificultad</option>
+                            <option th:each="difficulty : ${difficulties}" th:value="${difficulty}"
+                                    th:text="${difficulty}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="portions" class="form-label">Porciones</label>
+                    <input type="number" class="form-control" id="portions" name="portions" min="1" max="20" step="1"
+                           placeholder="Número de porciones">
+                </div>
+                <div class="mb-4">
+                    <label for="tags-input" class="form-label">Etiquetas</label>
+                    <input name="tags" type="text" id="tags-input" placeholder="Añadir etiqueta y presionar Enter"
+                           class="form-control">
+                    <div id="tags-list" class="d-flex flex-wrap mt-2"></div>
+                </div>
+                <div class="mb-4">
+                    <label for="ingredients-input" class="form-label">Ingredientes</label>
+                    <input name="ingredients" type="text" id="ingredients-input"
+                           placeholder="Añadir ingrediente y presionar Enter" class="form-control">
+                    <div id="ingredients-list" class="d-flex flex-wrap mt-2"></div>
+                </div>
+                <div class="mb-4">
+                    <label for="ingredientType" class="form-label">Tipo de Ingrediente</label>
+                    <select class="form-control" id="ingredientType" name="ingredientType">
+                        <option value="" disabled selected>Filtro por tipo de ingrediente</option>
+                        <option th:each="ingredientType : ${ingredientTypes}" th:value="${ingredientType}"
+                                th:text="${ingredientType}"></option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-md">Filtrar</button>
             </div>
-            <div class="mb-3">
-                <label for="difficulty" class="form-label">Dificultad</label>
-                <select class="form-select" id="difficulty" name="difficulty">
-                    <option value="">Todas</option>
-                    <option value="fácil">Fácil</option>
-                    <option value="media">Media</option>
-                    <option value="difícil">Difícil</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary btn-md">Aplicar Filtros</button>
         </form>
     </aside>
     <main class="col-md-9">
@@ -143,9 +163,81 @@
             recipe.style.display = title.includes(term) ? 'block' : 'none';
         });
     });
+
+    document.getElementById("tags-input").addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && this.value.trim() !== "") {
+            event.preventDefault();
+            addTag(this.value.trim());
+            this.value = "";
+        }
+    });
+
+    function addTag(tagText) {
+        const tagsList = document.getElementById("tags-list");
+        const tagDiv = document.createElement("div");
+        tagDiv.className = "badge badge-primary m-1 p-2 d-flex align-items-center";
+        tagDiv.textContent = tagText;
+
+        const removeButton = document.createElement("button");
+        removeButton.className = "ml-1 btn btn-xs btn-danger";
+        removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        removeButton.onclick = function () {
+            tagsList.removeChild(tagDiv);
+        };
+
+        removeButton.style.width = "18px";
+        removeButton.style.height = "18px";
+        removeButton.style.padding = "0";
+        removeButton.style.fontSize = "12px";
+        removeButton.style.display = "flex";
+        removeButton.style.justifyContent = "center";
+        removeButton.style.alignItems = "center";
+
+        tagDiv.appendChild(removeButton);
+        tagsList.appendChild(tagDiv);
+    }
+
+    document.getElementById("ingredients-input").addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && this.value.trim() !== "") {
+            event.preventDefault();
+            addIngredient(this.value.trim());
+            this.value = "";
+        }
+    });
+
+    function addIngredient(ingredientText) {
+        const ingredientsList = document.getElementById("ingredients-list");
+        const existingIngredient = Array.from(ingredientsList.children).find(ingredient => ingredient.textContent.trim() === ingredientText);
+
+        if (existingIngredient) {
+            alert("Este ingrediente ya ha sido añadido.");
+            return;
+        }
+
+        const ingredientDiv = document.createElement("div");
+        ingredientDiv.className = "badge badge-success m-1 p-2 d-flex align-items-center";
+        ingredientDiv.textContent = ingredientText;
+
+        const removeButton = document.createElement("button");
+        removeButton.className = "ml-1 btn btn-xs btn-danger";
+        removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        removeButton.onclick = function () {
+            ingredientsList.removeChild(ingredientDiv);
+        };
+
+        removeButton.style.width = "18px";
+        removeButton.style.height = "18px";
+        removeButton.style.padding = "0";
+        removeButton.style.fontSize = "12px";
+        removeButton.style.display = "flex";
+        removeButton.style.justifyContent = "center";
+        removeButton.style.alignItems = "center";
+
+        ingredientDiv.appendChild(removeButton);
+        ingredientsList.appendChild(ingredientDiv);
+    }
 </script>
 </body>
 </html>
-
 </body>
 </html>
