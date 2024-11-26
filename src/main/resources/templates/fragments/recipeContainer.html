@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <title>Contenedor de recetas</title>
+</head>
+<body>
+<!-- Fragmento de Thymeleaf para el contenedor de recetas -->
+<div th:fragment="recipesContainer">
+    <div id="recipesContainer">
+        <div th:each="recipe : ${recipes.content}" class="col-12 mb-4">
+            <div class="card recipe-card bg-primary">
+                <a th:href="@{/recipe/{id}(id=${recipe.recipeId})}" class="text-decoration-none text-dark">
+                    <div class="row no-gutters">
+                        <div class="col-md-4 recipe-image-container">
+                            <img th:src="@{${recipe.image}}" class="card-img recipe-image"
+                                 alt="Imagen de la receta">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h5 th:text="${recipe.title}">Título de la receta</h5>
+                                <p th:text="${recipe.description}">Descripción de la receta</p>
+                                <div>
+                                    <span class="badge bg-info m-1 p-2" th:each="tag : ${recipe.tags}"
+                                          th:text="${tag}">Tag</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${recipes.hasPrevious()} ? '' : 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/home(page=${recipes.number - 1}, size=${recipes.size}, search=${searchTerm})}"
+                       aria-label="Anterior">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, recipes.totalPages - 1)}"
+                    th:classappend="${i == recipes.number} ? 'active' : ''">
+                    <a class="page-link" th:href="@{/home(page=${i}, size=${recipes.size}, search=${searchTerm})}"
+                       th:text="${i + 1}"></a>
+                </li>
+                <li class="page-item" th:classappend="${recipes.hasNext()} ? '' : 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/home(page=${recipes.number + 1}, size=${recipes.size}, search=${searchTerm})}"
+                       aria-label="Siguiente">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+</body>
+</html>

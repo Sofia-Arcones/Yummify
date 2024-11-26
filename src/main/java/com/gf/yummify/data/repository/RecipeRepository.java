@@ -16,4 +16,6 @@ public interface RecipeRepository extends JpaRepository<Recipe, UUID>, JpaSpecif
 
     @Override
     Page<Recipe> findAll(Specification<Recipe> specification, Pageable pageable);
+
+    Page<Recipe> findByTitleContainingIgnoreCase(String title, Pageable pageable);
 }

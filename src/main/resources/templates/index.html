@@ -12,8 +12,8 @@
 </head>
 <style>
     body {
-    overflow-x: hidden;
-}
+        overflow-x: hidden;
+    }
     .recipe-card {
         display: flex;
         flex-direction: column;
@@ -28,14 +28,15 @@
         flex-grow: 1;
     }
 
-.recipe-image-container {
-    width: 100%;
-    height: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-}
+    .recipe-image-container {
+        width: 100%;
+        height: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
     .recipe-image {
         padding-top: 20px;
         padding-left: 60px;
@@ -103,69 +104,50 @@
                 <input type="text" class="form-control" id="searchInput" placeholder="Buscar recetas...">
             </div>
         </div>
-        <div th:each="recipe : ${recipes.content}" class="col-12 mb-4">
-            <div class="card recipe-card bg-primary">
-                <a th:href="@{/recipe/{id}(id=${recipe.recipeId})}" class="text-decoration-none text-dark">
-                    <div class="row no-gutters">
-                        <div class="col-md-4 recipe-image-container">
-                            <img th:src="@{${recipe.image}}" class="card-img recipe-image" alt="Imagen de la receta">
-                        </div>
-                        <div class="col-md-8">
-                            <div class="card-body">
-                                <h5 th:text="${recipe.title}">Título de la receta</h5>
-                                <p th:text="${recipe.description}">Descripción de la receta</p>
-                                <div>
-                                    <span class="badge bg-info m-1 p-2" th:each="tag : ${recipe.tags}"
-                                          th:text="${tag}">Tag</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
+        <div id="recipesContainer" class="row p-3">
+            <div th:replace="~{fragments/recipeContainer}"></div>
         </div>
-        <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center">
-                <li class="page-item" th:classappend="${recipes.hasPrevious()} ? '' : 'disabled'">
-                    <a class="page-link"
-                       th:href="@{/home(page=${recipes.number - 1}, size=${recipes.size})}"
-                       aria-label="Anterior">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-                <li class="page-item"
-                    th:each="i : ${#numbers.sequence(0, recipes.totalPages - 1)}"
-                    th:classappend="${i == recipes.number} ? 'active' : ''">
-                    <a class="page-link"
-                       th:href="@{/home(page=${i}, size=${recipes.size})}"
-                       th:text="${i + 1}"></a>
-                </li>
-
-                <li class="page-item" th:classappend="${recipes.hasNext()} ? '' : 'disabled'">
-                    <a class="page-link"
-                       th:href="@{/home(page=${recipes.number + 1}, size=${recipes.size})}"
-                       aria-label="Siguiente">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
     </main>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const searchInput = document.getElementById('searchInput');
+    document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById("searchInput");
+    const filtersForm = document.getElementById("filtersForm");
+
     searchInput.addEventListener('input', function () {
-        const term = searchInput.value.toLowerCase();
-        document.querySelectorAll('#recipesContainer .card').forEach(recipe => {
-            const title = recipe.querySelector('.card-title').textContent.toLowerCase();
-            recipe.style.display = title.includes(term) ? 'block' : 'none';
-        });
+        const searchTerm = searchInput.value.trim();
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('search', searchTerm);
+        urlParams.set('isAjax', 'true');
+
+        history.pushState(null, '', '/home?' + urlParams.toString());
+
+        loadRecipes('/home?' + urlParams.toString());
     });
 
+    // Función para cargar las recetas con AJAX
+    function loadRecipes(url) {
+        fetch(url)
+            .then(response => response.text())
+            .then(data => {
+                console.log("Respuesta recibida:", data);
 
+                const recipesContainer = document.getElementById('recipesContainer');
+                recipesContainer.innerHTML = '';
 
-    document.addEventListener('DOMContentLoaded', function () {
+                if (data.includes("recipe-card")) {
+                    recipesContainer.innerHTML = data;
+                } else {
+                    console.error("No se encontraron recetas o la respuesta es inválida.");
+                }
+            })
+            .catch(error => {
+                console.error("Error al cargar las recetas:", error);
+            });
+    }
+
     let tags = [];
     let ingredients = [];
 
@@ -173,11 +155,13 @@
         document.getElementById(fieldId).value = items.join(',');
     }
 
+    // Agregar una nueva etiqueta
     function addTag(tagText) {
         const tagsList = document.getElementById("tags-list");
-            if (!tagText.startsWith('#')) {
-                tagText = '#' + tagText.trim();
-            }
+        if (!tagText.startsWith('#')) {
+            tagText = '#' + tagText.trim();
+        }
+
         const tagDiv = document.createElement("div");
         tagDiv.className = "badge badge-primary m-1 p-2 d-flex align-items-center";
         tagDiv.textContent = tagText;
@@ -191,16 +175,6 @@
             updateHiddenField("hidden-tags", tags);
         };
 
-        Object.assign(removeButton.style, {
-            width: "18px",
-            height: "18px",
-            padding: "0",
-            fontSize: "12px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center"
-        });
-
         tagDiv.appendChild(removeButton);
         tagsList.appendChild(tagDiv);
 
@@ -208,9 +182,9 @@
         updateHiddenField("hidden-tags", tags);
     }
 
+    // Agregar un nuevo ingrediente
     function addIngredient(ingredientText) {
         const ingredientsList = document.getElementById("ingredients-list");
-
         const formattedIngredient = ingredientText.charAt(0).toUpperCase() + ingredientText.slice(1).toLowerCase();
 
         const existingIngredient = Array.from(ingredientsList.children).find(
@@ -230,19 +204,9 @@
         removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
         removeButton.onclick = function () {
             ingredientsList.removeChild(ingredientDiv);
-            ingredients = ingredients.filter(ing => ing !== ingredientText);
+            ingredients = ingredients.filter(ing => ing !== formattedIngredient);
             updateHiddenField("hidden-ingredients", ingredients);
         };
-
-        Object.assign(removeButton.style, {
-            width: "18px",
-            height: "18px",
-            padding: "0",
-            fontSize: "12px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center"
-        });
 
         ingredientDiv.appendChild(removeButton);
         ingredientsList.appendChild(ingredientDiv);
@@ -251,35 +215,44 @@
         updateHiddenField("hidden-ingredients", ingredients);
     }
 
+    // Evento para añadir etiquetas con "Enter"
     document.getElementById("tags-input").addEventListener("keydown", function (event) {
         if (event.key === "Enter" && this.value.trim() !== "") {
-            event.preventDefault();
+            event.preventDefault();  // Evitar el envío del formulario
             addTag(this.value.trim());
-            this.value = "";
+            this.value = "";  // Limpiar el campo de entrada
         }
     });
 
+    // Evento para añadir ingredientes con "Enter"
     document.getElementById("ingredients-input").addEventListener("keydown", function (event) {
         if (event.key === "Enter" && this.value.trim() !== "") {
-            event.preventDefault();
+            event.preventDefault();  // Evitar el envío del formulario
             addIngredient(this.value.trim());
-            this.value = "";
+            this.value = "";  // Limpiar el campo de entrada
         }
     });
-});
-    document.getElementById("filtersForm").addEventListener("submit", function (event) {
-    tags = [...new Set(tags.filter(tag => tag.trim() !== ""))];
-    ingredients = [...new Set(ingredients.filter(ing => ing.trim() !== ""))];
 
-    document.getElementById("hidden-tags").value = tags.join(',');
-    document.getElementById("hidden-ingredients").value = ingredients.join(',');
+    // Prevenir el envío del formulario cuando se presiona Enter
+    filtersForm.addEventListener('submit', function (event) {
+        event.preventDefault();  // Prevenir el envío del formulario normal
+        tags = [...new Set(tags.filter(tag => tag.trim() !== ""))];
+        ingredients = [...new Set(ingredients.filter(ing => ing.trim() !== ""))];
 
-    if (tags.length === 0) {
-        document.getElementById("hidden-tags").value = null;
-    }
-    if (ingredients.length === 0) {
-        document.getElementById("hidden-ingredients").value = null;
-    }
+        document.getElementById("hidden-tags").value = tags.join(',');
+        document.getElementById("hidden-ingredients").value = ingredients.join(',');
+
+        // Si no hay tags o ingredientes, limpiar los valores ocultos
+        if (tags.length === 0) {
+            document.getElementById("hidden-tags").value = null;
+        }
+        if (ingredients.length === 0) {
+            document.getElementById("hidden-ingredients").value = null;
+        }
+
+        // Aquí se podría hacer un envío de formulario AJAX si lo necesitas
+        loadRecipes(window.location.href);
+    });
 });
 </script>
 </body>

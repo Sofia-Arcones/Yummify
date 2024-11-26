@@ -1,7 +1,6 @@
 package com.gf.yummify.business.services;
 
 import com.gf.yummify.business.mappers.RecipeMapper;
-import com.gf.yummify.data.repository.specifications.RecipeSpecifications;
 import com.gf.yummify.data.entity.*;
 import com.gf.yummify.data.enums.Difficulty;
 import com.gf.yummify.data.enums.IngredientType;
@@ -9,6 +8,7 @@ import com.gf.yummify.data.enums.UnitOfMeasure;
 import com.gf.yummify.data.repository.FavoriteRecipeRepository;
 import com.gf.yummify.data.repository.RecipeIngredientRepository;
 import com.gf.yummify.data.repository.RecipeRepository;
+import com.gf.yummify.data.repository.specifications.RecipeSpecifications;
 import com.gf.yummify.presentation.dto.FavoriteRecipeDTO;
 import com.gf.yummify.presentation.dto.RecipeRequestDTO;
 import com.gf.yummify.presentation.dto.RecipeResponseDTO;
@@ -117,16 +117,16 @@ public class RecipeServiceImpl implements RecipeService {
         return recipeRepository.findByUser(user);
     }
 
-    public Page<ShortRecipeResponseDTO> findAllRecipes(int page, int size) {
+    @Override
+    public Page<ShortRecipeResponseDTO> searchRecipes(String searchTerm, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("creationDate").descending());
-        Page<Recipe> recipePage = recipeRepository.findAll(pageable);
+        Page<Recipe> recipePage = recipeRepository.findByTitleContainingIgnoreCase(searchTerm, pageable);
         List<ShortRecipeResponseDTO> shortRecipeDTOs = recipePage
                 .stream()
                 .map(recipeMapper::toShortRecipeResponseDTO)
                 .toList();
         return new PageImpl<>(shortRecipeDTOs, pageable, recipePage.getTotalElements());
     }
-
 
     @Override
     public RecipeResponseDTO getRecipeResponseDTO(UUID id) {

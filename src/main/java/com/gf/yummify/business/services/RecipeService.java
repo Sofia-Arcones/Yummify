@@ -30,7 +30,7 @@ public interface RecipeService {
 
     Page<FavoriteRecipeDTO> findAllFavorites(Authentication authentication, int page, int size);
 
-    Page<ShortRecipeResponseDTO> findAllRecipes(int page, int size);
+    Page<ShortRecipeResponseDTO> searchRecipes(String searchTerm, int page, int size);
 
     Page<ShortRecipeResponseDTO> findFilteredRecipes(int page, int size, Difficulty difficulty, Integer portions, List<String> tags, List<String> ingredients, IngredientType ingredientType);
 }
