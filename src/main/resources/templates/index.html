@@ -53,6 +53,8 @@
 <div class="row mt-3">
     <aside class="col-md-3 col-lg-3 text-center p-4 ">
         <form id="filtersForm" th:action="@{/home}" method="get">
+            <input type="hidden" id="hidden-tags" name="tags">
+            <input type="hidden" id="hidden-ingredients" name="ingredients">
             <div class="p-3 border border-3 border-info rounded shadow-sm"
                  style="min-height: 70%; display: flex; flex-direction: column; justify-content: space-between;">
                 <h5 class="mb-4 text-secondary">Filtros</h5>
@@ -73,13 +75,13 @@
                 </div>
                 <div class="mb-4">
                     <label for="tags-input" class="form-label">Etiquetas</label>
-                    <input name="tags" type="text" id="tags-input" placeholder="Añadir etiqueta y presionar Enter"
+                    <input name="tags-input" type="text" id="tags-input" placeholder="Añadir etiqueta y presionar Enter"
                            class="form-control">
                     <div id="tags-list" class="d-flex flex-wrap mt-2"></div>
                 </div>
                 <div class="mb-4">
                     <label for="ingredients-input" class="form-label">Ingredientes</label>
-                    <input name="ingredients" type="text" id="ingredients-input"
+                    <input name="ingredients-input" type="text" id="ingredients-input"
                            placeholder="Añadir ingrediente y presionar Enter" class="form-control">
                     <div id="ingredients-list" class="d-flex flex-wrap mt-2"></div>
                 </div>
@@ -122,8 +124,6 @@
                 </a>
             </div>
         </div>
-
-
         <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center">
                 <li class="page-item" th:classappend="${recipes.hasPrevious()} ? '' : 'disabled'">
@@ -133,7 +133,6 @@
                         <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
-
                 <li class="page-item"
                     th:each="i : ${#numbers.sequence(0, recipes.totalPages - 1)}"
                     th:classappend="${i == recipes.number} ? 'active' : ''">
@@ -164,16 +163,21 @@
         });
     });
 
-    document.getElementById("tags-input").addEventListener("keydown", function (event) {
-        if (event.key === "Enter" && this.value.trim() !== "") {
-            event.preventDefault();
-            addTag(this.value.trim());
-            this.value = "";
-        }
-    });
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+    let tags = [];
+    let ingredients = [];
+
+    function updateHiddenField(fieldId, items) {
+        document.getElementById(fieldId).value = items.join(',');
+    }
 
     function addTag(tagText) {
         const tagsList = document.getElementById("tags-list");
+            if (!tagText.startsWith('#')) {
+                tagText = '#' + tagText.trim();
+            }
         const tagDiv = document.createElement("div");
         tagDiv.className = "badge badge-primary m-1 p-2 d-flex align-items-center";
         tagDiv.textContent = tagText;
@@ -183,19 +187,77 @@
         removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
         removeButton.onclick = function () {
             tagsList.removeChild(tagDiv);
+            tags = tags.filter(tag => tag !== tagText);
+            updateHiddenField("hidden-tags", tags);
         };
 
-        removeButton.style.width = "18px";
-        removeButton.style.height = "18px";
-        removeButton.style.padding = "0";
-        removeButton.style.fontSize = "12px";
-        removeButton.style.display = "flex";
-        removeButton.style.justifyContent = "center";
-        removeButton.style.alignItems = "center";
+        Object.assign(removeButton.style, {
+            width: "18px",
+            height: "18px",
+            padding: "0",
+            fontSize: "12px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center"
+        });
 
         tagDiv.appendChild(removeButton);
         tagsList.appendChild(tagDiv);
+
+        tags.push(tagText);
+        updateHiddenField("hidden-tags", tags);
     }
+
+    function addIngredient(ingredientText) {
+        const ingredientsList = document.getElementById("ingredients-list");
+
+        const formattedIngredient = ingredientText.charAt(0).toUpperCase() + ingredientText.slice(1).toLowerCase();
+
+        const existingIngredient = Array.from(ingredientsList.children).find(
+            ingredient => ingredient.textContent.trim() === formattedIngredient
+        );
+        if (existingIngredient) {
+            alert("Este ingrediente ya ha sido añadido.");
+            return;
+        }
+
+        const ingredientDiv = document.createElement("div");
+        ingredientDiv.className = "badge badge-success m-1 p-2 d-flex align-items-center";
+        ingredientDiv.textContent = formattedIngredient;
+
+        const removeButton = document.createElement("button");
+        removeButton.className = "ml-1 btn btn-xs btn-danger";
+        removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        removeButton.onclick = function () {
+            ingredientsList.removeChild(ingredientDiv);
+            ingredients = ingredients.filter(ing => ing !== ingredientText);
+            updateHiddenField("hidden-ingredients", ingredients);
+        };
+
+        Object.assign(removeButton.style, {
+            width: "18px",
+            height: "18px",
+            padding: "0",
+            fontSize: "12px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center"
+        });
+
+        ingredientDiv.appendChild(removeButton);
+        ingredientsList.appendChild(ingredientDiv);
+
+        ingredients.push(formattedIngredient);
+        updateHiddenField("hidden-ingredients", ingredients);
+    }
+
+    document.getElementById("tags-input").addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && this.value.trim() !== "") {
+            event.preventDefault();
+            addTag(this.value.trim());
+            this.value = "";
+        }
+    });
 
     document.getElementById("ingredients-input").addEventListener("keydown", function (event) {
         if (event.key === "Enter" && this.value.trim() !== "") {
@@ -204,38 +266,21 @@
             this.value = "";
         }
     });
+});
+    document.getElementById("filtersForm").addEventListener("submit", function (event) {
+    tags = [...new Set(tags.filter(tag => tag.trim() !== ""))];
+    ingredients = [...new Set(ingredients.filter(ing => ing.trim() !== ""))];
 
-    function addIngredient(ingredientText) {
-        const ingredientsList = document.getElementById("ingredients-list");
-        const existingIngredient = Array.from(ingredientsList.children).find(ingredient => ingredient.textContent.trim() === ingredientText);
+    document.getElementById("hidden-tags").value = tags.join(',');
+    document.getElementById("hidden-ingredients").value = ingredients.join(',');
 
-        if (existingIngredient) {
-            alert("Este ingrediente ya ha sido añadido.");
-            return;
-        }
-
-        const ingredientDiv = document.createElement("div");
-        ingredientDiv.className = "badge badge-success m-1 p-2 d-flex align-items-center";
-        ingredientDiv.textContent = ingredientText;
-
-        const removeButton = document.createElement("button");
-        removeButton.className = "ml-1 btn btn-xs btn-danger";
-        removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
-        removeButton.onclick = function () {
-            ingredientsList.removeChild(ingredientDiv);
-        };
-
-        removeButton.style.width = "18px";
-        removeButton.style.height = "18px";
-        removeButton.style.padding = "0";
-        removeButton.style.fontSize = "12px";
-        removeButton.style.display = "flex";
-        removeButton.style.justifyContent = "center";
-        removeButton.style.alignItems = "center";
-
-        ingredientDiv.appendChild(removeButton);
-        ingredientsList.appendChild(ingredientDiv);
+    if (tags.length === 0) {
+        document.getElementById("hidden-tags").value = null;
     }
+    if (ingredients.length === 0) {
+        document.getElementById("hidden-ingredients").value = null;
+    }
+});
 </script>
 </body>
 </html>

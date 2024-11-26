@@ -9,9 +9,9 @@ import com.gf.yummify.data.enums.IngredientType;
 import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
 
-public class RecipeSpecifications {
+import java.util.List;
 
-    // Filtro por dificultad
+public class RecipeSpecifications {
     public static Specification<Recipe> hasDifficulty(Difficulty difficulty) {
         return (root, query, criteriaBuilder) -> {
             if (difficulty == null) return criteriaBuilder.conjunction();
@@ -19,7 +19,6 @@ public class RecipeSpecifications {
         };
     }
 
-    // Filtro por porciones
     public static Specification<Recipe> hasPortions(Integer portions) {
         return (root, query, criteriaBuilder) -> {
             if (portions == null) return criteriaBuilder.conjunction();
@@ -27,7 +26,6 @@ public class RecipeSpecifications {
         };
     }
 
-    // Filtro por tipo de ingrediente
     public static Specification<Recipe> hasIngredientType(IngredientType ingredientType) {
         return (root, query, criteriaBuilder) -> {
             if (ingredientType == null) return criteriaBuilder.conjunction();
@@ -36,22 +34,19 @@ public class RecipeSpecifications {
         };
     }
 
-    // Filtro por etiquetas
-    public static Specification<Recipe> hasTags(String tags) {
+    public static Specification<Recipe> hasTags(List<String> tags) {
         return (root, query, criteriaBuilder) -> {
-            if (tags == null || tags.trim().isEmpty()) return criteriaBuilder.conjunction();
+            if (tags == null || tags.isEmpty()) return criteriaBuilder.conjunction();
             Join<Recipe, Tag> tagsJoin = root.join("tags");
-            return criteriaBuilder.like(criteriaBuilder.lower(tagsJoin.get("name")), "%" + tags.toLowerCase() + "%");
+            return tagsJoin.get("name").in(tags);
         };
     }
 
-    // Filtro por ingredientes
-    public static Specification<Recipe> hasIngredients(String ingredients) {
+    public static Specification<Recipe> hasIngredients(List<String> ingredients) {
         return (root, query, criteriaBuilder) -> {
-            if (ingredients == null || ingredients.trim().isEmpty()) return criteriaBuilder.conjunction();
+            if (ingredients == null || ingredients.isEmpty()) return criteriaBuilder.conjunction();
             Join<RecipeIngredient, Ingredient> ingredientsJoin = root.join("ingredients");
-            return criteriaBuilder.like(criteriaBuilder.lower(ingredientsJoin.get("ingredient").get("ingredientName")),
-                    "%" + ingredients.toLowerCase() + "%");
+            return ingredientsJoin.get("ingredient").get("ingredientName").in(ingredients);
         };
     }
 }

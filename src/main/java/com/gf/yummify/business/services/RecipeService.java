@@ -32,5 +32,5 @@ public interface RecipeService {
 
     Page<ShortRecipeResponseDTO> findAllRecipes(int page, int size);
 
-    Page<ShortRecipeResponseDTO> findFilteredRecipes(int page, int size, Difficulty difficulty, Integer portions, String tags, String ingredients, IngredientType ingredientType);
+    Page<ShortRecipeResponseDTO> findFilteredRecipes(int page, int size, Difficulty difficulty, Integer portions, List<String> tags, List<String> ingredients, IngredientType ingredientType);
 }

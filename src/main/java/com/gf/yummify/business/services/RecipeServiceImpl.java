@@ -84,7 +84,7 @@ public class RecipeServiceImpl implements RecipeService {
                 .orElseThrow(() -> new NoSuchElementException("La receta con id: " + id + " no existe"));
     }
 
-    public Page<ShortRecipeResponseDTO> findFilteredRecipes(int page, int size, Difficulty difficulty, Integer portions, String tags, String ingredients, IngredientType ingredientType) {
+    public Page<ShortRecipeResponseDTO> findFilteredRecipes(int page, int size, Difficulty difficulty, Integer portions, List<String> tags, List<String> ingredients, IngredientType ingredientType) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("creationDate").descending());
         Specification<Recipe> specification = Specification.where(null);
         if (difficulty != null) {
@@ -93,10 +93,10 @@ public class RecipeServiceImpl implements RecipeService {
         if (portions != null) {
             specification = specification.and(RecipeSpecifications.hasPortions(portions));
         }
-        if (tags != null && !tags.trim().isEmpty()) {
+        if (tags != null) {
             specification = specification.and(RecipeSpecifications.hasTags(tags));
         }
-        if (ingredients != null && !ingredients.trim().isEmpty()) {
+        if (ingredients != null) {
             specification = specification.and(RecipeSpecifications.hasIngredients(ingredients));
         }
         if (ingredientType != null) {

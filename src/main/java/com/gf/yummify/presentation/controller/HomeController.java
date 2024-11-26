@@ -10,6 +10,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 @Controller
 public class HomeController {
 
@@ -29,8 +31,8 @@ public class HomeController {
                        @RequestParam(value = "size", defaultValue = "3") int size,
                        @RequestParam(value = "difficulty", required = false) Difficulty difficulty,
                        @RequestParam(value = "portions", required = false) Integer portions,
-                       @RequestParam(value = "tags", required = false) String tags,
-                       @RequestParam(value = "ingredients", required = false) String ingredients,
+                       @RequestParam(value = "tags", required = false) List<String> tags,
+                       @RequestParam(value = "ingredients", required = false) List<String> ingredients,
                        @RequestParam(value = "ingredientType", required = false) IngredientType ingredientType) {
         try {
             model.addAttribute("ingredientTypes", IngredientType.values());
