@@ -4,7 +4,11 @@ import com.gf.yummify.business.mappers.ChallengeMapper;
 import com.gf.yummify.data.entity.Challenge;
 import com.gf.yummify.data.entity.Recipe;
 import com.gf.yummify.data.entity.User;
+import com.gf.yummify.data.enums.ActivityType;
+import com.gf.yummify.data.enums.RelatedEntity;
+import com.gf.yummify.data.enums.Role;
 import com.gf.yummify.data.repository.ChallengeRepository;
+import com.gf.yummify.presentation.dto.ActivityLogRequestDTO;
 import com.gf.yummify.presentation.dto.ChallengeRequestDTO;
 import com.gf.yummify.presentation.dto.ChallengeResponseDTO;
 import org.springframework.data.domain.Page;
@@ -25,24 +29,36 @@ public class ChallengeServiceImpl implements ChallengeService {
     private ChallengeParticipationService challengeParticipationService;
     private RecipeService recipeService;
     private UserService userService;
+    private ActivityLogService activityLogService;
 
-    public ChallengeServiceImpl(ChallengeRepository challengeRepository, ChallengeMapper challengeMapper, ChallengeParticipationService challengeParticipationService, RecipeService recipeService, UserService userService) {
+    public ChallengeServiceImpl(ChallengeRepository challengeRepository, ChallengeMapper challengeMapper, ChallengeParticipationService challengeParticipationService, RecipeService recipeService, UserService userService, ActivityLogService activityLogService) {
         this.challengeRepository = challengeRepository;
         this.challengeMapper = challengeMapper;
         this.challengeParticipationService = challengeParticipationService;
         this.recipeService = recipeService;
         this.userService = userService;
+        this.activityLogService = activityLogService;
     }
 
     @Override
-    public ChallengeResponseDTO addChallenge(ChallengeRequestDTO challengeRequestDTO) {
-        validateChallengeRequest(challengeRequestDTO);
+    public ChallengeResponseDTO addChallenge(ChallengeRequestDTO challengeRequestDTO, Authentication authentication) {
+        User user = userService.findUserByUsername(authentication.getName());
+        validateChallengeRequest(challengeRequestDTO, user);
         Challenge challenge = challengeMapper.toChallenge(challengeRequestDTO);
         challenge = challengeRepository.save(challenge);
+        String description = "El usuario '" + user.getUsername() + "' ha creado el desafío '" + challenge.getTitle() + "' (ID: " + challenge.getChallengeId() + ")";
+        ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, challenge.getChallengeId(), RelatedEntity.CHALLENGE, ActivityType.CHALLENGE_CREATED, description);
+        activityLogService.createActivityLog(activityLogRequestDTO);
         return challengeMapper.toChallengeResponseDTO(challenge);
     }
 
-    private void validateChallengeRequest(ChallengeRequestDTO challengeRequestDTO) {
+    private void validateChallengeRequest(ChallengeRequestDTO challengeRequestDTO, User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("Tienes que estar logeado para poder hacer esto.");
+        }
+        if (!user.getRole().equals(Role.ROLE_ADMIN)) {
+            throw new IllegalArgumentException("Necesitas el rol de administrador para hacer esto.");
+        }
         if (challengeRequestDTO.getTitle() == null || challengeRequestDTO.getTitle().isBlank()) {
             throw new IllegalArgumentException("El título del reto no puede estar vacío.");
         }
