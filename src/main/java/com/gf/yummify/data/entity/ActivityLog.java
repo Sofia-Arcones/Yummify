@@ -30,7 +30,7 @@ public class ActivityLog {
     private LocalDateTime activityDate;
 
     @NotNull
-    private Long relatedEntityId;
+    private UUID relatedEntityId;
 
     @Enumerated(EnumType.STRING)
     @NotNull
