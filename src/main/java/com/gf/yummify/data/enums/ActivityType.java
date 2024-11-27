@@ -34,5 +34,6 @@ public enum ActivityType {
     FRIENDSHIP_ENDED,
     PROFILE_EDITED,
     PASSWORD_CHANGED,
-    TAG_CREATED
+    TAG_CREATED,
+    USER_REGISTER
 }

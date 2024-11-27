@@ -2,7 +2,10 @@ package com.gf.yummify.business.services;
 
 import com.gf.yummify.business.mappers.UserMapper;
 import com.gf.yummify.data.entity.User;
+import com.gf.yummify.data.enums.ActivityType;
+import com.gf.yummify.data.enums.RelatedEntity;
 import com.gf.yummify.data.repository.UserRepository;
+import com.gf.yummify.presentation.dto.ActivityLogRequestDTO;
 import com.gf.yummify.presentation.dto.RegisterDTO;
 import com.gf.yummify.presentation.dto.UserResponseDTO;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -16,10 +19,12 @@ public class UserServiceImpl implements UserService {
 
     private UserRepository userRepository;
     private UserMapper userMapper;
+    private ActivityLogService activityLogService;
 
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, ActivityLogService activityLogService) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.activityLogService = activityLogService;
     }
 
     @Override
@@ -36,7 +41,11 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toUser(registerDTO);
         String encodedPassword = new BCryptPasswordEncoder().encode(user.getPassword());
         user.setPassword(encodedPassword);
-        return userRepository.save(user);
+        user = userRepository.save(user);
+        String description = "El usuario con username '" + user.getUsername() + "' (ID: " + user.getUserId() + ") ha sido registrado correctamente";
+        ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, user.getUserId(), RelatedEntity.USER, ActivityType.USER_REGISTER, description);
+        activityLogService.createActivityLog(activityLogRequestDTO);
+        return user;
     }
 
     @Override
