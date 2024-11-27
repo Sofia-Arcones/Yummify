@@ -3,9 +3,12 @@ package com.gf.yummify.business.services;
 import com.gf.yummify.business.mappers.RelationshipMapper;
 import com.gf.yummify.data.entity.Relationship;
 import com.gf.yummify.data.entity.User;
+import com.gf.yummify.data.enums.ActivityType;
+import com.gf.yummify.data.enums.RelatedEntity;
 import com.gf.yummify.data.enums.RelationshipStatus;
 import com.gf.yummify.data.enums.RelationshipType;
 import com.gf.yummify.data.repository.RelationshipRepository;
+import com.gf.yummify.presentation.dto.ActivityLogRequestDTO;
 import com.gf.yummify.presentation.dto.RelationshipRequestDTO;
 import com.gf.yummify.presentation.dto.RelationshipResponseDTO;
 import org.springframework.security.core.Authentication;
@@ -19,11 +22,13 @@ public class RelationshipServiceImpl implements RelationshipService {
     private RelationshipRepository relationshipRepository;
     private UserService userService;
     private RelationshipMapper relationshipMapper;
+    private ActivityLogService activityLogService;
 
-    public RelationshipServiceImpl(RelationshipRepository relationshipRepository, UserService userService, RelationshipMapper relationshipMapper) {
+    public RelationshipServiceImpl(RelationshipRepository relationshipRepository, UserService userService, RelationshipMapper relationshipMapper, ActivityLogService activityLogService) {
         this.relationshipRepository = relationshipRepository;
         this.userService = userService;
         this.relationshipMapper = relationshipMapper;
+        this.activityLogService = activityLogService;
     }
 
     @Override
@@ -32,7 +37,7 @@ public class RelationshipServiceImpl implements RelationshipService {
         Relationship relationship = findRelationshipById(relationshipId);
         relationship.setRelationshipStatus(RelationshipStatus.ACCEPTED);
         relationshipRepository.save(relationship);
-        Relationship relationshipInverse = findRelathionshipByStatus(user, relationship.getSender(), RelationshipStatus.UNFRIENDED);
+        Relationship relationshipInverse = findRelationshipByType(user, relationship.getSender(), RelationshipType.FRIEND);
         if (relationshipInverse != null) {
             relationshipInverse.setRelationshipStatus(RelationshipStatus.ACCEPTED);
             relationshipRepository.save(relationshipInverse);
@@ -40,6 +45,9 @@ public class RelationshipServiceImpl implements RelationshipService {
             RelationshipRequestDTO reverseRelationshipDTO = new RelationshipRequestDTO(user, relationship.getSender(), RelationshipType.FRIEND, RelationshipStatus.ACCEPTED);
             relationshipRepository.save(relationshipMapper.toRelationship(reverseRelationshipDTO));
         }
+        String description = "El usuario '" + user.getUsername() + "' ha aceptado la relación de amistad con el usuario '" + relationship.getSender().getUsername() + "' (ID: " + relationship.getSender().getUserId() + ")";
+        ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, relationship.getSender().getUserId(), RelatedEntity.USER, ActivityType.FRIENDSHIP_ACCEPTED, description);
+        activityLogService.createActivityLog(activityLogRequestDTO);
     }
 
     @Override
@@ -48,6 +56,9 @@ public class RelationshipServiceImpl implements RelationshipService {
         Relationship relationship = findRelationshipById(relationshipId);
         relationship.setRelationshipStatus(RelationshipStatus.UNFOLLOWED);
         relationshipRepository.save(relationship);
+        String description = "El usuario '" + user.getUsername() + "' ha retirado el follow al usuario '" + relationship.getSender().getUsername() + "' (ID: " + relationship.getSender().getUserId() + ")";
+        ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, relationship.getSender().getUserId(), RelatedEntity.USER, ActivityType.FOLLOW_RETIRED, description);
+        activityLogService.createActivityLog(activityLogRequestDTO);
     }
 
     @Override
@@ -56,6 +67,9 @@ public class RelationshipServiceImpl implements RelationshipService {
         Relationship relationship = findRelationshipById(relationshipId);
         relationship.setRelationshipStatus(RelationshipStatus.REJECTED);
         relationshipRepository.save(relationship);
+        String description = "El usuario '" + user.getUsername() + "' ha rechazado la relación de amistad con el usuario '" + relationship.getSender().getUsername() + "' (ID: " + relationship.getSender().getUserId() + ")";
+        ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, relationship.getSender().getUserId(), RelatedEntity.USER, ActivityType.FRIENDSHIP_REJECTED, description);
+        activityLogService.createActivityLog(activityLogRequestDTO);
     }
 
     @Override
@@ -119,18 +133,27 @@ public class RelationshipServiceImpl implements RelationshipService {
         User receiver = userService.findUserByUsername(username);
         validateRequest(sender, receiver);
         Relationship relationship = findRelationshipByType(sender, receiver, RelationshipType.FOLLOW);
+        String description = "";
+        ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO();
         if (relationship != null) {
             if (relationship.getRelationshipStatus() == RelationshipStatus.FOLLOWING) {
+                description = "El usuario '" + sender.getUsername() + "' ha dejado de seguir al usuario '" + receiver.getUsername() + "' (ID: " + receiver.getUserId() + ")";
+                activityLogRequestDTO = new ActivityLogRequestDTO(sender, receiver.getUserId(), RelatedEntity.USER, ActivityType.UNFOLLOWED, description);
                 relationship.setRelationshipStatus(RelationshipStatus.UNFOLLOWED);
                 relationshipRepository.save(relationship);
             } else if (relationship.getRelationshipStatus() == RelationshipStatus.UNFOLLOWED) {
+                description = "El usuario '" + sender.getUsername() + "' ha seguido al usuario '" + receiver.getUsername() + "' (ID: " + receiver.getUserId() + ")";
+                activityLogRequestDTO = new ActivityLogRequestDTO(sender, receiver.getUserId(), RelatedEntity.USER, ActivityType.FOLLOWED, description);
                 relationship.setRelationshipStatus(RelationshipStatus.FOLLOWING);
                 relationshipRepository.save(relationship);
             }
         } else {
             RelationshipRequestDTO relationshipRequestDTO = new RelationshipRequestDTO(sender, receiver, RelationshipType.FOLLOW, RelationshipStatus.FOLLOWING);
             relationshipRepository.save(relationshipMapper.toRelationship(relationshipRequestDTO));
+            description = "El usuario '" + sender.getUsername() + "' ha seguido al usuario '" + receiver.getUsername() + "' (ID: " + receiver.getUserId() + ")";
+            activityLogRequestDTO = new ActivityLogRequestDTO(sender, receiver.getUserId(), RelatedEntity.USER, ActivityType.FOLLOWED, description);
         }
+        activityLogService.createActivityLog(activityLogRequestDTO);
     }
 
     @Override
@@ -142,31 +165,56 @@ public class RelationshipServiceImpl implements RelationshipService {
         Relationship relationship = findRelationshipByType(sender, receiver, RelationshipType.FRIEND);
         Relationship relationshipInverse = findRelationshipByType(receiver, sender, RelationshipType.FRIEND);
 
+        String description;
+        ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO();
+
         if (relationship != null && relationshipInverse != null) {
-            if (relationship.getRelationshipStatus() == RelationshipStatus.ACCEPTED && relationshipInverse.getRelationshipStatus() == RelationshipStatus.ACCEPTED) {
+            if (relationship.getRelationshipStatus() == RelationshipStatus.UNFRIENDED &&
+                    relationshipInverse.getRelationshipStatus() == RelationshipStatus.UNFRIENDED) {
+                relationship.setRelationshipStatus(RelationshipStatus.PENDING);
+                description = "El usuario '" + sender.getUsername() + "' ha solicitado amistad al usuario '" + receiver.getUsername() + "' (ID: " + receiver.getUserId() + ")";
+                activityLogRequestDTO = new ActivityLogRequestDTO(sender, receiver.getUserId(), RelatedEntity.USER, ActivityType.FRIENDSHIP_REQUESTED, description);
+                relationshipRepository.save(relationship);
+            } else if (relationship.getRelationshipStatus() == RelationshipStatus.ACCEPTED &&
+                    relationshipInverse.getRelationshipStatus() == RelationshipStatus.ACCEPTED) {
                 relationship.setRelationshipStatus(RelationshipStatus.UNFRIENDED);
                 relationshipInverse.setRelationshipStatus(RelationshipStatus.UNFRIENDED);
+                description = "El usuario '" + sender.getUsername() + "' ha dejado de ser amigo del usuario '" + receiver.getUsername() + "' (ID: " + receiver.getUserId() + ")";
+                activityLogRequestDTO = new ActivityLogRequestDTO(sender, receiver.getUserId(), RelatedEntity.USER, ActivityType.FRIENDSHIP_ENDED, description);
                 relationshipRepository.save(relationship);
                 relationshipRepository.save(relationshipInverse);
-            }
-            if (relationship.getRelationshipStatus() == RelationshipStatus.UNFRIENDED) {
-                relationship.setRelationshipStatus(RelationshipStatus.PENDING);
-                relationshipRepository.save(relationship);
-            }
-        } else if (relationship != null) {
-            System.out.println(relationship.getRelationshipStatus());
-            if (relationship.getRelationshipStatus() == RelationshipStatus.PENDING) {
+            } else if (relationship.getRelationshipStatus() == RelationshipStatus.PENDING) {
                 relationship.setRelationshipStatus(RelationshipStatus.REJECTED);
+                description = "El usuario '" + sender.getUsername() + "' ha retirado la solicitud de amistad al usuario '" + receiver.getUsername() + "' (ID: " + receiver.getUserId() + ")";
+                activityLogRequestDTO = new ActivityLogRequestDTO(sender, receiver.getUserId(), RelatedEntity.USER, ActivityType.FRIENDSHIP_RETIRED, description);
                 relationshipRepository.save(relationship);
             } else if (relationship.getRelationshipStatus() == RelationshipStatus.REJECTED) {
                 relationship.setRelationshipStatus(RelationshipStatus.PENDING);
+                description = "El usuario '" + sender.getUsername() + "' ha solicitado amistad al usuario '" + receiver.getUsername() + "' (ID: " + receiver.getUserId() + ")";
+                activityLogRequestDTO = new ActivityLogRequestDTO(sender, receiver.getUserId(), RelatedEntity.USER, ActivityType.FRIENDSHIP_REQUESTED, description);
                 relationshipRepository.save(relationship);
             }
-        } else if (relationship == null) {
+        } else if (relationship != null) {
+            if (relationship.getRelationshipStatus() == RelationshipStatus.REJECTED) {
+                relationship.setRelationshipStatus(RelationshipStatus.PENDING);
+                description = "El usuario '" + sender.getUsername() + "' ha solicitado amistad al usuario '" + receiver.getUsername() + "' (ID: " + receiver.getUserId() + ")";
+                activityLogRequestDTO = new ActivityLogRequestDTO(sender, receiver.getUserId(), RelatedEntity.USER, ActivityType.FRIENDSHIP_REQUESTED, description);
+                relationshipRepository.save(relationship);
+            } else if (relationship.getRelationshipStatus() == RelationshipStatus.PENDING) {
+                relationship.setRelationshipStatus(RelationshipStatus.REJECTED);
+                description = "El usuario '" + sender.getUsername() + "' ha retirado la solicitud de amistad al usuario '" + receiver.getUsername() + "' (ID: " + receiver.getUserId() + ")";
+                activityLogRequestDTO = new ActivityLogRequestDTO(sender, receiver.getUserId(), RelatedEntity.USER, ActivityType.FRIENDSHIP_RETIRED, description);
+                relationshipRepository.save(relationship);
+            }
+        } else {
             RelationshipRequestDTO relationshipDTO = new RelationshipRequestDTO(sender, receiver, RelationshipType.FRIEND, RelationshipStatus.PENDING);
             relationshipRepository.save(relationshipMapper.toRelationship(relationshipDTO));
+            description = "El usuario '" + sender.getUsername() + "' ha solicitado amistad al usuario '" + receiver.getUsername() + "' (ID: " + receiver.getUserId() + ")";
+            activityLogRequestDTO = new ActivityLogRequestDTO(sender, receiver.getUserId(), RelatedEntity.USER, ActivityType.FRIENDSHIP_REQUESTED, description);
         }
+        activityLogService.createActivityLog(activityLogRequestDTO);
     }
+
 
     @Override
     public int followersNumber(String username) {

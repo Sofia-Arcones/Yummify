@@ -1,13 +1,15 @@
 package com.gf.yummify.business.services;
 
+import com.gf.yummify.business.mappers.IngredientMapper;
 import com.gf.yummify.data.entity.Ingredient;
 import com.gf.yummify.data.entity.User;
-import com.gf.yummify.data.enums.IngredientStatus;
-import com.gf.yummify.data.enums.IngredientType;
-import com.gf.yummify.data.enums.UnitOfMeasure;
+import com.gf.yummify.data.enums.*;
 import com.gf.yummify.data.repository.IngredientRepository;
+import com.gf.yummify.presentation.dto.ActivityLogRequestDTO;
 import com.gf.yummify.presentation.dto.IngredientAutocompleteDTO;
+import com.gf.yummify.presentation.dto.IngredientRequestDTO;
 import org.apache.commons.lang3.EnumUtils;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -15,9 +17,16 @@ import java.util.*;
 @Service
 public class IngredientServiceImpl implements IngredientService {
     private IngredientRepository ingredientRepository;
+    private ActivityLogService activityLogService;
+    private UserService userService;
 
-    public IngredientServiceImpl(IngredientRepository ingredientRepository) {
+    private IngredientMapper ingredientMapper;
+
+    public IngredientServiceImpl(IngredientRepository ingredientRepository, ActivityLogService activityLogService, UserService userService, IngredientMapper ingredientMapper) {
         this.ingredientRepository = ingredientRepository;
+        this.activityLogService = activityLogService;
+        this.userService = userService;
+        this.ingredientMapper = ingredientMapper;
     }
 
     @Override
@@ -39,7 +48,25 @@ public class IngredientServiceImpl implements IngredientService {
                     Ingredient newIngredient = new Ingredient();
                     newIngredient.setIngredientName(normalizedIngredientName);
                     newIngredient.setIngredientStatus(IngredientStatus.PENDING_REVIEW);
-                    return ingredientRepository.save(newIngredient);
+                    newIngredient = ingredientRepository.save(newIngredient);
+                    String description = "El usuario '" + user.getUsername() + "' ha sugerido el ingrediente '" + newIngredient.getIngredientName() + "' (ID: " + newIngredient.getIngredientId() + ")";
+                    ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, newIngredient.getIngredientId(), RelatedEntity.INGREDIENT, ActivityType.INGREDIENT_SUGGESTED, description);
+                    activityLogService.createActivityLog(activityLogRequestDTO);
+                    return newIngredient;
+                });
+    }
+
+    //TODO-> Cambiar todos los findOrCreate a que tengan User asi no hay problemas
+    @Override
+    public Ingredient findOrCreateIngredient(String name) {
+        String normalizedIngredientName = capitalizeIngredientName(name);
+        return ingredientRepository.findByIngredientName(normalizedIngredientName)
+                .orElseGet(() -> {
+                    Ingredient newIngredient = new Ingredient();
+                    newIngredient.setIngredientName(normalizedIngredientName);
+                    newIngredient.setIngredientStatus(IngredientStatus.PENDING_REVIEW);
+                    newIngredient = ingredientRepository.save(newIngredient);
+                    return newIngredient;
                 });
     }
 
@@ -54,17 +81,20 @@ public class IngredientServiceImpl implements IngredientService {
     public List<Ingredient> findIngredientsByStatus(IngredientStatus ingredientStatus) {
         return ingredientRepository.findByIngredientStatus(ingredientStatus);
     }
+
     @Override
-    public List<Ingredient> findIngredientsByType(IngredientType ingredientType){
+    public List<Ingredient> findIngredientsByType(IngredientType ingredientType) {
         return ingredientRepository.findByIngredientType(ingredientType);
     }
+
     @Override
-    public String deleteIngredient(UUID id){
+    public String deleteIngredient(UUID id) {
         ingredientRepository.deleteById(id);
         return "Ingrediente eliminado correctamente.";
     }
+
     @Override
-    public List<Ingredient> findIngredientsByStatusAndType(IngredientStatus ingredientStatus, IngredientType ingredientType){
+    public List<Ingredient> findIngredientsByStatusAndType(IngredientStatus ingredientStatus, IngredientType ingredientType) {
         return ingredientRepository.findByIngredientStatusAndIngredientType(ingredientStatus, ingredientType);
     }
 
@@ -93,9 +123,33 @@ public class IngredientServiceImpl implements IngredientService {
     }
 
     @Override
-    public Ingredient updateIngredient(Ingredient ingredient) {
+    public Ingredient updateIngredient(IngredientRequestDTO ingredientRequestDTO, Authentication authentication) {
+        User user = userService.findUserByUsername(authentication.getName());
+        validateIngredient(ingredientRequestDTO, user);
+        Ingredient ingredient = findIngredientById(ingredientRequestDTO.getIngredientId());
+        if (ingredient.getIngredientStatus().equals(IngredientStatus.PENDING_REVIEW) && ingredientRequestDTO.getIngredientStatus().equals(IngredientStatus.APPROVED)) {
+            String description = "El usuario '" + user.getUsername() + "' ha aprobado el ingrediente '" + ingredient.getIngredientName() + "' (ID: " + ingredient.getIngredientId() + ")";
+            ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, ingredient.getIngredientId(), RelatedEntity.INGREDIENT, ActivityType.INGREDIENT_APPROVED, description);
+            activityLogService.createActivityLog(activityLogRequestDTO);
+        } else {
+            String description = "El usuario '" + user.getUsername() + "' ha actualizado el ingrediente '" + ingredient.getIngredientName() + "' (ID: " + ingredient.getIngredientId() + ")";
+            ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, ingredient.getIngredientId(), RelatedEntity.INGREDIENT, ActivityType.INGREDIENT_UPDATE, description);
+            activityLogService.createActivityLog(activityLogRequestDTO);
+        }
+        Ingredient updatedIngredient = ingredientRepository.save(ingredientMapper.toIngredient(ingredientRequestDTO));
+        return updatedIngredient;
+    }
+
+    private void validateIngredient(IngredientRequestDTO ingredient, User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("Tienes que estar autentificado para esta operación");
+        }
+        if (!user.getRole().equals(Role.ROLE_ADMIN)) {
+            throw new IllegalArgumentException("No tienes los permisos necesarios para esta operación");
+        }
+
         if (ingredient == null) {
-            throw new IllegalArgumentException("El ingrediente no puede ser null");
+            throw new IllegalArgumentException("El ingrediente no puede ser nulo");
         }
 
         Optional<Ingredient> existingIngredient = ingredientRepository.findById(ingredient.getIngredientId());
@@ -123,7 +177,5 @@ public class IngredientServiceImpl implements IngredientService {
         if (ingredient.getCalories() <= 0) {
             throw new IllegalArgumentException("Las calorías deben ser mayores que cero.");
         }
-
-        return ingredientRepository.save(ingredient);
     }
 }

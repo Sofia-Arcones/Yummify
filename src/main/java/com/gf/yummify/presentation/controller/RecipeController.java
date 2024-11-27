@@ -64,10 +64,10 @@ public class RecipeController {
 
     @DeleteMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<Map<String, String>> deleteRecipe(@PathVariable UUID id) {
+    public ResponseEntity<Map<String, String>> deleteRecipe(@PathVariable UUID id, Authentication authentication) {
         Map<String, String> response = new HashMap<>();
         try {
-            recipeService.deleteRecipe(id);
+            recipeService.deleteRecipe(id, authentication);
             response.put("success", "Eliminado correctamente");
             return ResponseEntity.ok(response);
         } catch (Exception ex) {

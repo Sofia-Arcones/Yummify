@@ -5,6 +5,8 @@ import com.gf.yummify.data.entity.User;
 import com.gf.yummify.data.enums.IngredientStatus;
 import com.gf.yummify.data.enums.IngredientType;
 import com.gf.yummify.presentation.dto.IngredientAutocompleteDTO;
+import com.gf.yummify.presentation.dto.IngredientRequestDTO;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,11 +18,13 @@ public interface IngredientService {
 
     Ingredient findOrCreateIngredient(String name, User user);
 
+    Ingredient findOrCreateIngredient(String name);
+
     List<IngredientAutocompleteDTO> getApprovedIngredientsForAutocomplete();
 
     Ingredient findIngredientById(UUID id);
 
-    Ingredient updateIngredient(Ingredient ingredient);
+    Ingredient updateIngredient(IngredientRequestDTO ingredientRequestDTO, Authentication authentication);
 
     List<Ingredient> findIngredientsByStatusAndType(IngredientStatus ingredientStatus, IngredientType ingredientType);
 

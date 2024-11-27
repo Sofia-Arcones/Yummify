@@ -4,10 +4,13 @@ import com.gf.yummify.data.entity.Ingredient;
 import com.gf.yummify.data.entity.ShoppingList;
 import com.gf.yummify.data.entity.ShoppingListItem;
 import com.gf.yummify.data.entity.User;
+import com.gf.yummify.data.enums.ActivityType;
 import com.gf.yummify.data.enums.ListStatus;
+import com.gf.yummify.data.enums.RelatedEntity;
 import com.gf.yummify.data.enums.UnitOfMeasure;
 import com.gf.yummify.data.repository.ShoppingListItemRepository;
 import com.gf.yummify.data.repository.ShoppingListRepository;
+import com.gf.yummify.presentation.dto.ActivityLogRequestDTO;
 import com.gf.yummify.presentation.dto.ShoppingListItemRequestDTO;
 import com.gf.yummify.presentation.dto.ShoppingListRequestDTO;
 import jakarta.transaction.Transactional;
@@ -30,13 +33,15 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     private ShoppingListItemService shoppingListItemService;
     private ShoppingListItemRepository shoppingListItemRepository;
     private IngredientService ingredientService;
+    private ActivityLogService activityLogService;
 
-    public ShoppingListServiceImpl(ShoppingListRepository shoppingListRepository, UserService userService, ShoppingListItemService shoppingListItemService, ShoppingListItemRepository shoppingListItemRepository, IngredientService ingredientService) {
+    public ShoppingListServiceImpl(ShoppingListRepository shoppingListRepository, UserService userService, ShoppingListItemService shoppingListItemService, ShoppingListItemRepository shoppingListItemRepository, IngredientService ingredientService, ActivityLogService activityLogService) {
         this.shoppingListRepository = shoppingListRepository;
         this.userService = userService;
         this.shoppingListItemService = shoppingListItemService;
         this.shoppingListItemRepository = shoppingListItemRepository;
         this.ingredientService = ingredientService;
+        this.activityLogService = activityLogService;
     }
 
     @Override
@@ -67,7 +72,9 @@ public class ShoppingListServiceImpl implements ShoppingListService {
 
             shoppingList.setListItems(shoppingListItemList);
             shoppingListRepository.save(shoppingList);
-
+            String description = "El usuario '" + user.getUsername() + "' ha creado una nueva lista de la compra con ID: " + shoppingList.getShoppingListId();
+            ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, shoppingList.getShoppingListId(), RelatedEntity.SHOPPING_LIST, ActivityType.SHOPPING_LIST_CREATED, description);
+            activityLogService.createActivityLog(activityLogRequestDTO);
             shoppingListItemRepository.saveAll(shoppingListItemList);
         }
     }
@@ -79,7 +86,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
     }
 
     @Override
-    public ShoppingList updateListStatus(UUID id, UUID itemId, Boolean isPurchased, Boolean isArchived) {
+    public ShoppingList updateListStatus(UUID id, UUID itemId, Boolean isPurchased, Boolean isArchived, Authentication authentication) {
         ShoppingList shoppingList = new ShoppingList();
         if (itemId != null && id == null) {
             ShoppingListItem shoppingListItem = shoppingListItemService.updateIsPurchased(itemId, isPurchased);
@@ -105,7 +112,12 @@ public class ShoppingListServiceImpl implements ShoppingListService {
                 shoppingList.setListStatus(ListStatus.IN_PROGRESS);
             }
         }
-        return shoppingListRepository.save(shoppingList);
+        shoppingList = shoppingListRepository.save(shoppingList);
+        User user = userService.findUserByUsername(authentication.getName());
+        String description = "El usuario '" + user.getUsername() + "' ha actualizado su lista de la compra con ID: " + shoppingList.getShoppingListId();
+        ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, shoppingList.getShoppingListId(), RelatedEntity.SHOPPING_LIST, ActivityType.SHOPPING_LIST_UPDATED, description);
+        activityLogService.createActivityLog(activityLogRequestDTO);
+        return shoppingList;
     }
 
     @Override
@@ -134,9 +146,10 @@ public class ShoppingListServiceImpl implements ShoppingListService {
         shoppingList.getListItems().add(shoppingListItem);
         shoppingList.setListStatus(ListStatus.IN_PROGRESS);
         shoppingListRepository.save(shoppingList);
-
+        String description = "El usuario '" + shoppingList.getUser().getUsername() + "' ha actualizado su lista de la compra con ID: " + shoppingList.getShoppingListId();
+        ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(shoppingList.getUser(), shoppingList.getShoppingListId(), RelatedEntity.SHOPPING_LIST, ActivityType.SHOPPING_LIST_UPDATED, description);
+        activityLogService.createActivityLog(activityLogRequestDTO);
         String result = shoppingListItemRequestDTO.getIngredientName() + " añadido correctamente a la lista: " + shoppingList.getTitle();
-        System.out.println(result);
         return result;
     }
 

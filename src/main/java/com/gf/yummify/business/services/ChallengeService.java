@@ -9,7 +9,7 @@ import org.springframework.security.core.Authentication;
 import java.util.UUID;
 
 public interface ChallengeService {
-    ChallengeResponseDTO addChallenge(ChallengeRequestDTO challengeRequestDTO);
+    ChallengeResponseDTO addChallenge(ChallengeRequestDTO challengeRequestDTO, Authentication authentication);
 
     Page<Challenge> findChallenges(int page, int size);
 

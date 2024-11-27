@@ -18,7 +18,7 @@ public interface RecipeService {
 
     Recipe findRecipeById(UUID id);
 
-    void deleteRecipe(UUID id);
+    void deleteRecipe(UUID id, Authentication authentication);
 
     RecipeResponseDTO getRecipeResponseDTO(UUID id);
 

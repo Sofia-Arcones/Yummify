@@ -5,7 +5,9 @@ import com.gf.yummify.data.entity.Ingredient;
 import com.gf.yummify.data.enums.IngredientStatus;
 import com.gf.yummify.data.enums.IngredientType;
 import com.gf.yummify.data.enums.UnitOfMeasure;
+import com.gf.yummify.presentation.dto.IngredientRequestDTO;
 import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -68,9 +70,9 @@ public class IngredientController {
     }
 
     @PostMapping("/update")
-    public String updateIngredient(Model model, @ModelAttribute @Valid Ingredient ingredient) {
+    public String updateIngredient(Model model, @ModelAttribute @Valid IngredientRequestDTO ingredient, Authentication authentication) {
         try {
-            ingredientService.updateIngredient(ingredient);
+            ingredientService.updateIngredient(ingredient, authentication);
             model.addAttribute("updateMessage", "Ingrediente actualizado correctamente.");
             model.addAttribute("ingredient", ingredient);
         } catch (Exception ex) {

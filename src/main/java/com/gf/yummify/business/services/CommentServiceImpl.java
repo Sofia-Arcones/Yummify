@@ -3,15 +3,20 @@ package com.gf.yummify.business.services;
 import com.gf.yummify.data.entity.Comment;
 import com.gf.yummify.data.entity.Rating;
 import com.gf.yummify.data.entity.User;
+import com.gf.yummify.data.enums.ActivityType;
+import com.gf.yummify.data.enums.RelatedEntity;
 import com.gf.yummify.data.repository.CommentRepository;
+import com.gf.yummify.presentation.dto.ActivityLogRequestDTO;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CommentServiceImpl implements CommentService {
     private CommentRepository commentRepository;
+    private ActivityLogService activityLogService;
 
-    public CommentServiceImpl(CommentRepository commentRepository) {
+    public CommentServiceImpl(CommentRepository commentRepository, ActivityLogService activityLogService) {
         this.commentRepository = commentRepository;
+        this.activityLogService = activityLogService;
     }
 
     @Override
@@ -30,8 +35,13 @@ public class CommentServiceImpl implements CommentService {
         comment.setComment(commentContent);
         comment.setUser(user);
         comment.setRate(rating);
+        comment = commentRepository.save(comment);
 
-        return commentRepository.save(comment);
+        String description = "El usuario '" + user.getUsername() + "' ha añadido un comentario en el rate (ID: " + rating.getRateId() + ")";
+        ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, comment.getCommentId(), RelatedEntity.COMMENT, ActivityType.COMMENT_ADDED, description);
+        activityLogService.createActivityLog(activityLogRequestDTO);
+
+        return comment;
     }
 
 
