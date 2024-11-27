@@ -1,6 +1,7 @@
 package com.gf.yummify.business.services;
 
 import com.gf.yummify.data.entity.Ingredient;
+import com.gf.yummify.data.entity.User;
 import com.gf.yummify.data.enums.IngredientStatus;
 import com.gf.yummify.data.enums.IngredientType;
 import com.gf.yummify.data.enums.UnitOfMeasure;
@@ -31,7 +32,7 @@ public class IngredientServiceImpl implements IngredientService {
     }
 
     @Override
-    public Ingredient findOrCreateIngredient(String name) {
+    public Ingredient findOrCreateIngredient(String name, User user) {
         String normalizedIngredientName = capitalizeIngredientName(name);
         return ingredientRepository.findByIngredientName(normalizedIngredientName)
                 .orElseGet(() -> {

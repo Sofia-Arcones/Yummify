@@ -56,18 +56,14 @@ public class RecipeServiceImpl implements RecipeService {
         this.recipeMapper = recipeMapper;
     }
 
+    // ========================
+    // Gestión de Recetas
+    // ========================
     @Override
     public Recipe saveRecipe(RecipeRequestDTO recipeRequestDTO, Authentication authentication) {
         User user = userService.findUserByUsername(authentication.getName());
-        Recipe recipe = new Recipe();
-        setRecipeFields(recipe, recipeRequestDTO, user);
-
-        MultipartFile image = recipeRequestDTO.getImage();
-        if (image.isEmpty()) {
-            throw new IllegalArgumentException("La receta debe tener una imagen");
-        }
-        recipe.setImage(handleImageUpload(image));
-
+        Recipe recipe = setRecipeFields(recipeRequestDTO, user);
+        //TODO ActivityLogs
         return recipeRepository.save(recipe);
     }
 
@@ -84,9 +80,13 @@ public class RecipeServiceImpl implements RecipeService {
                 .orElseThrow(() -> new NoSuchElementException("La receta con id: " + id + " no existe"));
     }
 
-    public Page<ShortRecipeResponseDTO> findFilteredRecipes(int page, int size, Difficulty difficulty, Integer portions, List<String> tags, List<String> ingredients, IngredientType ingredientType) {
+    @Override
+    public Page<ShortRecipeResponseDTO> findFilteredRecipes(int page, int size, Difficulty difficulty,
+                                                            Integer portions, List<String> tags,
+                                                            List<String> ingredients, IngredientType ingredientType) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("creationDate").descending());
         Specification<Recipe> specification = Specification.where(null);
+
         if (difficulty != null) {
             specification = specification.and(RecipeSpecifications.hasDifficulty(difficulty));
         }
@@ -112,12 +112,6 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
-    public List<Recipe> findRecipesByUser(Authentication authentication) {
-        User user = userService.findUserByUsername(authentication.getName());
-        return recipeRepository.findByUser(user);
-    }
-
-    @Override
     public Page<ShortRecipeResponseDTO> searchRecipes(String searchTerm, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("creationDate").descending());
         Page<Recipe> recipePage = recipeRepository.findByTitleContainingIgnoreCase(searchTerm, pageable);
@@ -133,6 +127,16 @@ public class RecipeServiceImpl implements RecipeService {
         Recipe recipe = findRecipeById(id);
         return mapToRecipeResponseDTO(recipe);
     }
+
+    @Override
+    public List<Recipe> findRecipesByUser(Authentication authentication) {
+        User user = userService.findUserByUsername(authentication.getName());
+        return recipeRepository.findByUser(user);
+    }
+
+    // ========================
+    // Gestión de Favoritos
+    // ========================
 
     @Override
     public void addOrDeleteRecipeFavorite(Authentication authentication, UUID recipeId) {
@@ -174,19 +178,20 @@ public class RecipeServiceImpl implements RecipeService {
         return favoriteRecipeRepository.findByUserAndRecipe(user, recipe);
     }
 
-    private void setRecipeFields(Recipe recipe, RecipeRequestDTO recipeRequestDTO, User user) {
-        recipe.setTitle(recipeRequestDTO.getTitle());
-        recipe.setDescription(recipeRequestDTO.getDescription());
-        recipe.setDifficulty(Difficulty.valueOf(recipeRequestDTO.getDifficulty()));
-        recipe.setPrepTime(recipeRequestDTO.getPrepTime());
-        recipe.setPortions(recipeRequestDTO.getPortions());
+    // ========================
+    // Métodos Auxiliares
+    // ========================
+
+    private Recipe setRecipeFields(RecipeRequestDTO recipeRequestDTO, User user) {
+        Recipe recipe = recipeMapper.toRecipe(recipeRequestDTO);
         recipe.setUser(user);
-
-        List<RecipeIngredient> recipeIngredients = mapRecipeIngredients(recipeRequestDTO);
-        recipeIngredients.forEach(ri -> ri.setRecipe(recipe));
+        List<RecipeIngredient> recipeIngredients = mapRecipeIngredients(recipeRequestDTO, user);
+        for (RecipeIngredient recipeIngredient : recipeIngredients) {
+            recipeIngredient.setRecipe(recipe);
+        }
         recipe.setIngredients(recipeIngredients);
-
         recipe.setInstructions(joinInstructions(recipeRequestDTO.getInstructions()));
+
         if (!recipeRequestDTO.getTags().isEmpty()) {
             List<Tag> tagList = new ArrayList<>();
             for (String tag : recipeRequestDTO.getTags()) {
@@ -194,39 +199,33 @@ public class RecipeServiceImpl implements RecipeService {
             }
             recipe.setTags(tagList);
         }
+
+        MultipartFile image = recipeRequestDTO.getImage();
+        recipe.setImage(handleImageUpload(image));
+        return recipe;
     }
 
-    private List<RecipeIngredient> mapRecipeIngredients(RecipeRequestDTO recipeRequestDTO) {
+    private List<RecipeIngredient> mapRecipeIngredients(RecipeRequestDTO recipeRequestDTO, User user) {
         List<RecipeIngredient> recipeIngredientList = new ArrayList<>();
-
         for (int i = 0; i < recipeRequestDTO.getIngredients().size(); i++) {
-            Ingredient ingredient = ingredientService.findOrCreateIngredient(recipeRequestDTO.getIngredients().get(i));
+            Ingredient ingredient = ingredientService.findOrCreateIngredient(recipeRequestDTO.getIngredients().get(i), user);
             RecipeIngredient recipeIngredient = new RecipeIngredient();
             recipeIngredient.setIngredient(ingredient);
             recipeIngredient.setQuantity(recipeRequestDTO.getQuantities().get(i));
             recipeIngredient.setUnitOfMeasure(UnitOfMeasure.valueOf(recipeRequestDTO.getUnits().get(i)));
             recipeIngredientList.add(recipeIngredient);
         }
-
         return recipeIngredientList;
     }
 
     private RecipeResponseDTO mapToRecipeResponseDTO(Recipe recipe) {
-        RecipeResponseDTO recipeResponseDTO = new RecipeResponseDTO();
-        recipeResponseDTO.setDescription(recipe.getDescription());
-        recipeResponseDTO.setPortions(recipe.getPortions());
-        recipeResponseDTO.setDifficulty(recipe.getDifficulty().toString());
-        recipeResponseDTO.setTitle(recipe.getTitle());
-        recipeResponseDTO.setPrepTime(recipe.getPrepTime());
+        RecipeResponseDTO recipeResponseDTO = mapToRecipeResponseDTO(recipe);
         recipeResponseDTO.setInstructions(getInstructions(recipe.getInstructions()));
-        recipeResponseDTO.setImage(recipe.getImage());
-        recipeResponseDTO.setRatings(recipe.getRatings());
         recipeResponseDTO.setAverage(calculateAverage(recipe.getRatings()));
 
         List<String> ingredients = new ArrayList<>();
         List<Double> quantities = new ArrayList<>();
         List<String> units = new ArrayList<>();
-
         for (RecipeIngredient recipeIngredient : recipe.getIngredients()) {
             ingredients.add(recipeIngredient.getIngredient().getIngredientName());
             quantities.add(recipeIngredient.getQuantity());
@@ -240,21 +239,8 @@ public class RecipeServiceImpl implements RecipeService {
         for (Tag tag : recipe.getTags()) {
             tags.add(tag.getName());
         }
-        System.out.println("Total de valoraciones: " + recipeResponseDTO.getRatings().size());
-        System.out.println("Promedio de valoraciones: " + recipeResponseDTO.getAverage());
         recipeResponseDTO.setTags(tags);
         return recipeResponseDTO;
-    }
-
-    private double calculateAverage(List<Rating> ratings) {
-        List<Double> rates = new ArrayList<>();
-        for (Rating rate : ratings) {
-            rates.add(rate.getRating());
-        }
-        return rates.stream()
-                .mapToDouble(Double::doubleValue)
-                .average()
-                .orElse(0.0);
     }
 
     private String joinInstructions(List<String> instructionsList) {
@@ -266,6 +252,9 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     public String handleImageUpload(MultipartFile image) {
+        if (image.isEmpty()) {
+            throw new IllegalArgumentException("La receta debe tener una imagen");
+        }
         if (!isImageValid(image)) {
             throw new IllegalArgumentException("Tipo de archivo no permitido o archivo vacío. Solo se permiten: JPEG, PNG.");
         }
@@ -315,5 +304,16 @@ public class RecipeServiceImpl implements RecipeService {
                 throw new RuntimeException("Error al eliminar la imagen: " + e.getMessage(), e);
             }
         }
+    }
+
+    private double calculateAverage(List<Rating> ratings) {
+        List<Double> rates = new ArrayList<>();
+        for (Rating rate : ratings) {
+            rates.add(rate.getRating());
+        }
+        return rates.stream()
+                .mapToDouble(Double::doubleValue)
+                .average()
+                .orElse(0.0);
     }
 }
