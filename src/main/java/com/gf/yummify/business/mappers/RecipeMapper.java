@@ -4,6 +4,8 @@ import com.gf.yummify.data.entity.FavoriteRecipe;
 import com.gf.yummify.data.entity.Recipe;
 import com.gf.yummify.data.entity.Tag;
 import com.gf.yummify.presentation.dto.FavoriteRecipeDTO;
+import com.gf.yummify.presentation.dto.RecipeRequestDTO;
+import com.gf.yummify.presentation.dto.RecipeResponseDTO;
 import com.gf.yummify.presentation.dto.ShortRecipeResponseDTO;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
@@ -27,6 +29,22 @@ public interface RecipeMapper {
     @Mapping(target = "description", source = "recipe.description")
     @Mapping(target = "tags", source = "recipe.tags")
     ShortRecipeResponseDTO toShortRecipeResponseDTO(Recipe recipe);
+
+    @Mapping(target = "ingredients", ignore = true)
+    @Mapping(target = "quantities", ignore = true)
+    @Mapping(target = "units", ignore = true)
+    @Mapping(target = "instructions", ignore = true)
+    @Mapping(target = "tags", ignore = true)
+    @Mapping(target = "image", ignore = true)
+    Recipe toRecipe(RecipeRequestDTO recipeRequestDTO);
+
+    @Mapping(target = "ingredients", ignore = true)
+    @Mapping(target = "quantities", ignore = true)
+    @Mapping(target = "units", ignore = true)
+    @Mapping(target = "instructions", ignore = true)
+    @Mapping(target = "tags", ignore = true)
+    @Mapping(target = "average", ignore = true)
+    RecipeResponseDTO toRecipeResponseDTO(Recipe recipe);
 
     @IterableMapping(elementTargetType = String.class)
     List<String> mapTagsToNames(List<Tag> tags);
