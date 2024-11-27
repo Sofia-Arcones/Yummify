@@ -86,10 +86,11 @@ public class ShoppingListController {
 
     @PostMapping("/updateItemStatus")
     public @ResponseBody Map<String, Object> updateItemStatus(@RequestParam("itemId") UUID itemId,
-                                                              @RequestParam("isPurchased") Boolean isPurchased) {
+                                                              @RequestParam("isPurchased") Boolean isPurchased,
+                                                              Authentication authentication) {
         Map<String, Object> response = new HashMap<>();
         try {
-            ShoppingList shoppingList = shoppingListService.updateListStatus(null, itemId, isPurchased, false);
+            ShoppingList shoppingList = shoppingListService.updateListStatus(null, itemId, isPurchased, false, authentication);
             response.put("success", true);
             response.put("isPurchased", isPurchased);
             response.put("listStatus", shoppingList.getListStatus());
@@ -102,8 +103,8 @@ public class ShoppingListController {
     }
 
     @PostMapping("/archive")
-    public String updateListStatus(UUID id, Boolean archived) {
-        shoppingListService.updateListStatus(id, null, null, archived);
+    public String updateListStatus(UUID id, Boolean archived, Authentication authentication) {
+        shoppingListService.updateListStatus(id, null, null, archived, authentication);
         return "redirect:/shoppingLists";
     }
 

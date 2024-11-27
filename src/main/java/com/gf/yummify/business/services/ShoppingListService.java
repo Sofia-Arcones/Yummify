@@ -19,7 +19,7 @@ public interface ShoppingListService {
 
     ShoppingList findListById(UUID id);
 
-    ShoppingList updateListStatus(UUID id, UUID itemId, Boolean isPurchased, Boolean isArchived);
+    ShoppingList updateListStatus(UUID id, UUID itemId, Boolean isPurchased, Boolean isArchived, Authentication authentication);
 
     String addIngredientToList(ShoppingListItemRequestDTO shoppingListItemRequestDTO);
 

@@ -16,12 +16,13 @@ import java.util.UUID;
 public class ShoppingListItemServiceImpl implements ShoppingListItemService {
     private ShoppingListItemRepository shoppingListItemRepository;
     private IngredientService ingredientService;
+    private ActivityLogService activityLogService;
 
-    public ShoppingListItemServiceImpl(ShoppingListItemRepository shoppingListItemRepository, IngredientService ingredientService) {
+    public ShoppingListItemServiceImpl(ShoppingListItemRepository shoppingListItemRepository, IngredientService ingredientService, ActivityLogService activityLogService) {
         this.shoppingListItemRepository = shoppingListItemRepository;
         this.ingredientService = ingredientService;
+        this.activityLogService = activityLogService;
     }
-
 
     @Override
     public List<ShoppingListItem> generateShoppingListItems(ShoppingListRequestDTO shoppingListRequestDTO, ShoppingList shoppingList) {
@@ -35,7 +36,7 @@ public class ShoppingListItemServiceImpl implements ShoppingListItemService {
         if (!shoppingListRequestDTO.getIngredients().isEmpty()) {
             for (int i = 0; i < shoppingListRequestDTO.getIngredients().size(); i++) {
                 ShoppingListItem shoppingListItem = new ShoppingListItem();
-                shoppingListItem.setShoppingList(shoppingList); // Asocia el ShoppingList existente
+                shoppingListItem.setShoppingList(shoppingList);
                 shoppingListItem.setIngredient(ingredientService.findOrCreateIngredient(shoppingListRequestDTO.getIngredients().get(i)));
                 shoppingListItem.setQuantity(shoppingListRequestDTO.getQuantities().get(i));
                 shoppingListItem.setIsPurchased(false);
