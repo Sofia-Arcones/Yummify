@@ -2,17 +2,12 @@ package com.gf.yummify.business.services;
 
 import com.gf.yummify.business.mappers.RecipeMapper;
 import com.gf.yummify.data.entity.*;
-import com.gf.yummify.data.enums.Difficulty;
-import com.gf.yummify.data.enums.IngredientType;
-import com.gf.yummify.data.enums.UnitOfMeasure;
+import com.gf.yummify.data.enums.*;
 import com.gf.yummify.data.repository.FavoriteRecipeRepository;
 import com.gf.yummify.data.repository.RecipeIngredientRepository;
 import com.gf.yummify.data.repository.RecipeRepository;
 import com.gf.yummify.data.repository.specifications.RecipeSpecifications;
-import com.gf.yummify.presentation.dto.FavoriteRecipeDTO;
-import com.gf.yummify.presentation.dto.RecipeRequestDTO;
-import com.gf.yummify.presentation.dto.RecipeResponseDTO;
-import com.gf.yummify.presentation.dto.ShortRecipeResponseDTO;
+import com.gf.yummify.presentation.dto.*;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
@@ -42,11 +37,12 @@ public class RecipeServiceImpl implements RecipeService {
     private final IngredientService ingredientService;
     private final TagService tagService;
     private final RecipeMapper recipeMapper;
+    private final ActivityLogService activityLogService;
 
     private static final String UPLOAD_DIR = "src/main/resources/static/images/uploads/recipes";
     private static final List<String> ALLOWED_CONTENT_TYPES = Arrays.asList("image/jpeg", "image/png");
 
-    public RecipeServiceImpl(RecipeRepository recipeRepository, FavoriteRecipeRepository favoriteRecipeRepository, UserService userService, RecipeIngredientRepository recipeIngredientRepository, IngredientService ingredientService, TagService tagService, RecipeMapper recipeMapper) {
+    public RecipeServiceImpl(RecipeRepository recipeRepository, FavoriteRecipeRepository favoriteRecipeRepository, UserService userService, RecipeIngredientRepository recipeIngredientRepository, IngredientService ingredientService, TagService tagService, RecipeMapper recipeMapper, ActivityLogService activityLogService) {
         this.recipeRepository = recipeRepository;
         this.favoriteRecipeRepository = favoriteRecipeRepository;
         this.userService = userService;
@@ -54,6 +50,7 @@ public class RecipeServiceImpl implements RecipeService {
         this.ingredientService = ingredientService;
         this.tagService = tagService;
         this.recipeMapper = recipeMapper;
+        this.activityLogService = activityLogService;
     }
 
     // ========================
@@ -63,14 +60,28 @@ public class RecipeServiceImpl implements RecipeService {
     public Recipe saveRecipe(RecipeRequestDTO recipeRequestDTO, Authentication authentication) {
         User user = userService.findUserByUsername(authentication.getName());
         Recipe recipe = setRecipeFields(recipeRequestDTO, user);
-        //TODO ActivityLogs
-        return recipeRepository.save(recipe);
+        recipe = recipeRepository.save(recipe);
+        String description = "El usuario '" + user.getUsername() + "' ha subido la receta '" + recipe.getTitle() + "' (ID: " + recipe.getRecipeId() + ")";
+        ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, recipe.getRecipeId(), RelatedEntity.RECIPE, ActivityType.RECIPE_CREATED, description);
+        activityLogService.createActivityLog(activityLogRequestDTO);
+        return recipe;
     }
 
     @Override
-    public void deleteRecipe(UUID id) {
+    public void deleteRecipe(UUID id, Authentication authentication) {
+        if (authentication == null) {
+            throw new IllegalArgumentException("Tienes que estar autentificado para hacer esta operación");
+        }
+        User user = userService.findUserByUsername(authentication.getName());
         Recipe recipe = findRecipeById(id);
+
+        if (user != recipe.getUser() || (user != recipe.getUser() && !user.getRole().equals(Role.ROLE_ADMIN))) {
+            throw new IllegalArgumentException("No tienes permisos para borrar esta receta");
+        }
         deleteImageFile(recipe.getImage());
+        String description = "El usuario '" + user.getUsername() + "' ha borrado la receta '" + recipe.getTitle() + "' (ID: " + recipe.getRecipeId() + ") del usuario '" + recipe.getUser().getUsername() + "'";
+        ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, recipe.getUser().getUserId(), RelatedEntity.USER, ActivityType.RECIPE_DELETED, description);
+        activityLogService.createActivityLog(activityLogRequestDTO);
         recipeRepository.delete(recipe);
     }
 
@@ -141,13 +152,25 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     public void addOrDeleteRecipeFavorite(Authentication authentication, UUID recipeId) {
         Optional<FavoriteRecipe> favoriteRecipeOpt = findFavoriteRecipe(authentication, recipeId);
+        if (authentication == null) {
+            throw new IllegalArgumentException("Tienes que estar autentificado para hacer esta operación");
+        }
+        User user = userService.findUserByUsername(authentication.getName());
+        String description = "";
+        ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO();
         if (favoriteRecipeOpt.isPresent()) {
+            description = "Al usuario '" + user.getUsername() + "' le ha dejado de gustar la receta con ID: " + recipeId;
+            activityLogRequestDTO = new ActivityLogRequestDTO(user, recipeId, RelatedEntity.RECIPE, ActivityType.RECIPE_UNFAVORITED, description);
+            activityLogService.createActivityLog(activityLogRequestDTO);
             favoriteRecipeRepository.delete(favoriteRecipeOpt.get());
         } else {
             FavoriteRecipe favoriteRecipe = new FavoriteRecipe();
-            favoriteRecipe.setUser(userService.findUserByUsername(authentication.getName()));
+            favoriteRecipe.setUser(user);
             favoriteRecipe.setRecipe(findRecipeById(recipeId));
             favoriteRecipeRepository.save(favoriteRecipe);
+            description = "Al usuario '" + user.getUsername() + "' le ha gustado la receta con ID: " + recipeId;
+            activityLogRequestDTO = new ActivityLogRequestDTO(user, recipeId, RelatedEntity.RECIPE, ActivityType.RECIPE_FAVORITED, description);
+            activityLogService.createActivityLog(activityLogRequestDTO);
         }
     }
 
