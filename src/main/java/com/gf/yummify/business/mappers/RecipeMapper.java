@@ -36,12 +36,17 @@ public interface RecipeMapper {
     @Mapping(target = "image", ignore = true)
     Recipe toRecipe(RecipeRequestDTO recipeRequestDTO);
 
-    @Mapping(target = "ingredients", ignore = true)
-    @Mapping(target = "quantities", ignore = true)
-    @Mapping(target = "units", ignore = true)
+    @Mapping(target = "title", source = "recipe.title")
+    @Mapping(target = "description", source = "recipe.description")
+    @Mapping(target = "image", source = "recipe.image")
+    @Mapping(target = "difficulty", source = "recipe.difficulty")
+    @Mapping(target = "prepTime", source = "recipe.prepTime")
     @Mapping(target = "instructions", ignore = true)
-    @Mapping(target = "tags", ignore = true)
+    @Mapping(target = "portions", source = "recipe.portions")
+    @Mapping(target = "ratings", source = "recipe.ratings")
+    @Mapping(target = "tags", source = "recipe.tags")
     @Mapping(target = "average", ignore = true)
+    @Mapping(target = "ingredients", ignore = true)
     RecipeResponseDTO toRecipeResponseDTO(Recipe recipe);
 
     @IterableMapping(elementTargetType = String.class)

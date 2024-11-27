@@ -219,7 +219,8 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     private RecipeResponseDTO mapToRecipeResponseDTO(Recipe recipe) {
-        RecipeResponseDTO recipeResponseDTO = mapToRecipeResponseDTO(recipe);
+        RecipeResponseDTO recipeResponseDTO = recipeMapper.toRecipeResponseDTO(recipe);
+
         recipeResponseDTO.setInstructions(getInstructions(recipe.getInstructions()));
         recipeResponseDTO.setAverage(calculateAverage(recipe.getRatings()));
 
@@ -234,12 +235,6 @@ public class RecipeServiceImpl implements RecipeService {
         recipeResponseDTO.setIngredients(ingredients);
         recipeResponseDTO.setQuantities(quantities);
         recipeResponseDTO.setUnits(units);
-
-        List<String> tags = new ArrayList<>();
-        for (Tag tag : recipe.getTags()) {
-            tags.add(tag.getName());
-        }
-        recipeResponseDTO.setTags(tags);
         return recipeResponseDTO;
     }
 
