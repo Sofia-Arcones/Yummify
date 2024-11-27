@@ -40,7 +40,7 @@ public class CommentServiceImpl implements CommentService {
         String description = "El usuario '" + user.getUsername() + "' ha añadido un comentario en el rate (ID: " + rating.getRateId() + ")";
         ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, comment.getCommentId(), RelatedEntity.COMMENT, ActivityType.COMMENT_ADDED, description);
         activityLogService.createActivityLog(activityLogRequestDTO);
-        
+
         return comment;
     }
 

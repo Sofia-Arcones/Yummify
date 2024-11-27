@@ -31,8 +31,6 @@ public interface RecipeMapper {
     ShortRecipeResponseDTO toShortRecipeResponseDTO(Recipe recipe);
 
     @Mapping(target = "ingredients", ignore = true)
-    @Mapping(target = "quantities", ignore = true)
-    @Mapping(target = "units", ignore = true)
     @Mapping(target = "instructions", ignore = true)
     @Mapping(target = "tags", ignore = true)
     @Mapping(target = "image", ignore = true)
