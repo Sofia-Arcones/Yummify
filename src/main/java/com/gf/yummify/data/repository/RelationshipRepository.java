@@ -16,6 +16,6 @@ public interface RelationshipRepository extends JpaRepository<Relationship, UUID
     Optional<Relationship> findBySenderAndReceiverAndRelationshipStatus(User sender, User receiver, RelationshipStatus relationshipStatus);
 
     List<Relationship> findBySenderAndRelationshipStatusAndRelationshipType(User sender, RelationshipStatus relationshipStatus, RelationshipType relationshipType);
-    List<Relationship> findByReceiverAndRelationshipStatusAndRelationshipType(User receiver, RelationshipStatus relationshipStatus, RelationshipType relationshipType);
 
+    List<Relationship> findByReceiverAndRelationshipStatusAndRelationshipType(User receiver, RelationshipStatus relationshipStatus, RelationshipType relationshipType);
 }

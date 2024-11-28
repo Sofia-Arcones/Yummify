@@ -1,6 +1,7 @@
 package com.gf.yummify.business.services;
 
 import com.gf.yummify.data.entity.Relationship;
+import com.gf.yummify.data.entity.User;
 import com.gf.yummify.presentation.dto.RelationshipResponseDTO;
 import org.springframework.security.core.Authentication;
 
@@ -39,4 +40,6 @@ public interface RelationshipService {
     int followersNumber(String username);
 
     int friendsNumber(String username);
+
+    List<Relationship> findFollowersAndFriends(User receiver);
 }
