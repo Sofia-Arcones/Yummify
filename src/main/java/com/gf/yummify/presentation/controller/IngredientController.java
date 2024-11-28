@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,14 +71,17 @@ public class IngredientController {
     }
 
     @PostMapping("/update")
-    public String updateIngredient(Model model, @ModelAttribute @Valid IngredientRequestDTO ingredient, Authentication authentication) {
+    public String updateIngredient(Model model,
+                                   @ModelAttribute @Valid IngredientRequestDTO ingredient,
+                                   Authentication authentication,
+                                   RedirectAttributes redirectAttributes) {
         try {
             Ingredient ingredientUpdated = ingredientService.updateIngredient(ingredient, authentication);
             model.addAttribute("updateMessage", "Ingrediente actualizado correctamente.");
             model.addAttribute("ingredient", ingredientUpdated);
         } catch (Exception ex) {
-            model.addAttribute("error", ex.getMessage());
-            return "ingredients/ingredientUpdate";
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+            return "redirect:/ingredients/update/" + ingredient.getIngredientId();
         }
         return "ingredients/ingredientSuccess";
     }

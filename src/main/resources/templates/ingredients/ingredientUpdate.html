@@ -48,7 +48,8 @@
         <button type="submit" class="btn btn-primary mt-3">Actualizar</button>
         <a href="/ingredients/management" class="btn btn-secondary mt-3">Cancelar</a>
     </form>
-    <div th:if="${param.error}" class="alert alert-danger">
+    <br>
+    <div th:if="${error}" class="alert alert-danger">
         <p th:text="${error}"></p>
     </div>
 </div>
