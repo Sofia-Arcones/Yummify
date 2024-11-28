@@ -66,7 +66,7 @@ public class ShoppingListServiceImpl implements ShoppingListService {
             shoppingList.setUser(user);
             shoppingList.setTitle(shoppingListRequestDTO.getTitle());
 
-            List<ShoppingListItem> shoppingListItemList = shoppingListItemService.generateShoppingListItems(shoppingListRequestDTO, shoppingList);
+            List<ShoppingListItem> shoppingListItemList = shoppingListItemService.generateShoppingListItems(shoppingListRequestDTO, shoppingList, user);
 
             shoppingList.setListStatus(shoppingListItemList.isEmpty() ? ListStatus.EMPTY : ListStatus.IN_PROGRESS);
 
@@ -128,9 +128,9 @@ public class ShoppingListServiceImpl implements ShoppingListService {
 
     @Override
     @Transactional
-    public String addIngredientToList(ShoppingListItemRequestDTO shoppingListItemRequestDTO) {
+    public String addIngredientToList(ShoppingListItemRequestDTO shoppingListItemRequestDTO, User user) {
         ShoppingList shoppingList = findListById(shoppingListItemRequestDTO.getShoppingListId());
-        Ingredient ingredient = ingredientService.findOrCreateIngredient(shoppingListItemRequestDTO.getIngredientName());
+        Ingredient ingredient = ingredientService.findOrCreateIngredient(shoppingListItemRequestDTO.getIngredientName(), user);
         if (ingredient == null) {
             throw new IllegalArgumentException("El ingrediente no pudo ser creado o encontrado.");
         }

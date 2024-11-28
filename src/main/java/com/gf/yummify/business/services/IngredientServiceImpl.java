@@ -9,6 +9,10 @@ import com.gf.yummify.presentation.dto.ActivityLogRequestDTO;
 import com.gf.yummify.presentation.dto.IngredientAutocompleteDTO;
 import com.gf.yummify.presentation.dto.IngredientRequestDTO;
 import org.apache.commons.lang3.EnumUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -56,20 +60,6 @@ public class IngredientServiceImpl implements IngredientService {
                 });
     }
 
-    //TODO-> Cambiar todos los findOrCreate a que tengan User asi no hay problemas
-    @Override
-    public Ingredient findOrCreateIngredient(String name) {
-        String normalizedIngredientName = capitalizeIngredientName(name);
-        return ingredientRepository.findByIngredientName(normalizedIngredientName)
-                .orElseGet(() -> {
-                    Ingredient newIngredient = new Ingredient();
-                    newIngredient.setIngredientName(normalizedIngredientName);
-                    newIngredient.setIngredientStatus(IngredientStatus.PENDING_REVIEW);
-                    newIngredient = ingredientRepository.save(newIngredient);
-                    return newIngredient;
-                });
-    }
-
     private String capitalizeIngredientName(String name) {
         if (name == null || name.isEmpty()) {
             return name;
@@ -78,24 +68,27 @@ public class IngredientServiceImpl implements IngredientService {
     }
 
     @Override
-    public List<Ingredient> findIngredientsByStatus(IngredientStatus ingredientStatus) {
-        return ingredientRepository.findByIngredientStatus(ingredientStatus);
+    public Page<Ingredient> findIngredientsByStatus(IngredientStatus ingredientStatus, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("creationDate").descending());
+        return ingredientRepository.findByIngredientStatus(ingredientStatus, pageable);
     }
 
     @Override
-    public List<Ingredient> findIngredientsByType(IngredientType ingredientType) {
-        return ingredientRepository.findByIngredientType(ingredientType);
+    public Page<Ingredient> findIngredientsByType(IngredientType ingredientType, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("creationDate").descending());
+        return ingredientRepository.findByIngredientType(ingredientType, pageable);
     }
 
     @Override
-    public String deleteIngredient(UUID id) {
-        ingredientRepository.deleteById(id);
-        return "Ingrediente eliminado correctamente.";
+    public Page<Ingredient> findAllIngredients(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("creationDate").descending());
+        return ingredientRepository.findAll(pageable);
     }
 
     @Override
-    public List<Ingredient> findIngredientsByStatusAndType(IngredientStatus ingredientStatus, IngredientType ingredientType) {
-        return ingredientRepository.findByIngredientStatusAndIngredientType(ingredientStatus, ingredientType);
+    public Page<Ingredient> findIngredientsByStatusAndType(IngredientStatus ingredientStatus, IngredientType ingredientType, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("creationDate").descending());
+        return ingredientRepository.findByIngredientStatusAndIngredientType(ingredientStatus, ingredientType, pageable);
     }
 
     @Override

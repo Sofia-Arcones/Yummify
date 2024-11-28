@@ -1,6 +1,7 @@
 package com.gf.yummify.business.services;
 
 import com.gf.yummify.data.entity.ShoppingList;
+import com.gf.yummify.data.entity.User;
 import com.gf.yummify.data.enums.ListStatus;
 import com.gf.yummify.presentation.dto.ShoppingListItemRequestDTO;
 import com.gf.yummify.presentation.dto.ShoppingListRequestDTO;
@@ -21,7 +22,7 @@ public interface ShoppingListService {
 
     ShoppingList updateListStatus(UUID id, UUID itemId, Boolean isPurchased, Boolean isArchived, Authentication authentication);
 
-    String addIngredientToList(ShoppingListItemRequestDTO shoppingListItemRequestDTO);
+    String addIngredientToList(ShoppingListItemRequestDTO shoppingListItemRequestDTO, User user);
 
     List<ShoppingList> findListsByUser(Authentication authentication);
 }

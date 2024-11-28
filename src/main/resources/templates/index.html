@@ -94,7 +94,9 @@
                                 th:text="${ingredientType}"></option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-primary btn-md">Filtrar</button>
+                <button type="submit" class="btn btn-primary btn-md">
+                    <i class="fas fa-filter"></i> Filtrar
+                </button>
             </div>
         </form>
     </aside>
@@ -153,24 +155,37 @@
         return '/home?' + urlParams.toString();
     }
 
-    function loadRecipes() {
-        const url = buildURL();
-        fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Error en la respuesta: ${response.status}`);
-                }
-                return response.text();
-            })
-            .then(data => {
-                const recipesContainer = document.getElementById('recipesContainer');
-                recipesContainer.innerHTML = data.includes("recipe-card") ? data : "<p>No se encontraron recetas.</p>";
-            })
-            .catch(error => {
-                console.error("Error al cargar las recetas:", error);
-            });
-    }
-
+function loadRecipes() {
+    const url = buildURL();
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error en la respuesta: ${response.status}`);
+            }
+            return response.text();
+        })
+        .then(data => {
+            const recipesContainer = document.getElementById('recipesContainer');
+            if (data.includes("recipe-card")) {
+                recipesContainer.innerHTML = data;
+            } else {
+                recipesContainer.innerHTML = `
+                    <div class="alert alert-warning text-center" role="alert">
+                        No se encontraron recetas.
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error("Error al cargar las recetas:", error);
+            const recipesContainer = document.getElementById('recipesContainer');
+            recipesContainer.innerHTML = `
+                <div class="alert alert-danger" role="alert">
+                    Hubo un error al intentar cargar las recetas. Por favor, inténtalo nuevamente más tarde.
+                </div>
+            `;
+        });
+}
     searchInput.addEventListener('input', function () {
         loadRecipes();
     });

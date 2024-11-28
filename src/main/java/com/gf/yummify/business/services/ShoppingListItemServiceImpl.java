@@ -2,6 +2,7 @@ package com.gf.yummify.business.services;
 
 import com.gf.yummify.data.entity.ShoppingList;
 import com.gf.yummify.data.entity.ShoppingListItem;
+import com.gf.yummify.data.entity.User;
 import com.gf.yummify.data.enums.UnitOfMeasure;
 import com.gf.yummify.data.repository.ShoppingListItemRepository;
 import com.gf.yummify.presentation.dto.ShoppingListRequestDTO;
@@ -25,7 +26,7 @@ public class ShoppingListItemServiceImpl implements ShoppingListItemService {
     }
 
     @Override
-    public List<ShoppingListItem> generateShoppingListItems(ShoppingListRequestDTO shoppingListRequestDTO, ShoppingList shoppingList) {
+    public List<ShoppingListItem> generateShoppingListItems(ShoppingListRequestDTO shoppingListRequestDTO, ShoppingList shoppingList, User user) {
         if (shoppingListRequestDTO.getIngredients().size() != shoppingListRequestDTO.getQuantities().size() ||
                 shoppingListRequestDTO.getIngredients().size() != shoppingListRequestDTO.getUnits().size()) {
             throw new IllegalArgumentException("Las listas de ingredientes, cantidades y unidades deben tener el mismo tamaño.");
@@ -37,7 +38,7 @@ public class ShoppingListItemServiceImpl implements ShoppingListItemService {
             for (int i = 0; i < shoppingListRequestDTO.getIngredients().size(); i++) {
                 ShoppingListItem shoppingListItem = new ShoppingListItem();
                 shoppingListItem.setShoppingList(shoppingList);
-                shoppingListItem.setIngredient(ingredientService.findOrCreateIngredient(shoppingListRequestDTO.getIngredients().get(i)));
+                shoppingListItem.setIngredient(ingredientService.findOrCreateIngredient(shoppingListRequestDTO.getIngredients().get(i), user));
                 shoppingListItem.setQuantity(shoppingListRequestDTO.getQuantities().get(i));
                 shoppingListItem.setIsPurchased(false);
 
