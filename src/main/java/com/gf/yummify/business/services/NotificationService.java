@@ -13,4 +13,6 @@ public interface NotificationService {
     Page<NotificationResponseDTO> getNotificationFromLastMonth(Authentication authentication, int page, int size);
 
     void markAsRead(UUID notificationId);
+
+    long countUnreadNotifications(String username);
 }

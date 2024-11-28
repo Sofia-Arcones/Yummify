@@ -75,6 +75,11 @@ public class NotificationServiceImpl implements NotificationService {
         }
         notificationRepository.save(notification);
     }
+    @Override
+    public long countUnreadNotifications(String username) {
+        User user = userService.findUserByUsername(username);
+        return notificationRepository.countByUserAndIsRead(user, false);
+    }
 
     private List<Notification> buildNotifications(ActivityLog activityLog) {
         if (activityLog == null) {

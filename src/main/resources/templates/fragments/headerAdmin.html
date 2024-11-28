@@ -51,7 +51,7 @@
                 <form th:action="@{/notifications}" method="get">
                     <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">
                         <i class="fas fa-bell">
-                            <span class="badge badge-danger">3</span>
+                            <span class="badge badge-danger" th:text="${unreadNotifications}">0</span>
                         </i></button>
                 </form>
             </li>

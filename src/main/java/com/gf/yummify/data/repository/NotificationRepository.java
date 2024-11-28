@@ -12,4 +12,5 @@ import java.util.UUID;
 
 public interface NotificationRepository extends JpaRepository<Notification, UUID> {
     Page<Notification> findByUserAndCreationDateBetween(User user, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+    Long countByUserAndIsRead(User user, Boolean isRead);
 }
