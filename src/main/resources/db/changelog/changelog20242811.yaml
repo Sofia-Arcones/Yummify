@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20242811
+      author: Sofia Arcones
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: notifications
+            constraintName: fk_notification_activitylog
+
+        - dropNotNullConstraint:
+            tableName: notifications
+            columnName: activity_id
+            columnDataType: uuid
+
+        - addForeignKeyConstraint:
+            baseTableName: notifications
+            baseColumnNames: activity_id
+            referencedTableName: activity_logs
+            referencedColumnNames: activity_id
+            constraintName: fk_notifications_activitylog
+            onDelete: CASCADE

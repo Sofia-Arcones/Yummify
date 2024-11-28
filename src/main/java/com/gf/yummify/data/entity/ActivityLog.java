@@ -10,6 +10,8 @@ import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -43,8 +45,8 @@ public class ActivityLog {
     @NotNull
     private String description;
 
-    @OneToOne(mappedBy = "activityLog", cascade = CascadeType.ALL)
-    private Notification notification;
+    @OneToMany(mappedBy = "activityLog", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> notifications = new ArrayList<>();
     @Transient
     private String formattedActivityDate;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");

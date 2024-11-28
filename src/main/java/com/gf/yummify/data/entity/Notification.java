@@ -27,7 +27,7 @@ public class Notification {
     private String content;
     @NotNull
     private Boolean isRead;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "activity_id", nullable = false)
     private ActivityLog activityLog;
 
