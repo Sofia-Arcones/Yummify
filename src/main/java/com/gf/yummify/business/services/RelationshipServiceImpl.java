@@ -15,6 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class RelationshipServiceImpl implements RelationshipService {
@@ -124,6 +126,15 @@ public class RelationshipServiceImpl implements RelationshipService {
             relationshipResponseDTOS.add(relationshipResponseDTO);
         }
         return relationshipResponseDTOS;
+    }
+
+    @Override
+    public List<Relationship> findFollowersAndFriends(User receiver) {
+        List<Relationship> followers = relationshipRepository.findByReceiverAndRelationshipStatusAndRelationshipType(receiver, RelationshipStatus.FOLLOWING, RelationshipType.FOLLOW);
+        List<Relationship> friends = relationshipRepository.findByReceiverAndRelationshipStatusAndRelationshipType(receiver, RelationshipStatus.ACCEPTED, RelationshipType.FRIEND);
+        List<Relationship> followersAndFriends = Stream.concat(followers.stream(), friends.stream())
+                .collect(Collectors.toList());
+        return followersAndFriends;
     }
 
 

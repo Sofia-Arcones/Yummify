@@ -9,6 +9,9 @@ import com.gf.yummify.data.repository.CommentRepository;
 import com.gf.yummify.presentation.dto.ActivityLogRequestDTO;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+import java.util.UUID;
+
 @Service
 public class CommentServiceImpl implements CommentService {
     private CommentRepository commentRepository;
@@ -42,6 +45,12 @@ public class CommentServiceImpl implements CommentService {
         activityLogService.createActivityLog(activityLogRequestDTO);
 
         return comment;
+    }
+
+    @Override
+    public Comment findCommentById(UUID commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new NoSuchElementException("El comentario con id: " + commentId + " no existe"));
     }
 
 

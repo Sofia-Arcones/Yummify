@@ -72,9 +72,9 @@ public class IngredientController {
     @PostMapping("/update")
     public String updateIngredient(Model model, @ModelAttribute @Valid IngredientRequestDTO ingredient, Authentication authentication) {
         try {
-            ingredientService.updateIngredient(ingredient, authentication);
+            Ingredient ingredientUpdated = ingredientService.updateIngredient(ingredient, authentication);
             model.addAttribute("updateMessage", "Ingrediente actualizado correctamente.");
-            model.addAttribute("ingredient", ingredient);
+            model.addAttribute("ingredient", ingredientUpdated);
         } catch (Exception ex) {
             model.addAttribute("error", ex.getMessage());
             return "ingredients/ingredientUpdate";

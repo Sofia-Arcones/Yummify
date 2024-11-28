@@ -4,6 +4,7 @@ import com.gf.yummify.business.mappers.UserMapper;
 import com.gf.yummify.data.entity.User;
 import com.gf.yummify.data.enums.ActivityType;
 import com.gf.yummify.data.enums.RelatedEntity;
+import com.gf.yummify.data.enums.Role;
 import com.gf.yummify.data.repository.UserRepository;
 import com.gf.yummify.presentation.dto.ActivityLogRequestDTO;
 import com.gf.yummify.presentation.dto.RegisterDTO;
@@ -11,6 +12,7 @@ import com.gf.yummify.presentation.dto.UserResponseDTO;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -73,5 +75,10 @@ public class UserServiceImpl implements UserService {
     public User findUserById(UUID userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("El usuario con id: " + userId + " no existe"));
+    }
+
+    @Override
+    public List<User> findAllUsersByRole(Role role){
+        return  userRepository.findByRole(role);
     }
 }
