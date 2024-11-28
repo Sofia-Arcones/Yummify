@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificaciones</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+</head>
+<body class="d-flex flex-column min-vh-100">
+<div class="container-fluid p-0">
+    <div th:replace="~{fragments/headerAdmin :: headerAdmin}" sec:authorize="hasRole('ROLE_ADMIN')"></div>
+    <div th:replace="~{fragments/header :: header}" sec:authorize="hasRole('ROLE_USER')"></div>
+</div>
+<div class="container mt-4">
+    <h2 class="mb-4 text-center text-secondary">Notificaciones</h2>
+    <ul class="list-group">
+        <li th:each="notification : ${notifications}"
+            class="list-group-item d-flex justify-content-between align-items-center"
+            th:class="${notification.isRead ? 'list-group-item-light' : 'list-group-item-warning'}"
+            style="display: grid; grid-template-columns: 40px 1fr; gap: 10px; align-items: center;">
+            <div class="d-flex justify-content-center">
+                <form th:action="@{/notifications/markAsRead}" method="post">
+                    <input type="hidden" name="notificationId" th:value="${notification.notificationId}">
+                    <button class="btn btn-sm p-2" th:class="${notification.isRead ? 'btn-secondary' : 'btn-primary'}">
+                        <i th:class="${notification.isRead ? 'fas fa-eye' : 'fas fa-eye-slash'}"></i>
+                    </button>
+                </form>
+            </div>
+            <div>
+                <div th:text="${notification.content}" class="font-weight-bold mb-1">Notificación de ejemplo</div>
+                <small class="text-muted" th:text="${notification.formattedCreationDate}">Fecha de la
+                    notificación</small>
+            </div>
+
+        </li>
+    </ul>
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${notifications.hasPrevious()} ? '' : 'disabled'">
+                <a class="page-link"
+                   th:href="@{/notifications(page=${notifications.number - 1}, size=${notifications.size})}"
+                   aria-label="Anterior">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, notifications.totalPages - 1)}"
+                th:classappend="${i == notifications.number} ? 'active' : ''">
+                <a class="page-link" th:href="@{/notifications(page=${i}, size=${notifications.size})}"
+                   th:text="${i + 1}"></a>
+            </li>
+            <li class="page-item" th:classappend="${notifications.hasNext()} ? '' : 'disabled'">
+                <a class="page-link"
+                   th:href="@{/notifications(page=${notifications.number + 1}, size=${notifications.size})}"
+                   aria-label="Siguiente">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+</body>
+
+

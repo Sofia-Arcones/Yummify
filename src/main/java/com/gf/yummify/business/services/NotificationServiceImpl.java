@@ -5,11 +5,18 @@ import com.gf.yummify.data.entity.*;
 import com.gf.yummify.data.enums.Role;
 import com.gf.yummify.data.repository.NotificationRepository;
 import com.gf.yummify.presentation.dto.NotificationRequestDTO;
+import com.gf.yummify.presentation.dto.NotificationResponseDTO;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.*;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
@@ -40,6 +47,33 @@ public class NotificationServiceImpl implements NotificationService {
         for (Notification notification : notificationList) {
             notificationRepository.save(notification);
         }
+    }
+
+    @Override
+    public Page<NotificationResponseDTO> getNotificationFromLastMonth(Authentication authentication, int page, int size) {
+        User user = userService.findUserByUsername(authentication.getName());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("creationDate").descending());
+        LocalDateTime endDate = LocalDateTime.now();
+        LocalDateTime startDate = endDate.minus(1, ChronoUnit.MONTHS);
+
+        Page<Notification> notificationPage = notificationRepository.findByUserAndCreationDateBetween(user, startDate, endDate, pageable);
+        List<NotificationResponseDTO> notificationResponseDTOS = notificationPage
+                .stream()
+                .map(notificationMapper::toNotificationResponseDTO)
+                .toList();
+        return new PageImpl<>(notificationResponseDTOS, pageable, notificationPage.getTotalElements());
+    }
+
+    @Override
+    public void markAsRead(UUID notificationId) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new NoSuchElementException("La notificación con id: " + notificationId + " no existe"));
+        if (notification.getIsRead()) {
+            notification.setIsRead(false);
+        } else {
+            notification.setIsRead(true);
+        }
+        notificationRepository.save(notification);
     }
 
     private List<Notification> buildNotifications(ActivityLog activityLog) {
