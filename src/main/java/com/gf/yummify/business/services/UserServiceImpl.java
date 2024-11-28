@@ -7,11 +7,14 @@ import com.gf.yummify.data.enums.RelatedEntity;
 import com.gf.yummify.data.enums.Role;
 import com.gf.yummify.data.repository.UserRepository;
 import com.gf.yummify.presentation.dto.ActivityLogRequestDTO;
+import com.gf.yummify.presentation.dto.ProfileUpdateDTO;
 import com.gf.yummify.presentation.dto.RegisterDTO;
 import com.gf.yummify.presentation.dto.UserResponseDTO;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -78,7 +81,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findAllUsersByRole(Role role){
-        return  userRepository.findByRole(role);
+    public List<User> findAllUsersByRole(Role role) {
+        return userRepository.findByRole(role);
+    }
+
+    @Override
+    public ProfileUpdateDTO getProfileUpdateDTO(Authentication authentication) {
+        User user = findUserByUsername(authentication.getName());
+        ProfileUpdateDTO profileUpdateDTO = userMapper.toProfileUpdateDTO(user);
+        if (user.getBirthday() != null) {
+            String formattedBirthday = user.getBirthday().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            profileUpdateDTO.setFormattedBirthday(formattedBirthday);
+        }
+        return profileUpdateDTO;
     }
 }

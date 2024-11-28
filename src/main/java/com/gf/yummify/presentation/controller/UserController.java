@@ -2,7 +2,8 @@ package com.gf.yummify.presentation.controller;
 
 import com.gf.yummify.business.services.RelationshipService;
 import com.gf.yummify.business.services.UserService;
-import com.gf.yummify.data.entity.User;
+import com.gf.yummify.data.enums.Gender;
+import com.gf.yummify.presentation.dto.ProfileUpdateDTO;
 import com.gf.yummify.presentation.dto.RegisterDTO;
 import com.gf.yummify.presentation.dto.UserResponseDTO;
 import jakarta.transaction.Transactional;
@@ -14,6 +15,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+
+import java.time.format.DateTimeFormatter;
 
 @Controller
 public class UserController {
@@ -62,7 +65,7 @@ public class UserController {
     @GetMapping("/users/profile/{username}")
     public String viewProfile(@PathVariable String username, Model model, Authentication authentication) {
         try {
-            UserResponseDTO profileUser = userService.findProfileUser(username,relationshipService.followersNumber(username),relationshipService.friendsNumber(username));
+            UserResponseDTO profileUser = userService.findProfileUser(username, relationshipService.followersNumber(username), relationshipService.friendsNumber(username));
             model.addAttribute("user", profileUser);
             if (authentication != null && authentication.isAuthenticated()) {
                 model.addAttribute("isOwnProfile", userService.checkUserAuthentication(authentication.getName(), profileUser.getUsername()));
@@ -79,4 +82,19 @@ public class UserController {
             return "error";
         }
     }
+
+    @GetMapping("/profile/edit")
+    public String profileEdit(Authentication authentication,
+                              Model model) {
+        try {
+            ProfileUpdateDTO profileUpdateDTO = userService.getProfileUpdateDTO(authentication);
+            model.addAttribute("genders", Gender.values());
+            model.addAttribute("user", profileUpdateDTO);
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+            return "error";
+        }
+        return "users/profileUpdateForm";
+    }
+
 }
