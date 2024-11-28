@@ -37,30 +37,33 @@
 <body>
 <div th:replace="~{fragments/headerAdmin :: headerAdmin}"></div>
 <div class="container mt-5">
-    <h2 class="text-center">¡Administra Eficazmente tus Ingredientes!</h2>
+    <h2 class="text-center text-secondary">¡Administra Eficazmente Los Ingredientes!</h2>
     <form th:action="@{/ingredients/management}" method="get">
-        <div class="form-group">
-            <label for="status">Selecciona el Estado:</label>
-            <select name="status" class="form-control col-md-3" id="status">
-                <option value="" disabled selected>-- Selecciona un Estado --</option>
-                <option th:each="status : ${statuses}" th:value="${status}" th:text="${status}"></option>
-            </select>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="status">Selecciona el Estado:</label>
+                <select name="status" class="form-control" id="status">
+                    <option value="" disabled selected>-- Selecciona un Estado --</option>
+                    <option th:each="status : ${statuses}" th:value="${status}" th:text="${status}"></option>
+                </select>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="type">Selecciona el Tipo:</label>
+                <select name="type" class="form-control" id="type">
+                    <option value="" disabled selected>-- Selecciona un Tipo --</option>
+                    <option th:each="type : ${types}" th:value="${type}" th:text="${type}"></option>
+                </select>
+            </div>
         </div>
-
-        <div class="form-group mt-3">
-            <label for="type">Selecciona el Tipo:</label>
-            <select name="type" class="form-control col-md-3" id="type">
-                <option value="" disabled selected>-- Selecciona un Tipo --</option>
-                <option th:each="type : ${types}" th:value="${type}" th:text="${type}"></option>
-            </select>
-        </div>
-
-        <button type="submit" class="btn btn-primary mt-3">Filtrar Ingredientes</button>
+        <button type="submit" class="btn btn-primary mt-3 d-flex justify-content-center mx-auto">
+            <i class="fas fa-filter"></i> Filtrar Ingredientes
+        </button>
     </form>
+    <hr>
 
-    <div class="row mt-4" th:if="${ingredients != null && ingredients.size() > 0}">
+    <div class="row mt-4" th:if="${ingredients != null}">
         <div class="card-container">
-            <div class="col-card" th:each="ingredient : ${ingredients}">
+            <div class="col-card" th:each="ingredient : ${ingredients.content}">
                 <div class="card mb-4 bg-secondary">
                     <div class="card-body">
                         <h5 class="card-title text-white" th:text="${ingredient.ingredientName}"></h5>
@@ -81,9 +84,36 @@
             </div>
         </div>
     </div>
-
-    <div th:if="${ingredients != null && ingredients.size() == 0}" class="alert alert-warning">
+    <nav aria-label="Page navigation" th:if="${ingredients.totalPages >= 1}">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${ingredients.hasPrevious()} ? '' : 'disabled'">
+                <a class="page-link"
+                   th:href="@{/ingredients/management(page=${ingredients.number - 1}, size=${ingredients.size}, status=${status}, type=${type})}"
+                   aria-label="Anterior">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, ingredients.totalPages - 1)}"
+                th:classappend="${i == ingredients.number} ? 'active' : ''">
+                <a class="page-link"
+                   th:href="@{/ingredients/management(page=${i}, size=${ingredients.size}, status=${status}, type=${type})}"
+                   th:text="${i + 1}"></a>
+            </li>
+            <li class="page-item" th:classappend="${ingredients.hasNext()} ? '' : 'disabled'">
+                <a class="page-link"
+                   th:href="@{/ingredients/management(page=${ingredients.number + 1}, size=${ingredients.size}, status=${status}, type=${type})}"
+                   aria-label="Siguiente">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <br>
+    <div th:if="${ingredients != null && ingredients.isEmpty()}" class="alert alert-warning">
         No hay ingredientes disponibles para el estado y tipo seleccionados.
+    </div>
+    <div th:if="${error}" class="alert alert-danger justified-center">
+        <p th:text="${error}"></p>
     </div>
 </div>
 

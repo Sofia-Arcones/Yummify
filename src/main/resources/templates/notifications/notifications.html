@@ -15,7 +15,7 @@
 </div>
 <div class="container mt-4">
     <h2 class="mb-4 text-center text-secondary">Notificaciones</h2>
-    <ul class="list-group">
+    <ul class="list-group" th:if="${notifications.totalPages >= 1}">
         <li th:each="notification : ${notifications}"
             class="list-group-item d-flex justify-content-between align-items-center"
             th:class="${notification.isRead ? 'list-group-item-light' : 'list-group-item-warning'}"
@@ -33,10 +33,10 @@
                 <small class="text-muted" th:text="${notification.formattedCreationDate}">Fecha de la
                     notificación</small>
             </div>
-
         </li>
     </ul>
-    <nav aria-label="Page navigation">
+    <br>
+    <nav aria-label="Page navigation" th:if="${notifications.totalPages >= 1}">
         <ul class="pagination justify-content-center">
             <li class="page-item" th:classappend="${notifications.hasPrevious()} ? '' : 'disabled'">
                 <a class="page-link"
@@ -59,6 +59,10 @@
             </li>
         </ul>
     </nav>
+    <hr>
+    <div th:if="${notifications != null && notifications.isEmpty()}" class="alert alert-warning">
+        No hay notificaciones.
+    </div>
 </div>
 </body>
 

@@ -1,7 +1,7 @@
 package com.gf.yummify.presentation.controller;
 
-import com.gf.yummify.business.services.ShoppingListItemService;
 import com.gf.yummify.business.services.ShoppingListService;
+import com.gf.yummify.business.services.UserService;
 import com.gf.yummify.data.entity.ShoppingList;
 import com.gf.yummify.data.enums.ListStatus;
 import com.gf.yummify.data.enums.UnitOfMeasure;
@@ -23,11 +23,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/shoppingLists")
 public class ShoppingListController {
     private ShoppingListService shoppingListService;
-    private ShoppingListItemService shoppingListItemService;
+    private UserService userService;
 
-    public ShoppingListController(ShoppingListService shoppingListService, ShoppingListItemService shoppingListItemService) {
+    public ShoppingListController(ShoppingListService shoppingListService, UserService userService) {
         this.shoppingListService = shoppingListService;
-        this.shoppingListItemService = shoppingListItemService;
+        this.userService = userService;
     }
 
     @GetMapping()
@@ -111,10 +111,9 @@ public class ShoppingListController {
     @PostMapping("/addIngredient")
     public String addIngredient(@ModelAttribute @Valid ShoppingListItemRequestDTO shoppingListItemRequestDTO,
                                 RedirectAttributes redirectAttributes,
-                                HttpServletRequest request) {
+                                HttpServletRequest request, Authentication authentication) {
         try {
-            System.out.println(shoppingListItemRequestDTO);
-            String result = shoppingListService.addIngredientToList(shoppingListItemRequestDTO);
+            String result = shoppingListService.addIngredientToList(shoppingListItemRequestDTO, userService.findUserByUsername(authentication.getName()));
             System.out.println(result);
             redirectAttributes.addFlashAttribute("success", result);
         } catch (Exception ex) {

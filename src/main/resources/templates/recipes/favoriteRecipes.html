@@ -22,7 +22,7 @@
 </div>
 <div class="container mt-5">
     <h1 class="text-center text-secondary mb-4">Mis Recetas Favoritas</h1>
-    <div th:if="${recipes != null && not #lists.isEmpty(recipes.content)}">
+    <div th:if="${recipes != null && !recipes.isEmpty()}">
         <div th:each="recipe : ${recipes.content}" class="card mb-3 bg-primary">
             <a th:href="@{/recipe/{id}(id=${recipe.recipeId})}" class="text-decoration-none text-dark">
                 <div class="row no-gutters">
@@ -42,7 +42,7 @@
                 </div>
             </a>
         </div>
-        <nav aria-label="Page navigation">
+        <nav aria-label="Page navigation" th:if="${recipes.totalPages >= 1}">
             <ul class="pagination justify-content-center">
                 <li class="page-item" th:classappend="${recipes.hasPrevious()} ? '' : 'disabled'">
                     <a class="page-link"
@@ -62,8 +62,9 @@
             </ul>
         </nav>
     </div>
-    <div th:if="${recipes == null or #lists.isEmpty(recipes.content)}" class="alert alert-danger text-center">
-        <p>No tienes ninguna receta favorita.</p>
+    <hr>
+    <div th:if="${recipes != null && recipes.isEmpty()}" class="alert alert-warning">
+        No tienes ninguna receta favorita.
     </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>

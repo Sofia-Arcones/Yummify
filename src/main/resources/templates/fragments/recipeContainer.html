@@ -41,7 +41,6 @@
     }
 </style>
 <body>
-<!-- Fragmento de Thymeleaf para el contenedor de recetas -->
 <div th:fragment="recipesContainer">
     <div id="recipesContainer">
         <div th:each="recipe : ${recipes.content}" class="col-12 mb-4">
@@ -66,7 +65,7 @@
                 </a>
             </div>
         </div>
-        <nav aria-label="Page navigation">
+        <nav aria-label="Page navigation" th:if="${recipes.totalPages >= 1}">
             <ul class="pagination justify-content-center">
                 <li class="page-item" th:classappend="${recipes.hasPrevious()} ? '' : 'disabled'">
                     <a class="page-link"
