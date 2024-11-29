@@ -225,8 +225,9 @@ function toggleQuantityField(unitSelect) {
         <span th:if="${recipe != null}">Edita tu receta: <span th:text="${recipe.title}"></span></span>
         <span th:unless="${recipe != null}">Inspírate: Diseña Tu Propia Receta</span>
     </h2>
-    <form th:action="@{/recipe}" method="post" enctype="multipart/form-data">
-
+    <form th:action="@{${recipe != null} ? '/recipe/update' : '/recipe'}" method="post"
+          enctype="multipart/form-data">
+        <input type="hidden" th:if="${recipe != null}" th:value="${recipe.recipeId}" name="recipeId"/>
         <div class="mb-3">
             <label for="title">Título</label>
             <input type="text" id="title" name="title" placeholder="Introduce el título de tu receta" required
@@ -243,8 +244,10 @@ function toggleQuantityField(unitSelect) {
 
         <div class="mb-3">
             <label for="image">Imagen</label>
-            <input type="file" id="image" name="image" accept="image/*" required class="form-control-file">
+            <input type="file" id="image" name="image" accept="image/*"
+                   th:required="${recipe == null}" class="form-control-file">
         </div>
+
 
         <div class="mb-3">
             <label for="difficulty">Dificultad</label>
@@ -370,7 +373,7 @@ function toggleQuantityField(unitSelect) {
                         <span th:text="${tag}"></span>
                         <button class="ml-1 btn btn-danger"
                                 style="width: 18px; height: 18px; padding: 0; font-size: 12px; display: flex; justify-content: center; align-items: center;"
-                                onclick="removeTag(this)">
+                                onclick="this.closest('.badge').remove()">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </div>
@@ -385,6 +388,9 @@ function toggleQuantityField(unitSelect) {
     <br>
     <div th:if="${error}" class="alert alert-danger">
         <p th:text="${error}"></p>
+    </div>
+    <div th:if="${success}" class="alert alert-success" role="alert">
+        <span th:text="${success}"></span>
     </div>
 </div>
 </body>

@@ -145,6 +145,25 @@ public class RecipeServiceImpl implements RecipeService {
         return recipeRepository.findByUser(user);
     }
 
+    @Override
+    public void updateRecipe(RecipeRequestDTO recipeRequestDTO, Authentication authentication) {
+        User user = userService.findUserByUsername(authentication.getName());
+        Recipe recipe = findRecipeById(recipeRequestDTO.getRecipeId());
+
+        if (!recipe.getUser().equals(user)) {
+            throw new IllegalArgumentException("No puedes editar una receta que no es tuya.");
+        }
+
+        updateRecipeFields(recipeRequestDTO, recipe, user);
+
+        recipe = recipeRepository.save(recipe);
+
+        String description = "El usuario '" + user.getUsername() + "' ha actualizado la receta '" + recipe.getTitle() + "' (ID: " + recipe.getRecipeId() + ")";
+        ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, recipe.getRecipeId(), RelatedEntity.RECIPE, ActivityType.RECIPE_UPDATED, description);
+        activityLogService.createActivityLog(activityLogRequestDTO);
+    }
+
+
     // ========================
     // Gestión de Favoritos
     // ========================
@@ -226,6 +245,46 @@ public class RecipeServiceImpl implements RecipeService {
         MultipartFile image = recipeRequestDTO.getImage();
         recipe.setImage(handleImageUpload(image));
         return recipe;
+    }
+
+    private void updateRecipeFields(RecipeRequestDTO recipeRequestDTO, Recipe recipe, User user) {
+        recipe.setTitle(recipeRequestDTO.getTitle());
+        recipe.setDescription(recipeRequestDTO.getDescription());
+        recipe.setPrepTime(recipeRequestDTO.getPrepTime());
+        recipe.setPortions(recipeRequestDTO.getPortions());
+        recipe.setDifficulty(Difficulty.valueOf(recipeRequestDTO.getDifficulty()));
+        List<RecipeIngredient> recipeIngredients = recipe.getIngredients();
+        for (RecipeIngredient recipeIngredient : recipeIngredients) {
+            recipeIngredientRepository.delete(recipeIngredient);
+        }
+
+        List<RecipeIngredient> updatedIngredients = mapRecipeIngredients(recipeRequestDTO, user);
+        for (RecipeIngredient ingredient : updatedIngredients) {
+            ingredient.setRecipe(recipe);
+            recipeIngredientRepository.save(ingredient);
+        }
+        recipe.setIngredients(updatedIngredients);
+
+        recipe.setInstructions(joinInstructions(recipeRequestDTO.getInstructions()));
+        System.out.println("TAGS: " + recipeRequestDTO.getTags());
+        if (recipeRequestDTO.getTags() != null && !recipeRequestDTO.getTags().isEmpty()) {
+            List<Tag> tagList = new ArrayList<>();
+            for (String tagName : recipeRequestDTO.getTags()) {
+                Tag tag = tagService.findOrCreateTag(tagName);
+                if (!recipe.getTags().contains(tag)) {
+                    tagList.add(tag);
+                }
+            }
+            if (!tagList.isEmpty()) {
+                recipe.getTags().addAll(tagList);
+            }
+        }
+
+        MultipartFile image = recipeRequestDTO.getImage();
+        if (image != null && !image.isEmpty()) {
+            deleteImageFile(recipe.getImage());
+            recipe.setImage(handleImageUpload(image));
+        }
     }
 
     private List<RecipeIngredient> mapRecipeIngredients(RecipeRequestDTO recipeRequestDTO, User user) {

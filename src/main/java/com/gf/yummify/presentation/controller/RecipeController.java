@@ -9,6 +9,7 @@ import com.gf.yummify.data.enums.UnitOfMeasure;
 import com.gf.yummify.presentation.dto.FavoriteRecipeDTO;
 import com.gf.yummify.presentation.dto.IngredientAutocompleteDTO;
 import com.gf.yummify.presentation.dto.RecipeRequestDTO;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -128,5 +129,21 @@ public class RecipeController {
 
         }
         return "recipes/createRecipeForm";
+    }
+
+    @PostMapping("/update")
+    public String updateRecipe(@ModelAttribute @Valid RecipeRequestDTO requestDTO,
+                               Authentication authentication,
+                               Model model,
+                               RedirectAttributes redirectAttributes,
+                               HttpServletRequest request) {
+        try {
+            recipeService.updateRecipe(requestDTO, authentication);
+            redirectAttributes.addFlashAttribute("success", "Receta actualizada correctamente");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/update");
     }
 }

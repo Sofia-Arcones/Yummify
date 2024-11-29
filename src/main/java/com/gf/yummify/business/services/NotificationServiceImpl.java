@@ -29,8 +29,9 @@ public class NotificationServiceImpl implements NotificationService {
     private IngredientService ingredientService;
     private RatingService ratingService;
     private RelationshipService relationshipService;
+    private RecipeService recipeService;
 
-    public NotificationServiceImpl(NotificationRepository notificationRepository, @Lazy UserService userService, NotificationMapper notificationMapper, @Lazy ChallengeService challengeService, @Lazy CommentService commentService, @Lazy IngredientService ingredientService, @Lazy RatingService ratingService, @Lazy RelationshipService relationshipService) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository, @Lazy UserService userService, NotificationMapper notificationMapper, @Lazy ChallengeService challengeService, @Lazy CommentService commentService, @Lazy IngredientService ingredientService, @Lazy RatingService ratingService, @Lazy RelationshipService relationshipService, @Lazy RecipeService recipeService) {
         this.notificationRepository = notificationRepository;
         this.userService = userService;
         this.notificationMapper = notificationMapper;
@@ -39,6 +40,7 @@ public class NotificationServiceImpl implements NotificationService {
         this.ingredientService = ingredientService;
         this.ratingService = ratingService;
         this.relationshipService = relationshipService;
+        this.recipeService = recipeService;
     }
 
     @Override
@@ -95,6 +97,7 @@ public class NotificationServiceImpl implements NotificationService {
         Ingredient ingredient;
         Rating rating;
         Challenge challenge;
+        Recipe recipe;
         switch (activityLog.getActivityType()) {
             case FRIENDSHIP_REQUESTED:
                 user = findRelatedUser(activityLog);
@@ -189,6 +192,10 @@ public class NotificationServiceImpl implements NotificationService {
                     createNotification(relationship.getSender(), content, activityLog, notificationList);
                 }
                 break;
+            case RECIPE_UPDATED:
+                recipe = recipeService.findRecipeById(activityLog.getRelatedEntityId());
+                content = "Has actualizado tu receta '" + recipe.getTitle() + "' correctamente.";
+                createNotification(activityLog.getUser(), content, activityLog, notificationList);
             case PROFILE_EDITED:
                 content = "¡Has actualizado correctamente tu perfil!";
                 createNotification(activityLog.getUser(), content, activityLog, notificationList);
