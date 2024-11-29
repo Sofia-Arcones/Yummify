@@ -19,17 +19,6 @@
             align-items: center;
             justify-content: center;
         }
-        .jumbotron {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2em;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 600px;
-        }
     </style>
     <script th:inline="javascript">
         let units = [[${unidades}]];
@@ -229,36 +218,49 @@ function toggleQuantityField(unitSelect) {
     <div th:replace="~{fragments/header :: header}"></div>
 </div>
 <br>
-<div class="jumbotron">
-    <h2 class="display-4 custom-title text-center">Inspírate: Diseña Tu Propia Receta</h2>
+<div class="container mt-5">
+    <h2 class="text-center text-secondary">Inspírate: Diseña Tu Propia Receta</h2>
     <form th:action="@{/recipe}" method="post" enctype="multipart/form-data">
-        <div class="form-group">
+
+        <div class="mb-3">
             <label for="title">Título</label>
             <input type="text" id="title" name="title" placeholder="Introduce el título de tu receta" required
                    class="form-control">
-            <hr>
+        </div>
+
+        <div class="mb-3">
             <label for="description">Descripción</label>
             <textarea id="description" name="description" class="form-control" rows="3"
                       placeholder="Describe brevemente la receta (opcional)"></textarea>
-            <hr>
+        </div>
+
+        <div class="mb-3">
             <label for="image">Imagen</label>
             <input type="file" id="image" name="image" accept="image/*" required class="form-control-file">
-            <hr>
+        </div>
+
+        <div class="mb-3">
             <label for="difficulty">Dificultad</label>
             <select id="difficulty" name="difficulty" class="form-control col-md-3 ml-2" required>
                 <option th:each="dificultad : ${dificultades}" th:value="${dificultad}"
                         th:text="${dificultad}"></option>
             </select>
-            <hr>
+        </div>
+
+        <div class="mb-3">
             <label for="prepTime">Tiempo de Preparación (minutos)</label>
             <input type="number" id="prepTime" name="prepTime"
                    placeholder="Indica el tiempo aproximado de preparación en minutos" required class="form-control"
                    min="1">
-            <hr>
+        </div>
+
+        <div class="mb-3">
             <label for="portions">Cantidad de comensales</label>
             <input type="number" id="portions" name="portions"
                    placeholder="Especifica para cuántas personas es la receta" required class="form-control" min="1">
-            <hr>
+        </div>
+
+        <div class="mb-3">
             <label>Ingredientes</label>
             <div id="ingredient-container">
                 <div class="form-row align-items-center mb-2">
@@ -275,8 +277,9 @@ function toggleQuantityField(unitSelect) {
                 <button type="button" class="btn btn-primary mt-2" onclick="addIngredient()">Añadir Ingrediente
                 </button>
             </div>
-            <hr>
+        </div>
 
+        <div class="mb-3">
             <label>Instrucciones</label>
             <div id="instruction-container">
                 <div class="input-group mb-2">
@@ -289,18 +292,22 @@ function toggleQuantityField(unitSelect) {
                 <button type="button" class="btn btn-primary mt-2" onclick="addInstruction()">Añadir Instrucción
                 </button>
             </div>
-            <hr>
+        </div>
+
+        <div class="mb-3">
             <label>Etiquetas</label>
             <div id="tags-container" class="mb-3">
                 <input name="tags" type="text" id="tags-input" placeholder="Añadir etiqueta y presionar Enter"
                        class="form-control">
             </div>
-            <div id="tags-list" class="d-flex flex-wrap"></div>
-            <div class="d-flex justify-content-center mt-3">
-                <button type="submit" class="btn btn-primary">Crear Receta</button>
-            </div>
+        </div>
+        <div id="tags-list" class="d-flex flex-wrap"></div>
+        
+        <div class="d-flex justify-content-center mt-3">
+            <button type="submit" class="btn btn-primary">Crear Receta</button>
         </div>
     </form>
+    <br>
     <div th:if="${error}" class="alert alert-danger">
         <p th:text="${error}"></p>
     </div>

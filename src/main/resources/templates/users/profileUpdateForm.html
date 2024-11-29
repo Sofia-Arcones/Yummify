@@ -43,12 +43,16 @@
         <div class="mb-3">
             <label for="bio" class="form-label">Bio</label>
             <textarea class="form-control" id="bio" name="bio" rows="3"
+                      placeholder="Escribe la descripción de tu perfil"
                       th:text="${user != null && user.bio != null ? user.bio : ''}"></textarea>
         </div>
 
         <div class="mb-3">
             <label for="gender" class="form-label">Género</label>
             <select class="form-control" id="gender" name="gender">
+                <option value="" th:disabled="${user.gender == null}" th:selected="${user.gender == null}" disabled>
+                    Elige tu género
+                </option>
                 <th:block th:each="gender : ${genders}">
                     <option th:value="${gender}" th:text="${gender}" th:selected="${gender == user.gender}"></option>
                 </th:block>
@@ -64,6 +68,7 @@
         <div class="mb-3">
             <label for="location" class="form-label">Ubicación</label>
             <input type="text" class="form-control" id="location" name="location"
+                   placeholder="Pon tu lugar de nacimiento o donde resides."
                    th:value="${user != null && user.location != null ? user.location : ''}">
         </div>
         <button type="submit" class="btn btn-primary">Guardar</button>
