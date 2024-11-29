@@ -2,7 +2,9 @@ package com.gf.yummify.presentation.controller;
 
 import com.gf.yummify.business.services.RelationshipService;
 import com.gf.yummify.business.services.UserService;
-import com.gf.yummify.data.entity.User;
+import com.gf.yummify.data.enums.Gender;
+import com.gf.yummify.presentation.dto.ProfileUpdateDTO;
+import com.gf.yummify.presentation.dto.ProfileUpdateRequestDTO;
 import com.gf.yummify.presentation.dto.RegisterDTO;
 import com.gf.yummify.presentation.dto.UserResponseDTO;
 import jakarta.transaction.Transactional;
@@ -12,8 +14,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class UserController {
@@ -62,7 +66,7 @@ public class UserController {
     @GetMapping("/users/profile/{username}")
     public String viewProfile(@PathVariable String username, Model model, Authentication authentication) {
         try {
-            UserResponseDTO profileUser = userService.findProfileUser(username,relationshipService.followersNumber(username),relationshipService.friendsNumber(username));
+            UserResponseDTO profileUser = userService.findProfileUser(username, relationshipService.followersNumber(username), relationshipService.friendsNumber(username));
             model.addAttribute("user", profileUser);
             if (authentication != null && authentication.isAuthenticated()) {
                 model.addAttribute("isOwnProfile", userService.checkUserAuthentication(authentication.getName(), profileUser.getUsername()));
@@ -79,4 +83,37 @@ public class UserController {
             return "error";
         }
     }
+
+    @GetMapping("/profile/update")
+    public String showProfileUpdate(Authentication authentication,
+                                    Model model) {
+        try {
+            ProfileUpdateDTO profileUpdateDTO = userService.getProfileUpdateDTO(authentication);
+            model.addAttribute("genders", Gender.values());
+            model.addAttribute("user", profileUpdateDTO);
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+            return "error";
+        }
+        return "users/profileUpdateForm";
+    }
+
+    @PostMapping("/profile/update")
+    public String profileUpdate(Authentication authentication,
+                                Model model,
+                                @ModelAttribute @Valid ProfileUpdateRequestDTO profileUpdateRequestDTO,
+                                RedirectAttributes redirectAttributes) {
+        try {
+            userService.updateProfile(authentication, profileUpdateRequestDTO);
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+            model.addAttribute("user", profileUpdateRequestDTO);
+            model.addAttribute("genders", Gender.values());
+            return "users/profileUpdateForm";
+        }
+        redirectAttributes.addFlashAttribute("success", "Perfil actualizado correctamente");
+        return "redirect:/profile/update";
+    }
+
+
 }
