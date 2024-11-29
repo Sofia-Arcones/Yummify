@@ -7,14 +7,15 @@ import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 public class RecipeRequestDTO {
+    private UUID recipeId;
     @NotBlank(message = "El título es obligatorio.")
     private String title;
     private String description;
-    @NotNull(message = "La imagen es obligatoria.")
     private MultipartFile image;
     @NotNull(message = "La dificultad es obligatoria.")
     private String difficulty;

@@ -20,6 +20,8 @@ public interface RecipeService {
 
     void deleteRecipe(UUID id, Authentication authentication);
 
+    void updateRecipe(RecipeRequestDTO recipeRequestDTO, Authentication authentication);
+
     RecipeResponseDTO getRecipeResponseDTO(UUID id);
 
     List<Recipe> findRecipesByUser(Authentication authentication);

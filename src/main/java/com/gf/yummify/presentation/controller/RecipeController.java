@@ -9,6 +9,7 @@ import com.gf.yummify.data.enums.UnitOfMeasure;
 import com.gf.yummify.presentation.dto.FavoriteRecipeDTO;
 import com.gf.yummify.presentation.dto.IngredientAutocompleteDTO;
 import com.gf.yummify.presentation.dto.RecipeRequestDTO;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -19,8 +20,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/recipe")
@@ -37,14 +40,10 @@ public class RecipeController {
 
     @GetMapping("/create")
     public String recipeForm(Model model) {
-        List<String> units = Arrays.stream(UnitOfMeasure.values()).map(Enum::name).collect(Collectors.toList());
-        model.addAttribute("unidades", units);
-
+        model.addAttribute("unidades", UnitOfMeasure.values());
         model.addAttribute("dificultades", Difficulty.values());
-
         List<IngredientAutocompleteDTO> ingredients = ingredientService.getApprovedIngredientsForAutocomplete();
         model.addAttribute("ingredientes", ingredients);
-
         return "recipes/createRecipeForm";
     }
 
@@ -116,5 +115,35 @@ public class RecipeController {
             model.addAttribute("error", ex.getMessage());
         }
         return "/recipes/favoriteRecipes";
+    }
+
+    @GetMapping("/update/{id}")
+    public String getRecipeUpdateForm(@PathVariable UUID id, Authentication authentication, Model model) {
+        try {
+            model.addAttribute("unidades", UnitOfMeasure.values());
+            model.addAttribute("dificultades", Difficulty.values());
+            List<IngredientAutocompleteDTO> ingredients = ingredientService.getApprovedIngredientsForAutocomplete();
+            model.addAttribute("ingredientes", ingredients);
+            model.addAttribute("recipe", recipeService.getRecipeResponseDTO(id));
+        } catch (Exception ex) {
+
+        }
+        return "recipes/createRecipeForm";
+    }
+
+    @PostMapping("/update")
+    public String updateRecipe(@ModelAttribute @Valid RecipeRequestDTO requestDTO,
+                               Authentication authentication,
+                               Model model,
+                               RedirectAttributes redirectAttributes,
+                               HttpServletRequest request) {
+        try {
+            recipeService.updateRecipe(requestDTO, authentication);
+            redirectAttributes.addFlashAttribute("success", "Receta actualizada correctamente");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/update");
     }
 }

@@ -36,6 +36,7 @@ public interface RecipeMapper {
     @Mapping(target = "image", ignore = true)
     Recipe toRecipe(RecipeRequestDTO recipeRequestDTO);
 
+    @Mapping(target = "recipeId", source = "recipe.recipeId")
     @Mapping(target = "title", source = "recipe.title")
     @Mapping(target = "description", source = "recipe.description")
     @Mapping(target = "image", source = "recipe.image")

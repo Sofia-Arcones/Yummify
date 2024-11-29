@@ -8,11 +8,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class RecipeResponseDTO {
+    private UUID recipeId;
     @NotBlank(message = "El título es obligatorio.")
     private String title;
     @NotBlank(message = "La descripción es obligatoria.")
