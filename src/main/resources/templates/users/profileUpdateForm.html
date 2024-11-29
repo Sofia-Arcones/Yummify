@@ -54,7 +54,9 @@
                     Elige tu género
                 </option>
                 <th:block th:each="gender : ${genders}">
-                    <option th:value="${gender}" th:text="${gender}" th:selected="${gender == user.gender}"></option>
+                    <option th:value="${gender}"
+                            th:text="${gender}"
+                            th:selected="${gender == user.gender}"></option>
                 </th:block>
             </select>
         </div>

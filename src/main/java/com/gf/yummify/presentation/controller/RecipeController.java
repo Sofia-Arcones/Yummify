@@ -19,8 +19,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/recipe")
@@ -37,14 +39,10 @@ public class RecipeController {
 
     @GetMapping("/create")
     public String recipeForm(Model model) {
-        List<String> units = Arrays.stream(UnitOfMeasure.values()).map(Enum::name).collect(Collectors.toList());
-        model.addAttribute("unidades", units);
-
+        model.addAttribute("unidades", UnitOfMeasure.values());
         model.addAttribute("dificultades", Difficulty.values());
-
         List<IngredientAutocompleteDTO> ingredients = ingredientService.getApprovedIngredientsForAutocomplete();
         model.addAttribute("ingredientes", ingredients);
-
         return "recipes/createRecipeForm";
     }
 
@@ -116,5 +114,19 @@ public class RecipeController {
             model.addAttribute("error", ex.getMessage());
         }
         return "/recipes/favoriteRecipes";
+    }
+
+    @GetMapping("/update/{id}")
+    public String getRecipeUpdateForm(@PathVariable UUID id, Authentication authentication, Model model) {
+        try {
+            model.addAttribute("unidades", UnitOfMeasure.values());
+            model.addAttribute("dificultades", Difficulty.values());
+            List<IngredientAutocompleteDTO> ingredients = ingredientService.getApprovedIngredientsForAutocomplete();
+            model.addAttribute("ingredientes", ingredients);
+            model.addAttribute("recipe", recipeService.getRecipeResponseDTO(id));
+        } catch (Exception ex) {
+
+        }
+        return "recipes/createRecipeForm";
     }
 }
