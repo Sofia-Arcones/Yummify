@@ -24,7 +24,7 @@ public class NotificationController {
     public String showNotifications(Authentication authentication,
                                     Model model,
                                     @RequestParam(value = "page", defaultValue = "0") int page,
-                                    @RequestParam(value = "size", defaultValue = "5") int size) {
+                                    @RequestParam(value = "size", defaultValue = "7") int size) {
         model.addAttribute("notifications", notificationService.getNotificationFromLastMonth(authentication, page, size));
         return "notifications/notifications";
     }

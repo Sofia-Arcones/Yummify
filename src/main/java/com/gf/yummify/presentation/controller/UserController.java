@@ -4,6 +4,7 @@ import com.gf.yummify.business.services.RelationshipService;
 import com.gf.yummify.business.services.UserService;
 import com.gf.yummify.data.enums.Gender;
 import com.gf.yummify.presentation.dto.ProfileUpdateDTO;
+import com.gf.yummify.presentation.dto.ProfileUpdateRequestDTO;
 import com.gf.yummify.presentation.dto.RegisterDTO;
 import com.gf.yummify.presentation.dto.UserResponseDTO;
 import jakarta.transaction.Transactional;
@@ -13,10 +14,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-
-import java.time.format.DateTimeFormatter;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class UserController {
@@ -83,9 +84,9 @@ public class UserController {
         }
     }
 
-    @GetMapping("/profile/edit")
-    public String profileEdit(Authentication authentication,
-                              Model model) {
+    @GetMapping("/profile/update")
+    public String showProfileUpdate(Authentication authentication,
+                                    Model model) {
         try {
             ProfileUpdateDTO profileUpdateDTO = userService.getProfileUpdateDTO(authentication);
             model.addAttribute("genders", Gender.values());
@@ -96,5 +97,23 @@ public class UserController {
         }
         return "users/profileUpdateForm";
     }
+
+    @PostMapping("/profile/update")
+    public String profileUpdate(Authentication authentication,
+                                Model model,
+                                @ModelAttribute @Valid ProfileUpdateRequestDTO profileUpdateRequestDTO,
+                                RedirectAttributes redirectAttributes) {
+        try {
+            userService.updateProfile(authentication, profileUpdateRequestDTO);
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+            model.addAttribute("user", profileUpdateRequestDTO);
+            model.addAttribute("genders", Gender.values());
+            return "users/profileUpdateForm";
+        }
+        redirectAttributes.addFlashAttribute("success", "Perfil actualizado correctamente");
+        return "redirect:/profile/update";
+    }
+
 
 }

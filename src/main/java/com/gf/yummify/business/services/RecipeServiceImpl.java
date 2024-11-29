@@ -269,14 +269,20 @@ public class RecipeServiceImpl implements RecipeService {
         return Arrays.asList(instructions.split("\\|~\\|"));
     }
 
-    public String handleImageUpload(MultipartFile image) {
+    private String handleImageUpload(MultipartFile image) {
         if (image.isEmpty()) {
             throw new IllegalArgumentException("La receta debe tener una imagen");
         }
         if (!isImageValid(image)) {
             throw new IllegalArgumentException("Tipo de archivo no permitido o archivo vacío. Solo se permiten: JPEG, PNG.");
         }
-
+        File uploadDir = new File(UPLOAD_DIR);
+        if (!uploadDir.exists()) {
+            boolean dirCreated = uploadDir.mkdirs();
+            if (!dirCreated) {
+                throw new RuntimeException("No se pudo crear el directorio de subida: " + UPLOAD_DIR);
+            }
+        }
         String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
         File outputFile = new File(UPLOAD_DIR, fileName);
 

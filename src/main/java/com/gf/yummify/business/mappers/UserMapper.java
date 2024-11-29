@@ -2,6 +2,7 @@ package com.gf.yummify.business.mappers;
 
 import com.gf.yummify.data.entity.User;
 import com.gf.yummify.presentation.dto.ProfileUpdateDTO;
+import com.gf.yummify.presentation.dto.ProfileUpdateRequestDTO;
 import com.gf.yummify.presentation.dto.RegisterDTO;
 import com.gf.yummify.presentation.dto.UserResponseDTO;
 import org.mapstruct.Mapper;
@@ -28,8 +29,12 @@ public interface UserMapper {
     @Mapping(target = "recipes", source = "user.recipes")
     UserResponseDTO toUserResponseDTO(User user);
 
-    @Mapping(target = "password", ignore = true)
     @Mapping(target = "formattedBirthday", ignore = true)
     ProfileUpdateDTO toProfileUpdateDTO(User user);
+
+
+    @Mapping(target = "birthday", ignore = true)
+    @Mapping(target = "avatar", ignore = true)
+    User toUser(ProfileUpdateRequestDTO profileUpdateRequestDTO);
 }
 

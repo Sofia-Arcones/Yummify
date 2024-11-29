@@ -75,6 +75,7 @@ public class NotificationServiceImpl implements NotificationService {
         }
         notificationRepository.save(notification);
     }
+
     @Override
     public long countUnreadNotifications(String username) {
         User user = userService.findUserByUsername(username);
@@ -187,6 +188,10 @@ public class NotificationServiceImpl implements NotificationService {
                 for (Relationship relationship : relationships) {
                     createNotification(relationship.getSender(), content, activityLog, notificationList);
                 }
+                break;
+            case PROFILE_EDITED:
+                content = "¡Has actualizado correctamente tu perfil!";
+                createNotification(activityLog.getUser(), content, activityLog, notificationList);
                 break;
         }
         return notificationList;
