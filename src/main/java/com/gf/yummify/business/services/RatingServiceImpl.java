@@ -44,6 +44,9 @@ public class RatingServiceImpl implements RatingService {
     public void addRating(UUID recipeId, Double rate, String commentContent, Authentication authentication) {
         User user = userService.findUserByUsername(authentication.getName());
         Recipe recipe = recipeService.findRecipeById(recipeId);
+        if (ratingRepository.existsByUserAndRecipe(user, recipe)) {
+            throw new IllegalArgumentException("Ya has valorado esta receta");
+        }
         Rating rating = new Rating();
         rating.setRating(rate);
         rating.setUser(user);
