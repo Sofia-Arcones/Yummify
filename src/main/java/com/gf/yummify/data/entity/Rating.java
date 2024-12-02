@@ -9,8 +9,10 @@ import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Data
 @Entity
@@ -58,6 +60,11 @@ public class Rating {
         if (lastModification != null) {
             this.formattedLastModification = lastModification.format(FORMATTER);
         }
+    }
+    public List<Comment> getComments() {
+        return comments.stream()
+                .sorted(Comparator.comparing(Comment::getCommentDate))
+                .collect(Collectors.toList());
     }
 
     @PreUpdate

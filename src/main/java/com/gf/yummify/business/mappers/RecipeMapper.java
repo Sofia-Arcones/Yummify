@@ -44,7 +44,7 @@ public interface RecipeMapper {
     @Mapping(target = "prepTime", source = "recipe.prepTime")
     @Mapping(target = "instructions", ignore = true)
     @Mapping(target = "portions", source = "recipe.portions")
-    @Mapping(target = "ratings", source = "recipe.ratings")
+    @Mapping(target = "ratings", ignore = true)
     @Mapping(target = "tags", source = "recipe.tags")
     @Mapping(target = "average", ignore = true)
     @Mapping(target = "ingredients", ignore = true)

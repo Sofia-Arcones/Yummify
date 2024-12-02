@@ -38,11 +38,12 @@ public class RecipeServiceImpl implements RecipeService {
     private final TagService tagService;
     private final RecipeMapper recipeMapper;
     private final ActivityLogService activityLogService;
+    private final RatingService ratingService;
 
     private static final String UPLOAD_DIR = "src/main/resources/static/images/uploads/recipes";
     private static final List<String> ALLOWED_CONTENT_TYPES = Arrays.asList("image/jpeg", "image/png");
 
-    public RecipeServiceImpl(RecipeRepository recipeRepository, FavoriteRecipeRepository favoriteRecipeRepository, UserService userService, RecipeIngredientRepository recipeIngredientRepository, IngredientService ingredientService, TagService tagService, RecipeMapper recipeMapper, ActivityLogService activityLogService) {
+    public RecipeServiceImpl(RecipeRepository recipeRepository, FavoriteRecipeRepository favoriteRecipeRepository, UserService userService, RecipeIngredientRepository recipeIngredientRepository, IngredientService ingredientService, TagService tagService, RecipeMapper recipeMapper, ActivityLogService activityLogService, RatingService ratingService) {
         this.recipeRepository = recipeRepository;
         this.favoriteRecipeRepository = favoriteRecipeRepository;
         this.userService = userService;
@@ -51,6 +52,7 @@ public class RecipeServiceImpl implements RecipeService {
         this.tagService = tagService;
         this.recipeMapper = recipeMapper;
         this.activityLogService = activityLogService;
+        this.ratingService = ratingService;
     }
 
     // ========================
@@ -317,6 +319,8 @@ public class RecipeServiceImpl implements RecipeService {
         recipeResponseDTO.setIngredients(ingredients);
         recipeResponseDTO.setQuantities(quantities);
         recipeResponseDTO.setUnits(units);
+        recipeResponseDTO.setRatings(ratingService.mapToRatingDTO(recipe));
+        System.out.println("RATINGS : " + recipeResponseDTO.getRatings());
         return recipeResponseDTO;
     }
 
