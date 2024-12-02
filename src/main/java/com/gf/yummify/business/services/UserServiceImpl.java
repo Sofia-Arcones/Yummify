@@ -229,9 +229,8 @@ public class UserServiceImpl implements UserService {
     }
 
     private void deleteImageFile(String imagePath) {
-        if (imagePath != null && !imagePath.isEmpty()) {
+        if (imagePath != null && !imagePath.isEmpty() && !imagePath.equals("/images/uploads/default_avatar.png")) {
             Path path = Paths.get("src/main/resources/static" + imagePath);
-
             try {
                 if (Files.exists(path)) {
                     Files.delete(path);
