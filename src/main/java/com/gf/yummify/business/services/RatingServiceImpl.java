@@ -1,5 +1,6 @@
 package com.gf.yummify.business.services;
 
+import com.gf.yummify.business.mappers.RatingMapper;
 import com.gf.yummify.data.entity.Comment;
 import com.gf.yummify.data.entity.Rating;
 import com.gf.yummify.data.entity.Recipe;
@@ -8,14 +9,17 @@ import com.gf.yummify.data.enums.ActivityType;
 import com.gf.yummify.data.enums.RelatedEntity;
 import com.gf.yummify.data.repository.RatingRepository;
 import com.gf.yummify.presentation.dto.ActivityLogRequestDTO;
+import com.gf.yummify.presentation.dto.RatingDTO;
+import com.gf.yummify.presentation.dto.ReplyDTO;
 import jakarta.transaction.Transactional;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class RatingServiceImpl implements RatingService {
@@ -24,13 +28,15 @@ public class RatingServiceImpl implements RatingService {
     private UserService userService;
     private CommentService commentService;
     private ActivityLogService activityLogService;
+    private RatingMapper ratingMapper;
 
-    public RatingServiceImpl(RatingRepository ratingRepository, RecipeService recipeService, UserService userService, CommentService commentService, ActivityLogService activityLogService) {
+    public RatingServiceImpl(RatingRepository ratingRepository, @Lazy RecipeService recipeService, UserService userService, CommentService commentService, ActivityLogService activityLogService, RatingMapper ratingMapper) {
         this.ratingRepository = ratingRepository;
         this.recipeService = recipeService;
         this.userService = userService;
         this.commentService = commentService;
         this.activityLogService = activityLogService;
+        this.ratingMapper = ratingMapper;
     }
 
     @Transactional
@@ -59,13 +65,11 @@ public class RatingServiceImpl implements RatingService {
         Recipe recipe = recipeService.findRecipeById(recipeId);
         Rating rating = findRateById(rateId);
         if (commentContent != null && !commentContent.trim().isEmpty()) {
-            commentService.addComment(rating, commentContent, user);
+            Comment comment = commentService.addComment(rating, commentContent, user);
+            List<Comment> commentList = rating.getComments();
+            commentList.add(comment);
+            rating.setComments(commentList);
         }
-        rating.setComments(
-                rating.getComments().stream()
-                        .sorted(Comparator.comparing(Comment::getCommentDate))
-                        .collect(Collectors.toList())
-        );
     }
 
     @Override
@@ -74,4 +78,23 @@ public class RatingServiceImpl implements RatingService {
                 .orElseThrow(() -> new NoSuchElementException("El rate con id: " + id + " no existe"));
     }
 
+    @Override
+    public List<RatingDTO> mapToRatingDTO(Recipe recipe) {
+        List<RatingDTO> ratingDTOList = new ArrayList<>();
+        for (Rating rating : recipe.getRatings()) {
+            RatingDTO ratingDTO = ratingMapper.toRatingDTO(rating);
+            if (!rating.getComments().isEmpty()) {
+                ratingDTO.setComment(rating.getComments().get(0).getComment());
+                List<ReplyDTO> replyDTOList = new ArrayList<>();
+                for (int i = 1; i < rating.getComments().size(); i++) {
+                    Comment comment = rating.getComments().get(i);
+                    ReplyDTO replyDTO = ratingMapper.toReplyDTO(comment);
+                    replyDTOList.add(replyDTO);
+                }
+                ratingDTO.setReplies(replyDTOList);
+            }
+            ratingDTOList.add(ratingDTO);
+        }
+        return ratingDTOList;
+    }
 }

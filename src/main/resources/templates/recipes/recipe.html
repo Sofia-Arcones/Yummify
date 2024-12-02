@@ -129,6 +129,7 @@
         </div>
         <button type="submit" class="btn btn-primary">Enviar valoración</button>
     </form>
+    <br>
     <div th:if="${ratingSuccess}" class="alert alert-success text-center">
         <p th:text="${ratingSuccess}"></p>
     </div>
@@ -139,47 +140,47 @@
     <div class="mt-5">
         <h3 class="text-secondary text-center">Comentarios</h3>
         <div class="list-group">
-            <div th:each="rating : ${recipe.ratings}" th:if="${#lists.size(rating.comments) > 0}">
+            <div th:each="rating : ${recipe.ratings}" th:if="${rating.comment != null}">
                 <div class="list-group-item list-group-item-action flex-column align-items-start mb-3 shadow-sm">
                     <div class="d-flex w-100 align-items-center justify-content-between">
                         <div class="d-flex align-items-center">
-                            <img th:src="@{${rating.user.avatar}}" class="rounded-circle img-fluid img-size"
+                            <img th:src="@{${rating.userAvatar}}" class="rounded-circle img-fluid img-size"
                                  alt="Avatar del Usuario">
-                            <h5 class="mb-0 text-primary ml-2" th:text="${rating.user.username}">Usuario
+                            <h5 class="mb-0 text-primary ml-2" th:text="${rating.username}">Usuario
                                 Anónimo</h5>
                             <span class="badge bg-info text-white ml-2"
-                                  th:text="${rating.rating} + '/10'">5/10</span>
+                                  th:text="${rating.ratingValue} + '/10'">5/10</span>
                         </div>
-                        <small class="text-muted" th:text="${rating.formattedCreationDate}">Fecha</small>
+                        <small class="text-muted" th:text="${rating.formattedDate}">Fecha</small>
                     </div>
-                    <p class="mb-1 font-weight-bold" th:text="${rating.comments[0].comment}">Comentario inicial del
+                    <p class="mb-1 font-weight-bold" th:text="${rating.comment}">Comentario inicial del
                         usuario.</p>
                     <div class="ml-4 mt-3">
-                        <div th:each="reply : ${rating.comments}" th:if="${reply != rating.comments[0]}">
+                        <div th:each="reply : ${rating.replies}">
                             <div class="card my-2">
                             </div>
                             <div class="card-body p-2">
                                 <div class="d-flex w-100 align-items-center justify-content-between">
                                     <div class="d-flex align-items-center">
-                                        <img th:src="@{${reply.user.avatar}}"
+                                        <img th:src="@{${reply.userAvatar}}"
                                              class="rounded-circle img-fluid img-size"
                                              alt="Avatar del Usuario">
-                                        <h5 class="mb-0 text-secondary ml-2" th:text="${reply.user.username}">
+                                        <h5 class="mb-0 text-secondary ml-2" th:text="${reply.username}">
                                             Usuario Anónimo</h5>
                                     </div>
                                     <small class="text-muted"
-                                           th:text="${reply.formattedCommentDate}">Fecha</small>
+                                           th:text="${reply.formattedDate}">Fecha</small>
                                 </div>
                                 <p class="mb-0" th:text="${reply.comment}">Aquí va la respuesta del usuario.</p>
                             </div>
                         </div>
-                        <div th:if="${#lists.size(rating.comments) == 1}">
+                        <div th:if="${#lists.size(rating.replies) < 1}">
                             <small class="text-muted">No hay respuestas aún.</small>
                         </div>
                         <hr>
                         <form th:action="@{/rating/reply}" method="post">
                             <input type="hidden" name="recipeId" th:value="${recipeId}"/>
-                            <input type="hidden" name="rateId" th:value="${rating.rateId}"/>
+                            <input type="hidden" name="rateId" th:value="${rating.ratingId}"/>
                             <textarea name="comment" class="form-control" placeholder="Escribe tu comentario..."
                                       required></textarea>
                             <button type="submit" class="btn btn-primary mt-2">Comentar</button>
@@ -187,7 +188,7 @@
                     </div>
                 </div>
             </div>
-            <div th:if="${#lists.isEmpty(recipe.ratings) || !recipe.ratings.?[!#lists.isEmpty(comments)].size()}">
+            <div th:if="${#lists.isEmpty(recipe.ratings) || !recipe.ratings.?[!#lists.isEmpty(replies)].size()}">
                 <div class="alert alert-secondary text-center" role="alert">
                     No hay comentarios aún. ¡Sé el primero en dejar uno!
                 </div>

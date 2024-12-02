@@ -1,6 +1,5 @@
 package com.gf.yummify.presentation.dto;
 
-import com.gf.yummify.data.entity.Rating;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -36,6 +35,6 @@ public class RecipeResponseDTO {
     @NotNull(message = "Las instrucciones son obligatorias.")
     private List<String> instructions;
     private List<String> tags;
-    private List<Rating> ratings;
+    private List<RatingDTO> ratings;
     private Double average;
 }
