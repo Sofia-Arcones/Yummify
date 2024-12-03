@@ -6,6 +6,7 @@ import com.gf.yummify.presentation.dto.ChallengeResponseDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface ChallengeService {
@@ -20,5 +21,7 @@ public interface ChallengeService {
     ChallengeResponseDTO findChallengeWithPageParticipations(UUID challengeId, int size, int page);
 
     void addParticipationToChallenge(UUID challengeId, UUID recipeId, Authentication authentication);
+
+    void setWinners(List<UUID> participationsIds, UUID challengeId, Authentication authentication);
 
 }

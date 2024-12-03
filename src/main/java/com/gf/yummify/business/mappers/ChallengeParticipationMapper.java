@@ -11,6 +11,7 @@ public interface ChallengeParticipationMapper {
     @Mapping(source = "recipe.recipeId", target = "recipeId")
     @Mapping(source = "isWinner", target = "isWinner")
     @Mapping(source = "formattedParticipationDate", target = "formattedParticipationDate")
+    @Mapping(source = "challengeParticipationId", target = "challengeParticipationId")
     ChallengeParticipationResponseDTO toChallengeParticipationResponseDto(ChallengeParticipation challengeParticipation);
 
 }

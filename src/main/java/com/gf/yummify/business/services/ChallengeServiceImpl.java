@@ -2,6 +2,7 @@ package com.gf.yummify.business.services;
 
 import com.gf.yummify.business.mappers.ChallengeMapper;
 import com.gf.yummify.data.entity.Challenge;
+import com.gf.yummify.data.entity.ChallengeParticipation;
 import com.gf.yummify.data.entity.Recipe;
 import com.gf.yummify.data.entity.User;
 import com.gf.yummify.data.enums.ActivityType;
@@ -19,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -125,5 +127,29 @@ public class ChallengeServiceImpl implements ChallengeService {
         Recipe recipe = recipeService.findRecipeById(recipeId);
         Challenge challenge = findChallengeById(challengeId);
         challengeParticipationService.addChallengeParticipation(challenge, recipe, user);
+    }
+
+    @Override
+    public void setWinners(List<UUID> participationsIds, UUID challengeId, Authentication authentication) {
+        Challenge challenge = findChallengeById(challengeId);
+        long currentWinnerCount = challenge.getParticipations().stream()
+                .filter(ChallengeParticipation::getIsWinner)
+                .count();
+        long remainingWinnerSpots = challenge.getWinnerQuantity() - currentWinnerCount;
+        if (participationsIds.size() > remainingWinnerSpots) {
+            throw new IllegalArgumentException("Has seleccionado más ganadores de los permitidos por el desafío");
+        }
+        challengeParticipationService.findAndSetWinners(participationsIds);
+        long finalWinnerCount = challenge.getParticipations().stream()
+                .filter(ChallengeParticipation::getIsWinner)
+                .count();
+        if (finalWinnerCount == challenge.getWinnerQuantity()) {
+            challenge.setIsFinished(true);
+            challengeRepository.save(challenge);
+            User user = userService.findUserByUsername(authentication.getName());
+            String description = "El administrador '" + user.getUsername() + "' ha dado por finalizado el reto '" + challenge.getTitle() + "' (ID: " + challenge.getChallengeId() + ").";
+            ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, challenge.getChallengeId(), RelatedEntity.CHALLENGE, ActivityType.CHALLENGE_FINISHED, description);
+            activityLogService.createActivityLog(activityLogRequestDTO);
+        }
     }
 }

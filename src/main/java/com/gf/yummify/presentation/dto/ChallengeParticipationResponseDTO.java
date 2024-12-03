@@ -10,6 +10,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChallengeParticipationResponseDTO {
+    private UUID challengeParticipationId;
     private String username;
     private UUID recipeId;
     private Boolean isWinner;

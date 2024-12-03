@@ -16,7 +16,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Service
 public class ChallengeParticipationServiceImpl implements ChallengeParticipationService {
@@ -57,6 +59,25 @@ public class ChallengeParticipationServiceImpl implements ChallengeParticipation
     public ChallengeParticipation findParticipationByChallengeAndUser(Challenge challenge, User user) {
         return challengeParticipationRepository.findByChallengeAndUser(challenge, user)
                 .orElseThrow(() -> new NoSuchElementException("No existe ninguna participación con ese usuario."));
+    }
+
+    @Override
+    public void findAndSetWinners(List<UUID> winnersID) {
+        for (UUID id : winnersID) {
+            ChallengeParticipation participation = findChallengeParticipationById(id);
+            participation.setIsWinner(true);
+            challengeParticipationRepository.save(participation);
+            String description = "El usuario '" + participation.getUser().getUsername() + "' ha sido seleccionado ganador en el reto '" + participation.getChallenge().getTitle() + "' (ID: " + participation.getChallenge().getChallengeId() + ").";
+            ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(participation.getUser(), participation.getChallengeParticipationId(), RelatedEntity.CHALLENGE_PARTICIPATION, ActivityType.CHALLENGE_WINNER, description);
+            activityLogService.createActivityLog(activityLogRequestDTO);
+        }
+    }
+
+    @Override
+    public ChallengeParticipation findChallengeParticipationById(UUID challengeParticipationId) {
+        return challengeParticipationRepository
+                .findById(challengeParticipationId)
+                .orElseThrow(() -> new IllegalArgumentException("No existe ninguna participación con ID: " + challengeParticipationId));
     }
 }
 
