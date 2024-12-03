@@ -18,4 +18,6 @@ public interface ChallengeParticipationService {
     ChallengeParticipation findParticipationByChallengeAndUser(Challenge challenge, User user);
 
     void findAndSetWinners(List<UUID> winnersID);
+
+    ChallengeParticipation findChallengeParticipationById(UUID challengeParticipationId);
 }

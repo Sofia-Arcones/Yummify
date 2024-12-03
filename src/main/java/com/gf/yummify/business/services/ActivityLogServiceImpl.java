@@ -24,5 +24,4 @@ public class ActivityLogServiceImpl implements ActivityLogService {
         ActivityLog activityLog = activityLogRepository.save(activityLogMapper.toActivityLog(activityLogRequestDTO));
         notificationService.sendNotifications(activityLog);
     }
-
 }

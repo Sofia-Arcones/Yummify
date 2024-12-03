@@ -30,8 +30,9 @@ public class NotificationServiceImpl implements NotificationService {
     private RatingService ratingService;
     private RelationshipService relationshipService;
     private RecipeService recipeService;
+    private ChallengeParticipationService challengeParticipationService;
 
-    public NotificationServiceImpl(NotificationRepository notificationRepository, @Lazy UserService userService, NotificationMapper notificationMapper, @Lazy ChallengeService challengeService, @Lazy CommentService commentService, @Lazy IngredientService ingredientService, @Lazy RatingService ratingService, @Lazy RelationshipService relationshipService, @Lazy RecipeService recipeService) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository, @Lazy UserService userService, NotificationMapper notificationMapper, @Lazy ChallengeService challengeService, @Lazy CommentService commentService, @Lazy IngredientService ingredientService, @Lazy RatingService ratingService, @Lazy RelationshipService relationshipService, @Lazy RecipeService recipeService, @Lazy ChallengeParticipationService challengeParticipationService) {
         this.notificationRepository = notificationRepository;
         this.userService = userService;
         this.notificationMapper = notificationMapper;
@@ -41,6 +42,7 @@ public class NotificationServiceImpl implements NotificationService {
         this.ratingService = ratingService;
         this.relationshipService = relationshipService;
         this.recipeService = recipeService;
+        this.challengeParticipationService = challengeParticipationService;
     }
 
     @Override
@@ -107,6 +109,7 @@ public class NotificationServiceImpl implements NotificationService {
         Rating rating;
         Challenge challenge;
         Recipe recipe;
+        ChallengeParticipation challengeParticipation;
         switch (activityLog.getActivityType()) {
             case FRIENDSHIP_REQUESTED:
                 user = findRelatedUser(activityLog);
@@ -160,8 +163,8 @@ public class NotificationServiceImpl implements NotificationService {
                 createNotificationsForUsers(userList, content, activityLog, notificationList);
                 break;
             case CHALLENGE_WINNER:
-                challenge = challengeService.findChallengeById(activityLog.getRelatedEntityId());
-                content = "!Has ganado el reto '" + challenge.getTitle() + "'¡ Enhorabuena, contacta con un administrador para recibir tu premio.";
+                challengeParticipation = challengeParticipationService.findChallengeParticipationById(activityLog.getRelatedEntityId());
+                content = "!Has ganado el reto '" + challengeParticipation.getChallenge().getTitle() + "'¡ Enhorabuena, contacta con un administrador para recibir tu premio.";
                 createNotification(activityLog.getUser(), content, activityLog, notificationList);
                 break;
             case COMMENT_ADDED:

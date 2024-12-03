@@ -50,12 +50,11 @@
                         <th>Fecha de Participación</th>
                         <th>Estado</th>
                         <th>Seleccionar ganador</th>
+                        <th>Acciones</th> <!-- Nueva columna para el botón -->
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="participation : ${challenge.participations.content}"
-                        th:onclick="'window.location=\'' + @{/recipe/{id}(id=${participation.recipeId})} + '\''"
-                        class="text-decoration-none text-dark">
+                    <tr th:each="participation : ${challenge.participations.content}">
                         <td th:text="${participation.username}">Nombre del usuario</td>
                         <td th:text="${participation.formattedParticipationDate}">Fecha de participación</td>
                         <td>
@@ -66,13 +65,24 @@
                             <input type="checkbox" name="selectedWinners"
                                    th:value="${participation.challengeParticipationId}"
                                    th:disabled="${participation.isWinner}"/>
+                            <label th:for="selectedWinners" class="ms-2">
+                                <span th:if="${participation.isWinner}">Ya seleccionado</span>
+                                <span th:unless="${participation.isWinner}">Seleccionar</span>
+                            </label>
+                        </td>
+                        <td>
+                            <a th:href="@{/recipe/{id}(id=${participation.recipeId})}" class="btn btn-info btn-sm">
+                                <i class="fas fa-eye"></i> Ver receta
+                            </a>
                         </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
             <div class="text-center mt-4">
-                <button type="submit" class="btn btn-primary">Confirmar Ganadores</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-check-circle"></i> Confirmar Ganadores
+                </button>
             </div>
             <br>
             <div th:if="${success}" class="alert alert-success">
