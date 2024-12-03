@@ -23,6 +23,13 @@
                 <a class="nav-link text-white" href="/home">
                     <i class="fas fa-home"></i> Inicio</a>
             </li>
+            <li class="nav-item" sec:authorize="isAuthenticated()">
+                <form th:action="@{/relationships}" method="get">
+                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">
+                        <i class="fas fa-users"></i> Usuarios
+                    </button>
+                </form>
+            </li>
             <li class="nav-item" sec:authorize="hasRole('ROLE_USER')">
                 <form th:action="@{/challenges}" method="get">
                     <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">
@@ -30,14 +37,14 @@
                     </button>
                 </form>
             </li>
-            <li class="nav-item" sec:authorize="hasRole('ROLE_USER')">
+            <li class="nav-item" sec:authorize="isAuthenticated()">
                 <form th:action="@{/recipe/favorites}" method="get">
                     <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">
                         <i class="fas fa-heart"></i> Mis favoritas
                     </button>
                 </form>
             </li>
-            <li class="nav-item" sec:authorize="hasRole('ROLE_USER')">
+            <li class="nav-item" sec:authorize="isAuthenticated()">
                 <form th:action="@{/recipe/create}" method="get">
                     <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">
                         <i class="fas fa-utensils"></i> Subir receta
@@ -56,19 +63,19 @@
                    sec:authorize="isAuthenticated()">
                     <i class="fas fa-user"></i> Perfil</a>
             </li>
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+                <form th:action="@{/admin/panel}" method="get">
+                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">
+                        <i class="fas fa-tools"></i> Consola de administrador
+                    </button>
+                </form>
+            </li>
             <li class="nav-item" sec:authorize="isAuthenticated()">
                 <form th:action="@{/notifications}" method="get">
                     <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">
                         <i class="fas fa-bell">
                             <span class="badge badge-danger" th:text="${unreadNotifications}">0</span>
                         </i></button>
-                </form>
-            </li>
-            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
-                <form th:action="@{/admin/panel}" method="get">
-                    <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">
-                        <i class="fas fa-tools"></i> Consola de administrador
-                    </button>
                 </form>
             </li>
             <li class="nav-item" sec:authorize="isAnonymous()">

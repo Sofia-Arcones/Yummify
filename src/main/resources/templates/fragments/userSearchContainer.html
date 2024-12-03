@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <title>Contenedor de recetas</title>
+</head>
+<body>
+<div th:fragment="searchResultContainer">
+    <div id="searchResultsContainer">
+        <div th:if="${searchTerm == null or searchTerm.isEmpty()}">
+            <p class="text-muted">Introduce un nombre para buscar usuarios.</p>
+        </div>
+        <div th:if="${searchTerm != null and not searchTerm.isEmpty()}">
+            <div th:if="${searchResults.isEmpty()}">
+                <p class="text-muted">No se encontraron usuarios.</p>
+            </div>
+            <div th:if="${not searchResults.isEmpty()}">
+                <div th:each="user : ${searchResults}" class="d-flex align-items-center mb-3">
+                    <a th:href="@{/users/profile/{username}(username=${user.username})}"
+                       class="text-decoration-none text-dark">
+                        <img th:src="@{${user.avatar}}" alt="Avatar" class="rounded-circle me-3" width="50" height="50">
+                        <span th:text="${user.username}">Username</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

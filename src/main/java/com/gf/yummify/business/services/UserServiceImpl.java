@@ -28,6 +28,7 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -107,6 +108,14 @@ public class UserServiceImpl implements UserService {
             profileUpdateDTO.setFormattedBirthday(formattedBirthday);
         }
         return profileUpdateDTO;
+    }
+
+    @Override
+    public List<ShortUserDTO> searchUsers(String searchTerm) {
+        return userRepository.findByUsernameContainingIgnoreCase(searchTerm)
+                .stream()
+                .map(user -> userMapper.toShortUserDTO(user))
+                .collect(Collectors.toList());
     }
 
     @Override
