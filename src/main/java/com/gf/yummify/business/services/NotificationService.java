@@ -14,5 +14,7 @@ public interface NotificationService {
 
     void markAsRead(UUID notificationId);
 
+    void markAllAsRead(Authentication authentication);
+
     long countUnreadNotifications(String username);
 }

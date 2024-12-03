@@ -78,6 +78,15 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.save(notification);
     }
 
+    public void markAllAsRead(Authentication authentication) {
+        User user = userService.findUserByUsername(authentication.getName());
+        List<Notification> notificationList = notificationRepository.findByUserAndIsRead(user, false);
+        for (Notification notification : notificationList) {
+            notification.setIsRead(true);
+            notificationRepository.save(notification);
+        }
+    }
+
     @Override
     public long countUnreadNotifications(String username) {
         User user = userService.findUserByUsername(username);

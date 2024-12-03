@@ -30,8 +30,24 @@ public class NotificationController {
     }
 
     @PostMapping("/markAsRead")
-    public String markAsRead(@RequestParam("notificationId") UUID notificationId) {
-        notificationService.markAsRead(notificationId);
+    public String markAsRead(@RequestParam("notificationId") UUID notificationId, Model model) {
+        try {
+            notificationService.markAsRead(notificationId);
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+            return "error";
+        }
+        return "redirect:/notifications";
+    }
+
+    @PostMapping("/markAllAsRead")
+    public String markAllAsRead(Authentication authentication, Model model) {
+        try {
+            notificationService.markAllAsRead(authentication);
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+            return "error";
+        }
         return "redirect:/notifications";
     }
 }
