@@ -79,16 +79,19 @@
                     </tbody>
                 </table>
             </div>
+            <input type="hidden" th:name="challengeId" th:value="${challenge.challengeId}"/>
             <div class="text-center mt-4">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-check-circle"></i> Confirmar Ganadores
+                <button type="submit" class="btn btn-primary"
+                        th:disabled="${challenge.isFinished}"
+                        th:text="${challenge.isFinished ? 'Ya se han seleccionado todos los ganadores' : 'Confirmar Ganadores'}">
+                    <i class="fas fa-check-circle"></i>
                 </button>
             </div>
             <br>
-            <div th:if="${success}" class="alert alert-success">
+            <div th:if="${success}" class="alert alert-success text-center">
                 <span th:text="${success}"></span>
             </div>
-            <div th:if="${error}" class="alert alert-danger">
+            <div th:if="${error}" class="alert alert-danger text-center">
                 <span th:text="${error}"></span>
             </div>
         </form>

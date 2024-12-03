@@ -130,10 +130,11 @@ public class ChallengeController {
 
     @PostMapping("/select-winners")
     public String selectWinners(@RequestParam List<UUID> selectedWinners,
+                                @RequestParam UUID challengeId,
                                 RedirectAttributes redirectAttributes,
                                 HttpServletRequest request) {
         try {
-            challengeParticipationService.findAndSetWinners(selectedWinners);
+            challengeService.setWinners(selectedWinners, challengeId);
             redirectAttributes.addFlashAttribute("success", "Ganadores seleccionados con éxito.");
         } catch (Exception ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
