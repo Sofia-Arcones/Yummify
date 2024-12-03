@@ -167,6 +167,15 @@ public class NotificationServiceImpl implements NotificationService {
                 content = "!Has ganado el reto '" + challengeParticipation.getChallenge().getTitle() + "'¡ Enhorabuena, contacta con un administrador para recibir tu premio.";
                 createNotification(activityLog.getUser(), content, activityLog, notificationList);
                 break;
+            case CHALLENGE_FINISHED:
+                challenge = challengeService.findChallengeById(activityLog.getRelatedEntityId());
+                content = "Ya se ha finalizado la seleccion de ganadores para el desafío '" + challenge.getTitle() + "'. ¡Si no has sido elegido, te deseamos suerte para la proxima vez!";
+                List<User> participants = new ArrayList<>();
+                for (ChallengeParticipation participation : challenge.getParticipations()) {
+                    participants.add(participation.getUser());
+                }
+                createNotificationsForUsers(participants, content, activityLog, notificationList);
+                break;
             case COMMENT_ADDED:
                 comment = commentService.findCommentById(activityLog.getRelatedEntityId());
                 content = "¡Hay un nuevo comentario en tu valoración!";

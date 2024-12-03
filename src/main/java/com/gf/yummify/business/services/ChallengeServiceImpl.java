@@ -130,7 +130,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     @Override
-    public void setWinners(List<UUID> participationsIds, UUID challengeId) {
+    public void setWinners(List<UUID> participationsIds, UUID challengeId, Authentication authentication) {
         Challenge challenge = findChallengeById(challengeId);
         long currentWinnerCount = challenge.getParticipations().stream()
                 .filter(ChallengeParticipation::getIsWinner)
@@ -146,6 +146,10 @@ public class ChallengeServiceImpl implements ChallengeService {
         if (finalWinnerCount == challenge.getWinnerQuantity()) {
             challenge.setIsFinished(true);
             challengeRepository.save(challenge);
+            User user = userService.findUserByUsername(authentication.getName());
+            String description = "El administrador '" + user.getUsername() + "' ha dado por finalizado el reto '" + challenge.getTitle() + "' (ID: " + challenge.getChallengeId() + ").";
+            ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, challenge.getChallengeId(), RelatedEntity.CHALLENGE, ActivityType.CHALLENGE_FINISHED, description);
+            activityLogService.createActivityLog(activityLogRequestDTO);
         }
     }
 }

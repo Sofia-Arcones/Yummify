@@ -132,9 +132,10 @@ public class ChallengeController {
     public String selectWinners(@RequestParam List<UUID> selectedWinners,
                                 @RequestParam UUID challengeId,
                                 RedirectAttributes redirectAttributes,
-                                HttpServletRequest request) {
+                                HttpServletRequest request,
+                                Authentication authentication) {
         try {
-            challengeService.setWinners(selectedWinners, challengeId);
+            challengeService.setWinners(selectedWinners, challengeId, authentication);
             redirectAttributes.addFlashAttribute("success", "Ganadores seleccionados con éxito.");
         } catch (Exception ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());

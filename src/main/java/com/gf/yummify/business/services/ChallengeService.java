@@ -22,6 +22,6 @@ public interface ChallengeService {
 
     void addParticipationToChallenge(UUID challengeId, UUID recipeId, Authentication authentication);
 
-    void setWinners(List<UUID> participationsIds, UUID challengeId);
+    void setWinners(List<UUID> participationsIds, UUID challengeId, Authentication authentication);
 
 }
