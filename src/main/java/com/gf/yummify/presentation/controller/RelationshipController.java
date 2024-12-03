@@ -55,17 +55,27 @@ public class RelationshipController {
 
     @GetMapping("/relationships")
     public String showRelationships(Authentication authentication,
-                                    Model model) {
+                                    Model model,
+                                    @RequestParam(value = "searchTerm", required = false) String searchTerm,
+                                    @RequestParam(value = "isAjax", defaultValue = "false") boolean isAjax) {
         try {
             model.addAttribute("receivedFriendRequests", relationshipService.findReceivedFriendRequests(authentication));
             model.addAttribute("friends", relationshipService.findFriends(authentication));
             model.addAttribute("followedList", relationshipService.findFolloweds(authentication));
             model.addAttribute("followersList", relationshipService.findFollowers(authentication));
+            if (searchTerm != null && !searchTerm.isEmpty()) {
+                model.addAttribute("searchTerm", searchTerm);
+                model.addAttribute("searchResults", userService.searchUsers(searchTerm));
+            }
+            if (isAjax) {
+                return "fragments/userSearchContainer";
+            }
         } catch (Exception ex) {
             model.addAttribute("error", ex.getMessage());
         }
         return "/relationships/relationships";
     }
+
 
     @PostMapping("/friend-request/accept")
     public String acceptFriend(Authentication authentication,

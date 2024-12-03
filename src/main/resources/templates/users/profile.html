@@ -36,6 +36,7 @@
                     <p class="mb-0">Amigos: <span class="fw-bold" th:text="${user.friends}"></span></p>
                 </div>
             </div>
+            <br>
             <div class="d-flex align-items-center" th:if="${!isOwnProfile}">
                 <form th:action="@{/follow}" method="post" class="mr-2">
                     <input type="hidden" name="username" th:value="${user.username}">

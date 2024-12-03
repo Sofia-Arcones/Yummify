@@ -21,7 +21,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/recipe/{id}", "/users/profile/{username}").permitAll()
-                        .requestMatchers("/user", "/register", "/error", "/recipe/{id}", "/home").permitAll()
+                        .requestMatchers("/register", "/error", "/recipe/{id}", "/home").permitAll()
                         .requestMatchers("/login").anonymous()
                         .requestMatchers("/admin/panel", "ingredients/management", "ingredients/update/**", "ingredients/delete/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
@@ -32,7 +32,7 @@ public class SecurityConfig {
                         .permitAll())
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/")
+                        .logoutSuccessUrl("/home")
                         .permitAll())
                 .exceptionHandling(exception -> exception
                         .accessDeniedPage("/error"));

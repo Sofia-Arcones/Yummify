@@ -2,10 +2,7 @@ package com.gf.yummify.business.services;
 
 import com.gf.yummify.data.entity.User;
 import com.gf.yummify.data.enums.Role;
-import com.gf.yummify.presentation.dto.ProfileUpdateDTO;
-import com.gf.yummify.presentation.dto.ProfileUpdateRequestDTO;
-import com.gf.yummify.presentation.dto.RegisterDTO;
-import com.gf.yummify.presentation.dto.UserResponseDTO;
+import com.gf.yummify.presentation.dto.*;
 import org.springframework.security.core.Authentication;
 
 import java.util.List;
@@ -27,4 +24,6 @@ public interface UserService {
     ProfileUpdateDTO getProfileUpdateDTO(Authentication authentication);
 
     void updateProfile(Authentication authentication, ProfileUpdateRequestDTO profileUpdateRequestDTO);
+
+    List<ShortUserDTO> searchUsers(String searchTerm);
 }
