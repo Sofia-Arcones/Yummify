@@ -7,6 +7,7 @@ import com.gf.yummify.data.entity.Challenge;
 import com.gf.yummify.data.entity.Recipe;
 import com.gf.yummify.presentation.dto.ChallengeRequestDTO;
 import com.gf.yummify.presentation.dto.ChallengeResponseDTO;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
@@ -126,4 +127,19 @@ public class ChallengeController {
         }
         return "redirect:/challenges";
     }
+
+    @PostMapping("/select-winners")
+    public String selectWinners(@RequestParam List<UUID> selectedWinners,
+                                RedirectAttributes redirectAttributes,
+                                HttpServletRequest request) {
+        try {
+            challengeParticipationService.findAndSetWinners(selectedWinners);
+            redirectAttributes.addFlashAttribute("success", "Ganadores seleccionados con éxito.");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/challenges");
+    }
+
 }

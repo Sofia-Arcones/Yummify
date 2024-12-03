@@ -41,29 +41,47 @@
         </div>
         <hr>
         <h2 class="mb-3 text-center">Participaciones</h2>
-        <div class="table-responsive" th:if="${challenge.participations.totalPages >= 1}">
-            <table class="table table-striped table-hover table-bordered table-primary">
-                <thead>
-                <tr>
-                    <th>Usuario</th>
-                    <th>Fecha de Participación</th>
-                    <th>Estado</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="participation : ${challenge.participations.content}"
-                    th:onclick="'window.location=\'' + @{/recipe/{id}(id=${participation.recipeId})} + '\''"
-                    class="text-decoration-none text-dark">
-                    <td th:text="${participation.username}">Nombre del usuario</td>
-                    <td th:text="${participation.formattedParticipationDate}">Fecha de participación</td>
-                    <td>
-                        <span th:if="${participation.isWinner}" class="badge bg-success">Ganador</span>
-                        <span th:unless="${participation.isWinner}" class="badge bg-secondary">Participante</span>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+        <form method="post" th:action="@{/challenges/select-winners}">
+            <div class="table-responsive" th:if="${challenge.participations.totalPages >= 1}">
+                <table class="table table-striped table-hover table-bordered table-primary">
+                    <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Fecha de Participación</th>
+                        <th>Estado</th>
+                        <th>Seleccionar ganador</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="participation : ${challenge.participations.content}"
+                        th:onclick="'window.location=\'' + @{/recipe/{id}(id=${participation.recipeId})} + '\''"
+                        class="text-decoration-none text-dark">
+                        <td th:text="${participation.username}">Nombre del usuario</td>
+                        <td th:text="${participation.formattedParticipationDate}">Fecha de participación</td>
+                        <td>
+                            <span th:if="${participation.isWinner}" class="badge bg-success">Ganador</span>
+                            <span th:unless="${participation.isWinner}" class="badge bg-secondary">Participante</span>
+                        </td>
+                        <td>
+                            <input type="checkbox" name="selectedWinners"
+                                   th:value="${participation.challengeParticipationId}"
+                                   th:disabled="${participation.isWinner}"/>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary">Confirmar Ganadores</button>
+            </div>
+            <br>
+            <div th:if="${success}" class="alert alert-success">
+                <span th:text="${success}"></span>
+            </div>
+            <div th:if="${error}" class="alert alert-danger">
+                <span th:text="${error}"></span>
+            </div>
+        </form>
         <nav class="d-flex justify-content-center" aria-label="Paginación de participaciones"
              th:if="${challenge.participations.totalPages >= 1}">
             <ul class="pagination">

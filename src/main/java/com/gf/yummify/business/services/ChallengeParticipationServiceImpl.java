@@ -16,7 +16,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Service
 public class ChallengeParticipationServiceImpl implements ChallengeParticipationService {
@@ -57,6 +60,17 @@ public class ChallengeParticipationServiceImpl implements ChallengeParticipation
     public ChallengeParticipation findParticipationByChallengeAndUser(Challenge challenge, User user) {
         return challengeParticipationRepository.findByChallengeAndUser(challenge, user)
                 .orElseThrow(() -> new NoSuchElementException("No existe ninguna participación con ese usuario."));
+    }
+
+    @Override
+    public void findAndSetWinners(List<UUID> winnersID) {
+        for (UUID id : winnersID) {
+            ChallengeParticipation participation = challengeParticipationRepository
+                    .findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("No existe ninguna participación con ID: " + id));
+            participation.setIsWinner(true);
+            challengeParticipationRepository.save(participation);
+        }
     }
 }
 
