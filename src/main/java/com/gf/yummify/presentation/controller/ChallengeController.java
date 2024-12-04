@@ -147,4 +147,34 @@ public class ChallengeController {
         return "redirect:" + (referer != null ? referer : "/challenges");
     }
 
+    @GetMapping("/update/{id}")
+    public String getChallengeForm(@PathVariable("id") UUID challengeId,
+                                   Model model) {
+        try {
+            model.addAttribute("challenge", challengeService.findChallengeResponseDTO(challengeId));
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+            return "error";
+        }
+        return "challenges/challengeForm";
+    }
+
+    @PostMapping("/update/{id}")
+    public String updateChallenge(@PathVariable("id") UUID challengeId,
+                                  @ModelAttribute @Valid ChallengeRequestDTO challengeRequestDTO,
+                                  Authentication authentication,
+                                  Model model,
+                                  RedirectAttributes redirectAttributes,
+                                  HttpServletRequest request) {
+        try {
+            System.out.println("Entra al controlador");
+            ChallengeResponseDTO challengeResponseDTO = challengeService.updateChallenge(challengeId, challengeRequestDTO, authentication);
+            redirectAttributes.addFlashAttribute("challenge", challengeResponseDTO);
+            redirectAttributes.addFlashAttribute("success", "Desafío editado correctamente");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/challenges");
+    }
 }

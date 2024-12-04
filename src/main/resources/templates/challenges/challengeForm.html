@@ -13,8 +13,10 @@
     <div th:replace="~{fragments/headerAdmin :: headerAdmin}"></div>
 </div>
 <div class="container mt-5">
-    <h2 class="mb-4 text-center">Crear Reto</h2>
-    <form th:action="@{/challenges}" method="post">
+    <h2 class="mb-4 text-center"
+        th:text="${challenge != null && challenge.challengeId != null ? 'Editar Reto' : 'Crear Reto'}"></h2>
+    <form th:action="${challenge != null && challenge.challengeId != null ? '/challenges/update/' + challenge.challengeId : '/challenges'}"
+          method="post">
         <div class="form-group">
             <label for="title">Título:</label>
             <input type="text" id="title" name="title" class="form-control" placeholder="Escribe el nombre del reto"
@@ -29,7 +31,8 @@
         <div class="form-group mt-3">
             <label for="winnerQuantity">Número de Ganadores:</label>
             <input type="number" id="winnerQuantity" name="winnerQuantity" class="form-control"
-                   placeholder="Escribe la cantidad de ganadores" min="1" th:value="${challenge != null ? challenge.winnerQuantity : ''}"
+                   placeholder="Escribe la cantidad de ganadores" min="1"
+                   th:value="${challenge != null ? challenge.winnerQuantity : ''}"
                    required/>
         </div>
         <div class="form-group mt-3">
@@ -45,13 +48,27 @@
         <div class="form-group mt-3">
             <label for="reward">Recompensa:</label>
             <input type="text" id="reward" name="reward" class="form-control" placeholder="Escribe el premio por ganar"
-                   th:value="${challenge!= null ? challenge.reward : ''}" required/>
+                   th:value="${challenge != null ? challenge.reward : ''}" required/>
         </div>
-        <button type="submit" class="btn btn-primary mt-4">Crear Reto</button>
-        <a href="/challenges" class="btn btn-secondary mt-4">Cancelar</a>
+        <input type="hidden" th:if="${challenge != null && challenge.challengeId != null}"
+               th:value="${challenge.challengeId}" name="challengeId"/>
+        <button type="submit" class="btn btn-primary mt-4">
+            <span th:if="${challenge != null && challenge.challengeId != null}">
+                <i class="fas fa-edit"></i> Editar reto
+            </span>
+            <span th:if="${challenge == null || challenge.challengeId == null}">
+                <i class="fas fa-plus"></i> Crear reto
+            </span>
+        </button>
+        <a href="/challenges" class="btn btn-secondary mt-4">
+            <i class="fas fa-times"></i> Cancelar
+        </a>
     </form>
     <div th:if="${error}" class="alert alert-danger mt-4">
         <p th:text="${error}"></p>
+    </div>
+    <div th:if="${success}" class="alert alert-success mt-4">
+        <p th:text="${success}"></p>
     </div>
 </div>
 <br>

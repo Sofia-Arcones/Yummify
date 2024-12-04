@@ -29,4 +29,8 @@ public interface ChallengeService {
     List<Challenge> findEndingSoonChallenges();
 
     Page<Challenge> findEndingSoonChallenges(int page, int size);
+
+    ChallengeResponseDTO findChallengeResponseDTO(UUID challengeId);
+
+    ChallengeResponseDTO updateChallenge(UUID challengeId, ChallengeRequestDTO challengeRequestDTO, Authentication authentication);
 }
