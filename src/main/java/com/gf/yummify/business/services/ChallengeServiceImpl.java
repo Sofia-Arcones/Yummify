@@ -20,6 +20,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -151,5 +153,18 @@ public class ChallengeServiceImpl implements ChallengeService {
             ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, challenge.getChallengeId(), RelatedEntity.CHALLENGE, ActivityType.CHALLENGE_FINISHED, description);
             activityLogService.createActivityLog(activityLogRequestDTO);
         }
+    }
+
+    @Override
+    public List<Challenge> findActiveChallenges() {
+        return challengeRepository.findByIsFinished(false);
+    }
+
+    @Override
+    public List<Challenge> findEndingSoonChallenges() {
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = startDate.plusDays(2);
+        System.out.println("Finalizan: " + challengeRepository.findByEndDateBetween(startDate, endDate));
+        return challengeRepository.findByEndDateBetween(startDate, endDate);
     }
 }

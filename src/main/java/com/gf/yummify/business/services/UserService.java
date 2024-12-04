@@ -17,6 +17,8 @@ public interface UserService {
 
     User findUserById(UUID userId);
 
+    List<User> findAllUsers();
+
     UserResponseDTO findProfileUser(String username, int followers, int friends);
 
     List<User> findAllUsersByRole(Role role);

@@ -31,11 +31,6 @@ public class UserController {
         this.relationshipService = relationshipService;
     }
 
-    @GetMapping("/admin/panel")
-    public String administratorPanel() {
-        return "users/administratorPanel";
-    }
-
     @PostMapping("/register")
     public String registerUser(@Valid RegisterDTO registerDTO,
                                Model model) {

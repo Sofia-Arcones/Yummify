@@ -24,4 +24,7 @@ public interface ChallengeService {
 
     void setWinners(List<UUID> participationsIds, UUID challengeId, Authentication authentication);
 
+    List<Challenge> findActiveChallenges();
+
+    List<Challenge> findEndingSoonChallenges();
 }
