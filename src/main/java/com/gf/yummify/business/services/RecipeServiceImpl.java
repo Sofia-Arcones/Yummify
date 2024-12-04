@@ -201,6 +201,11 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
+    public List<Recipe> findAllRecipes() {
+        return recipeRepository.findAll();
+    }
+
+    @Override
     public Page<FavoriteRecipeDTO> findAllFavorites(Authentication authentication, int page, int size) {
         User user = userService.findUserByUsername(authentication.getName());
         List<FavoriteRecipe> favoriteRecipeList = user.getFavoriteRecipes();

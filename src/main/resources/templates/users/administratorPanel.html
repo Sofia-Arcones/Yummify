@@ -15,38 +15,46 @@
 <div class="d-flex" id="wrapper">
     <div id="page-content-wrapper" class="flex-grow-1">
         <div th:replace="~{fragments/headerAdmin :: headerAdmin}"></div>
-
         <div class="container mt-4">
-            <h1 class="display-4 text-primary mb-3">Panel de Administración</h1>
+            <h1 class="display-4 text-primary mb-3 text-center">Panel de Administración</h1>
             <hr>
-
-            <!-- Aquí se puede agregar contenido de administración -->
             <div class="row">
-                <div class="col-md-4 mb-4">
-                    <div class="card text-white bg-primary">
+                <div class="col-md-3 mb-3">
+                    <div class="card text-dark bg-primary">
                         <div class="card-body text-center">
                             <h5 class="card-title">Usuarios Registrados</h5>
-                            <p class="card-text fs-1">150</p>
+                            <p class="card-text fs-1" th:text="${userNumber}">150</p>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 mb-4">
-                    <div class="card text-white bg-success">
+                <div class="col-md-3 mb-3">
+                    <div class="card text-dark bg-success">
                         <div class="card-body text-center">
-                            <h5 class="card-title">Publicaciones Activas</h5>
-                            <p class="card-text fs-1">320</p>
+                            <h5 class="card-title">Recetas publicadas</h5>
+                            <p class="card-text fs-1" th:text="${recipeNumber}">320</p>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 mb-4">
+                <div class="col-md-3 mb-3">
                     <div class="card text-dark bg-warning">
                         <div class="card-body text-center">
                             <h5 class="card-title">Comentarios</h5>
-                            <p class="card-text fs-1">850</p>
+                            <p class="card-text fs-1" th:text="${commentNumber}">850</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card text-dark bg-info">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Ingredientes</h5>
+                            <p class="card-text fs-1" th:text="${ingredientNumber}">850</p>
                         </div>
                     </div>
                 </div>
             </div>
+            <hr>
         </div>
+    </div>
+</div>
 </body>
 </html>

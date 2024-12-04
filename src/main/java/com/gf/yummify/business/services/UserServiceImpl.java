@@ -100,6 +100,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<User> findAllUsers(){
+        return userRepository.findAll();
+    }
+
+    @Override
     public ProfileUpdateDTO getProfileUpdateDTO(Authentication authentication) {
         User user = findUserByUsername(authentication.getName());
         ProfileUpdateDTO profileUpdateDTO = userMapper.toProfileUpdateDTO(user);
