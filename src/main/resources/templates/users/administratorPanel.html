@@ -16,7 +16,7 @@
     <div id="page-content-wrapper" class="flex-grow-1">
         <div th:replace="~{fragments/headerAdmin :: headerAdmin}"></div>
         <div class="container mt-4">
-            <h1 class="display-4 text-primary mb-3 text-center">Panel de Administración</h1>
+            <h1 class="text-secondary text-center">Panel de Administración</h1>
             <hr>
             <div class="row">
                 <div class="col-md-3 mb-3">
@@ -53,6 +53,63 @@
                 </div>
             </div>
             <hr>
+        </div>
+        <div class="container mt-5">
+            <h2 class="text-center text-secondary mb-4">Estadísticas Detalladas</h2>
+            <a href="/ingredients/management" class="text-decoration-none text-dark">
+                <div class="card mb-3 border-0 shadow-sm bg-primary">
+                    <div class="row g-0 align-items-center">
+                        <div class="col-auto p-3">
+                            <i class="fas fa-hourglass-half fa-3x"></i>
+                        </div>
+                        <div class="col">
+                            <div class="card-body">
+                                <h5 class="card-title">Ingredientes Pendientes de Aprobación</h5>
+                                <p class="card-text fs-4"
+                                   th:text="'Hay ' + ${pendingReviewIngredients} + ' ingredientes pendientes de aprobación.'">
+                                    Hay 20 ingredientes pendientes de aprobación.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            <a href="/challenges" class="text-decoration-none text-dark">
+                <div class="card mb-3 border-0 shadow-sm bg-success">
+                    <div class="row g-0 align-items-center">
+                        <div class="col-auto p-3 text-dark">
+                            <i class="fas fa-tasks fa-3x"></i>
+                        </div>
+                        <div class="col">
+                            <div class="card-body">
+                                <h5 class="card-title">Desafíos Activos</h5>
+                                <p class="card-text fs-4"
+                                   th:text="'Actualmente hay ' + ${activeChallenges} + ' desafíos en curso.'">
+                                    Actualmente
+                                    hay 5 desafíos en curso.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            <a href="/challenges" class="text-decoration-none text-dark">
+                <div class="card mb-3 border-0 shadow-sm bg-warning">
+                    <div class="row g-0 align-items-center">
+                        <div class="col-auto p-3 text-dark">
+                            <i class="fas fa-hourglass-half fa-3x"></i>
+                        </div>
+                        <div class="col">
+                            <div class="card-body">
+                                <h5 class="card-title">Desafíos A Punto De Acabar</h5>
+                                <p class="card-text fs-4"
+                                   th:text="'Actualmente hay ' + ${endingSoonChallenges} + ' desafío a punto de acabar.'">
+                                    Actualmente
+                                    hay 5 desafíos a punto de acabar.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
         </div>
     </div>
 </div>

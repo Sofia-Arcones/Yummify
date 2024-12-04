@@ -50,6 +50,10 @@ public class IngredientServiceImpl implements IngredientService {
     }
 
     @Override
+    public List<Ingredient> findAllIngredientsForReview(){
+        return ingredientRepository.findByIngredientStatus(IngredientStatus.PENDING_REVIEW);
+    }
+    @Override
     public Ingredient findOrCreateIngredient(String name, User user) {
         String normalizedIngredientName = capitalizeIngredientName(name);
         return ingredientRepository.findByIngredientName(normalizedIngredientName)

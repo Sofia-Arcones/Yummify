@@ -17,6 +17,8 @@ public interface IngredientService {
 
     List<Ingredient> findAllIngredients();
 
+    List<Ingredient> findAllIngredientsForReview();
+
     Ingredient findOrCreateIngredient(String name, User user);
 
     List<IngredientAutocompleteDTO> getApprovedIngredientsForAutocomplete();

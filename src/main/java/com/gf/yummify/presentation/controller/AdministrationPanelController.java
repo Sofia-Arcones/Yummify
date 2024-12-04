@@ -30,6 +30,10 @@ public class AdministrationPanelController {
             model.addAttribute("recipeNumber", recipeService.findAllRecipes().size());
             model.addAttribute("commentNumber", commentService.findAllComments().size());
             model.addAttribute("ingredientNumber", ingredientService.findAllIngredients().size());
+
+            model.addAttribute("pendingReviewIngredients", ingredientService.findAllIngredientsForReview().size());
+            model.addAttribute("activeChallenges", challengeService.findActiveChallenges().size());
+            model.addAttribute("endingSoonChallenges", challengeService.findEndingSoonChallenges().size());
         } catch (Exception ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
             return "error";
