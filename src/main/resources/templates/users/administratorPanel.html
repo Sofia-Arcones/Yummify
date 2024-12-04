@@ -56,7 +56,7 @@
         </div>
         <div class="container mt-5">
             <h2 class="text-center text-secondary mb-4">Estadísticas Detalladas</h2>
-            <a href="/ingredients/management" class="text-decoration-none text-dark">
+            <a href="/ingredients/management?status=PENDING_REVIEW" class="text-decoration-none text-dark">
                 <div class="card mb-3 border-0 shadow-sm bg-primary">
                     <div class="row g-0 align-items-center">
                         <div class="col-auto p-3">
@@ -74,7 +74,7 @@
                     </div>
                 </div>
             </a>
-            <a href="/challenges" class="text-decoration-none text-dark">
+            <a href="/challenges?status=en_curso" class="text-decoration-none text-dark">
                 <div class="card mb-3 border-0 shadow-sm bg-success">
                     <div class="row g-0 align-items-center">
                         <div class="col-auto p-3 text-dark">
@@ -85,14 +85,13 @@
                                 <h5 class="card-title">Desafíos Activos</h5>
                                 <p class="card-text fs-4"
                                    th:text="'Actualmente hay ' + ${activeChallenges} + ' desafíos en curso.'">
-                                    Actualmente
-                                    hay 5 desafíos en curso.</p>
+                                    Actualmente hay 5 desafíos en curso.</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </a>
-            <a href="/challenges" class="text-decoration-none text-dark">
+            <a href="/challenges?status=ending_soon" class="text-decoration-none text-dark">
                 <div class="card mb-3 border-0 shadow-sm bg-warning">
                     <div class="row g-0 align-items-center">
                         <div class="col-auto p-3 text-dark">
@@ -103,8 +102,7 @@
                                 <h5 class="card-title">Desafíos A Punto De Acabar</h5>
                                 <p class="card-text fs-4"
                                    th:text="'Actualmente hay ' + ${endingSoonChallenges} + ' desafío a punto de acabar.'">
-                                    Actualmente
-                                    hay 5 desafíos a punto de acabar.</p>
+                                    Actualmente hay 5 desafíos a punto de acabar.</p>
                             </div>
                         </div>
                     </div>

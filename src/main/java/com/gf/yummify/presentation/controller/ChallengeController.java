@@ -92,6 +92,7 @@ public class ChallengeController {
             } else {
                 throw new IllegalStateException("Rol desconocido para el usuario.");
             }
+            model.addAttribute("status", status);
             model.addAttribute("challengesPage", challengePage);
         } catch (Exception ex) {
             model.addAttribute("error", ex.getMessage());
