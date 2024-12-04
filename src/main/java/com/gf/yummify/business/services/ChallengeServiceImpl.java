@@ -45,52 +45,13 @@ public class ChallengeServiceImpl implements ChallengeService {
     @Override
     public ChallengeResponseDTO addChallenge(ChallengeRequestDTO challengeRequestDTO, Authentication authentication) {
         User user = userService.findUserByUsername(authentication.getName());
-        validateChallengeRequest(challengeRequestDTO, user);
+        validateChallengeRequest(challengeRequestDTO, user, null);
         Challenge challenge = challengeMapper.toChallenge(challengeRequestDTO);
         challenge = challengeRepository.save(challenge);
         String description = "El usuario '" + user.getUsername() + "' ha creado el desafío '" + challenge.getTitle() + "' (ID: " + challenge.getChallengeId() + ")";
         ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, challenge.getChallengeId(), RelatedEntity.CHALLENGE, ActivityType.CHALLENGE_CREATED, description);
         activityLogService.createActivityLog(activityLogRequestDTO);
         return challengeMapper.toChallengeResponseDTO(challenge);
-    }
-
-    private void validateChallengeRequest(ChallengeRequestDTO challengeRequestDTO, User user) {
-        if (user == null) {
-            throw new IllegalArgumentException("Tienes que estar logeado para poder hacer esto.");
-        }
-        if (!user.getRole().equals(Role.ROLE_ADMIN)) {
-            throw new IllegalArgumentException("Necesitas el rol de administrador para hacer esto.");
-        }
-        if (challengeRequestDTO.getTitle() == null || challengeRequestDTO.getTitle().isBlank()) {
-            throw new IllegalArgumentException("El título del reto no puede estar vacío.");
-        }
-
-        if (challengeRequestDTO.getDescription() == null || challengeRequestDTO.getDescription().isBlank()) {
-            throw new IllegalArgumentException("La descripción del reto no puede estar vacía.");
-        }
-        if (challengeRequestDTO.getWinnerQuantity() == null || challengeRequestDTO.getWinnerQuantity() <= 0) {
-            throw new IllegalArgumentException("La cantidad de ganadores debe ser un número positivo.");
-        }
-        if (challengeRequestDTO.getStartDate() == null) {
-            throw new IllegalArgumentException("No has introducido fecha de inicio.");
-        }
-        if (challengeRequestDTO.getEndDate() == null) {
-            throw new IllegalArgumentException("No has introducido fecha de fin.");
-        }
-        if (challengeRequestDTO.getStartDate().isAfter(challengeRequestDTO.getEndDate())) {
-            throw new IllegalArgumentException("La fecha de inicio debe ser anterior a la fecha de finalización.");
-        }
-
-        if (challengeRequestDTO.getStartDate().isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("La fecha de inicio no puede ser anterior a la fecha actual.");
-        }
-        if (challengeRequestDTO.getReward() == null || challengeRequestDTO.getReward().isBlank()) {
-            throw new IllegalArgumentException("La recompensa del reto no puede estar vacía.");
-        }
-        boolean exists = challengeRepository.findChallengeByTitleAndIsFinished(challengeRequestDTO.getTitle(), false).isPresent();
-        if (exists) {
-            throw new IllegalArgumentException("Ya existe un desafío activo con el título: " + challengeRequestDTO.getTitle());
-        }
     }
 
     @Override
@@ -118,6 +79,29 @@ public class ChallengeServiceImpl implements ChallengeService {
     public Challenge findChallengeById(UUID id) {
         return challengeRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("El desafío con id: " + id + " no existe"));
+    }
+
+    @Override
+    public ChallengeResponseDTO findChallengeResponseDTO(UUID challengeId) {
+        Challenge challenge = findChallengeById(challengeId);
+        ChallengeResponseDTO challengeResponseDTO = challengeMapper.toChallengeResponseDTO(challenge);
+        return challengeResponseDTO;
+    }
+
+    @Override
+    public ChallengeResponseDTO updateChallenge(UUID challengeId, ChallengeRequestDTO challengeRequestDTO, Authentication authentication) {
+        User user = userService.findUserByUsername(authentication.getName());
+        Challenge challenge = findChallengeById(challengeId);
+        validateChallengeRequest(challengeRequestDTO, user, challenge);
+        challenge.setDescription(challengeRequestDTO.getDescription());
+        challenge.setEndDate(challengeRequestDTO.getEndDate());
+        challenge.setStartDate(challengeRequestDTO.getStartDate());
+        challenge.setReward(challengeRequestDTO.getReward());
+        challenge.setWinnerQuantity(challengeRequestDTO.getWinnerQuantity());
+        challenge.setTitle(challengeRequestDTO.getTitle());
+        challenge.setIsFinished(false);
+        challengeRepository.save(challenge);
+        return challengeMapper.toChallengeResponseDTO(challenge);
     }
 
 
@@ -171,5 +155,48 @@ public class ChallengeServiceImpl implements ChallengeService {
         LocalDate startDate = LocalDate.now();
         LocalDate endDate = startDate.plusDays(2);
         return challengeRepository.findByEndDateBetween(startDate, endDate);
+    }
+
+    private void validateChallengeRequest(ChallengeRequestDTO challengeRequestDTO, User user, Challenge challenge) {
+        System.out.println("entra a validar");
+        if (user == null) {
+            throw new IllegalArgumentException("Tienes que estar logeado para poder hacer esto.");
+        }
+        if (!user.getRole().equals(Role.ROLE_ADMIN)) {
+            throw new IllegalArgumentException("Necesitas el rol de administrador para hacer esto.");
+        }
+        if (challengeRequestDTO.getTitle() == null || challengeRequestDTO.getTitle().isBlank()) {
+            throw new IllegalArgumentException("El título del reto no puede estar vacío.");
+        }
+
+        if (challengeRequestDTO.getDescription() == null || challengeRequestDTO.getDescription().isBlank()) {
+            throw new IllegalArgumentException("La descripción del reto no puede estar vacía.");
+        }
+        if (challengeRequestDTO.getWinnerQuantity() == null || challengeRequestDTO.getWinnerQuantity() <= 0) {
+            throw new IllegalArgumentException("La cantidad de ganadores debe ser un número positivo.");
+        }
+        if (challengeRequestDTO.getStartDate() == null) {
+            throw new IllegalArgumentException("No has introducido fecha de inicio.");
+        }
+        if (challengeRequestDTO.getEndDate() == null) {
+            throw new IllegalArgumentException("No has introducido fecha de fin.");
+        }
+        if (challengeRequestDTO.getStartDate().isAfter(challengeRequestDTO.getEndDate())) {
+            throw new IllegalArgumentException("La fecha de inicio debe ser anterior a la fecha de finalización.");
+        }
+        if (challenge == null) {
+            if (challengeRequestDTO.getStartDate().isBefore(LocalDate.now())) {
+                throw new IllegalArgumentException("La fecha de inicio no puede ser anterior a la fecha actual.");
+            }
+        }
+        if (challengeRequestDTO.getReward() == null || challengeRequestDTO.getReward().isBlank()) {
+            throw new IllegalArgumentException("La recompensa del reto no puede estar vacía.");
+        }
+        if (challenge == null) {
+            boolean exists = challengeRepository.findChallengeByTitleAndIsFinished(challengeRequestDTO.getTitle(), false).isPresent();
+            if (exists) {
+                throw new IllegalArgumentException("Ya existe un desafío activo con el título: " + challengeRequestDTO.getTitle());
+            }
+        }
     }
 }

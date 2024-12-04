@@ -52,7 +52,7 @@
     </div>
     <hr>
     <div th:each="challenge : ${challengesPage.content}">
-        <div class="card mb-3 bg-primary">
+        <div class="card mb-3" th:class="${challenge.isFinished} ? 'bg-success' : 'bg-primary'">
             <div class="card-header">
                 <h5 class="card-title" th:text="${challenge.title}">Título del Desafío</h5>
             </div>
@@ -78,6 +78,12 @@
                           sec:authorize="hasRole('ROLE_ADMIN')">
                         <button type="submit" class="btn btn-secondary btn-sm mt-3">
                             <i class="fas fa-eye"></i> Ver Participantes
+                        </button>
+                    </form>
+                    <form th:action="@{/challenges/update/{id}(id=${challenge.challengeId})}" method="get"
+                          sec:authorize="hasRole('ROLE_ADMIN')">
+                        <button type="submit" class="btn btn-warning btn-sm mt-3" th:disabled="${challenge.isFinished}">
+                            <i class="fas fa-edit"></i> Editar desafio
                         </button>
                     </form>
                     <button class="btn btn-secondary btn-sm mt-3" type="button" data-toggle="collapse"
@@ -107,6 +113,7 @@
                 </div>
             </div>
         </div>
+        <br>
     </div>
     <br>
     <nav aria-label="Page navigation" th:if="${challengesPage.totalPages >= 1}">
@@ -129,7 +136,7 @@
     </nav>
     <hr>
     <div th:if="${challengesPage != null && challengesPage.isEmpty()}" class="alert alert-warning">
-        No hay ingredientes disponibles para el estado y tipo seleccionados.
+        No hay desafíos disponibles para el estado y tipo seleccionados.
     </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
