@@ -20,8 +20,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -97,15 +95,23 @@ public class ChallengeServiceImpl implements ChallengeService {
 
     @Override
     public Page<Challenge> findChallenges(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("creationDate").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("endDate").descending());
         return challengeRepository.findAll(pageable);
 
     }
 
     @Override
     public Page<Challenge> findChallengesByIsFinished(int page, int size, Boolean isFinished) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("creationDate").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("endDate").descending());
         return challengeRepository.findByIsFinished(isFinished, pageable);
+    }
+
+    @Override
+    public Page<Challenge> findEndingSoonChallenges(int page, int size) {
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = startDate.plusDays(2);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("endDate").descending());
+        return challengeRepository.findByEndDateBetween(startDate, endDate, pageable);
     }
 
     @Override
@@ -164,7 +170,6 @@ public class ChallengeServiceImpl implements ChallengeService {
     public List<Challenge> findEndingSoonChallenges() {
         LocalDate startDate = LocalDate.now();
         LocalDate endDate = startDate.plusDays(2);
-        System.out.println("Finalizan: " + challengeRepository.findByEndDateBetween(startDate, endDate));
         return challengeRepository.findByEndDateBetween(startDate, endDate);
     }
 }

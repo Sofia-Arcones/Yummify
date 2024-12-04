@@ -30,10 +30,11 @@
         </div>
         <form th:action="@{/challenges}" method="get" class="form-row align-items-center ml-auto">
             <div class="col-auto">
-                <select id="status" class="form-control" aria-label="Selecciona el estado de los retos">
+                <select name="status" class="form-control" aria-label="Selecciona el estado de los retos">
                     <option value="" disabled selected>Elige los retos que quieres ver</option>
                     <option value="finalizado">Finalizado</option>
                     <option value="en_curso">En curso</option>
+                    <option value="ending_soon">A punto de finalizar</option>
                 </select>
             </div>
             <div class="col-auto">

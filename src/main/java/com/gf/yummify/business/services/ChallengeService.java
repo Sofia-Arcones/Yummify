@@ -27,4 +27,6 @@ public interface ChallengeService {
     List<Challenge> findActiveChallenges();
 
     List<Challenge> findEndingSoonChallenges();
+
+    Page<Challenge> findEndingSoonChallenges(int page, int size);
 }

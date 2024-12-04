@@ -68,7 +68,7 @@ public class ChallengeController {
                     .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
 
             Page<Challenge> challengePage;
-
+            System.out.println("Status: " + status);
             if (isUser) {
                 challengePage = challengeService.findChallengesByIsFinished(page, size, false);
                 List<Recipe> userRecipes = recipeService.findRecipesByUser(authentication);
@@ -76,6 +76,8 @@ public class ChallengeController {
             } else if (isAdmin) {
                 if (status == null || status.isEmpty()) {
                     challengePage = challengeService.findChallenges(page, size);
+                } else if ("ending_soon".equals(status)) {
+                    challengePage = challengeService.findEndingSoonChallenges(page, size);
                 } else {
                     Boolean isFinished = null;
                     if ("finalizado".equals(status)) {
