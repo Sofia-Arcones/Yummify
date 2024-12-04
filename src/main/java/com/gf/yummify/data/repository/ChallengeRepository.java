@@ -19,5 +19,5 @@ public interface ChallengeRepository extends JpaRepository<Challenge, UUID> {
 
     List<Challenge> findByEndDateBetween(LocalDate startDate, LocalDate endDate);
 
-
+    Page<Challenge> findByEndDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
 }
