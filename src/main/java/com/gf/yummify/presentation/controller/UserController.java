@@ -63,6 +63,7 @@ public class UserController {
         try {
             UserResponseDTO profileUser = userService.findProfileUser(username, relationshipService.followersNumber(username), relationshipService.friendsNumber(username));
             model.addAttribute("user", profileUser);
+            System.out.println(profileUser.getVerificationStatus()+ "ESTADO");
             if (authentication != null && authentication.isAuthenticated()) {
                 model.addAttribute("isOwnProfile", userService.checkUserAuthentication(authentication.getName(), profileUser.getUsername()));
                 model.addAttribute("isFriend", relationshipService.isFriend(authentication, username));

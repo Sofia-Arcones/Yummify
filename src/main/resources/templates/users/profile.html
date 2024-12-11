@@ -24,7 +24,22 @@
                  alt="Avatar del Usuario" width="150" height="150">
         </div>
         <div class="col-md-8">
-            <h3 th:text="${user.username}">Nombre de Usuario</h3>
+            <div class="d-flex align-items-center">
+                <h3 th:text="${user.username}" class="mb-0 me-3">Nombre de Usuario</h3>
+                <span th:if="${user.verificationStatus.name() == 'VERIFICADO'}" class="badge bg-success me-10">
+                    <i class="fas fa-check-circle"></i> Usuario verificado
+                 </span>
+                <a th:href="@{/profile/verified-request}"
+                   th:if="${isOwnProfile && user.verificationStatus.name() == 'NO_VERIFICADO'}"
+                   class="badge bg-primary text-decoration-none ms-2 me-2 text-dark">
+                    <i class="fas fa-pencil-alt"></i> Solicitar verificación
+                </a>
+                <span th:if="${isOwnProfile && user.verificationStatus.name() == 'PENDIENTE'}"
+                      class="badge bg-secondary ms-2 me-2">
+                    <i class="fas fa-clock"></i> Verificación pendiente
+                 </span>
+            </div>
+
             <p>Email: <span th:text="${user.email}">email@ejemplo.com</span></p>
             <p>Ubicación: <span th:text="${user.location}">Ciudad, País</span></p>
             <p>Bio: <span th:text="${user.bio}">Esta es una breve biografía del usuario...</span></p>

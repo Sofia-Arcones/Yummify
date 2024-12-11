@@ -24,6 +24,7 @@ public interface UserMapper {
     @Mapping(target = "followers", ignore = true)
     @Mapping(target = "friends", ignore = true)
     @Mapping(target = "recipes", source = "user.recipes")
+    @Mapping(target = "verificationStatus", source = "user.verificationStatus")
     UserResponseDTO toUserResponseDTO(User user);
 
     @Mapping(target = "formattedBirthday", ignore = true)
