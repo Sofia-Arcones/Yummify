@@ -2,10 +2,7 @@ package com.gf.yummify.business.services;
 
 import com.gf.yummify.business.mappers.UserMapper;
 import com.gf.yummify.data.entity.User;
-import com.gf.yummify.data.enums.ActivityType;
-import com.gf.yummify.data.enums.Gender;
-import com.gf.yummify.data.enums.RelatedEntity;
-import com.gf.yummify.data.enums.Role;
+import com.gf.yummify.data.enums.*;
 import com.gf.yummify.data.repository.UserRepository;
 import com.gf.yummify.presentation.dto.*;
 import org.springframework.security.core.Authentication;
@@ -100,7 +97,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findAllUsers(){
+    public List<User> findAllUsers() {
         return userRepository.findAll();
     }
 
@@ -159,6 +156,19 @@ public class UserServiceImpl implements UserService {
         String description = "El usuario '" + user.getUsername() + "' (ID: " + user.getUserId() + ") ha actualizado su perfil";
         ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, user.getUserId(), RelatedEntity.USER, ActivityType.PROFILE_EDITED, description);
         activityLogService.createActivityLog(activityLogRequestDTO);
+    }
+
+    @Override
+    public void requestVerification(Authentication authentication, String username) {
+        User user = findUserByUsername(username);
+        if (user.getUsername().equals(authentication.getName())) {
+            if (user.getVerificationStatus().equals(VerificationStatus.NO_VERIFICADO)) {
+                user.setVerificationStatus(VerificationStatus.PENDIENTE);
+                userRepository.save(user);
+            }
+        } else {
+            throw new IllegalArgumentException("No puedes hacer esa operación");
+        }
     }
 
     private void validateProfileUpdateDTO(User user, ProfileUpdateRequestDTO profileUpdateRequestDTO) {

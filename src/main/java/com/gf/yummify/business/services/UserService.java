@@ -28,4 +28,6 @@ public interface UserService {
     void updateProfile(Authentication authentication, ProfileUpdateRequestDTO profileUpdateRequestDTO);
 
     List<ShortUserDTO> searchUsers(String searchTerm);
+
+    void requestVerification(Authentication authentication, String username);
 }

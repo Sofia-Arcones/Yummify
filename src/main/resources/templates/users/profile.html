@@ -29,11 +29,14 @@
                 <span th:if="${user.verificationStatus.name() == 'VERIFICADO'}" class="badge bg-success me-10">
                     <i class="fas fa-check-circle"></i> Usuario verificado
                  </span>
-                <a th:href="@{/profile/verified-request}"
-                   th:if="${isOwnProfile && user.verificationStatus.name() == 'NO_VERIFICADO'}"
-                   class="badge bg-primary text-decoration-none ms-2 me-2 text-dark">
-                    <i class="fas fa-pencil-alt"></i> Solicitar verificación
-                </a>
+                <form th:action="@{/profile/verified-request}" method="post">
+                    <input type="hidden" name="username" th:value="${user.username}">
+                    <button type="submit"
+                            th:if="${isOwnProfile && user.verificationStatus.name() == 'NO_VERIFICADO'}"
+                            class="badge bg-primary">
+                        <i class="fas fa-pencil-alt"></i> Solicitar verificación
+                    </button>
+                </form>
                 <span th:if="${isOwnProfile && user.verificationStatus.name() == 'PENDIENTE'}"
                       class="badge bg-secondary ms-2 me-2">
                     <i class="fas fa-clock"></i> Verificación pendiente

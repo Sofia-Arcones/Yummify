@@ -13,10 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -63,7 +60,6 @@ public class UserController {
         try {
             UserResponseDTO profileUser = userService.findProfileUser(username, relationshipService.followersNumber(username), relationshipService.friendsNumber(username));
             model.addAttribute("user", profileUser);
-            System.out.println(profileUser.getVerificationStatus()+ "ESTADO");
             if (authentication != null && authentication.isAuthenticated()) {
                 model.addAttribute("isOwnProfile", userService.checkUserAuthentication(authentication.getName(), profileUser.getUsername()));
                 model.addAttribute("isFriend", relationshipService.isFriend(authentication, username));
@@ -111,5 +107,15 @@ public class UserController {
         return "redirect:/profile/update";
     }
 
+    @PostMapping("/profile/verified-request")
+    public String verificationStatusRequest(RedirectAttributes redirectAttributes, @RequestParam("username") String username, Authentication authentication) {
+        try {
+            userService.requestVerification(authentication, username);
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+            return "error";
+        }
+        return "redirect:/users/profile/" + username;
+    }
 
 }
