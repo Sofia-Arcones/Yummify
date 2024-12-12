@@ -104,7 +104,6 @@ public class ChallengeServiceImpl implements ChallengeService {
         return challengeMapper.toChallengeResponseDTO(challenge);
     }
 
-
     @Override
     public ChallengeResponseDTO findChallengeWithPageParticipations(UUID challengeId, int size, int page) {
         Challenge challenge = findChallengeById(challengeId);

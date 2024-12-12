@@ -10,6 +10,7 @@ import org.mapstruct.Mapping;
 public interface ChallengeMapper {
     @Mapping(target = "isFinished", constant = "false")
     Challenge toChallenge(ChallengeRequestDTO challengeRequestDTO);
+
     @Mapping(target = "participations", ignore = true)
     ChallengeResponseDTO toChallengeResponseDTO(Challenge challenge);
 }

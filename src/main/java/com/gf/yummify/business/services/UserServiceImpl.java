@@ -255,7 +255,7 @@ public class UserServiceImpl implements UserService {
         try {
             File uploadDir = new File(UPLOAD_DIR);
             if (!uploadDir.exists()) {
-                boolean dirCreated = uploadDir.mkdirs(); // Crear directorios si no existen
+                boolean dirCreated = uploadDir.mkdirs();
                 if (!dirCreated) {
                     throw new RuntimeException("No se pudo crear el directorio de subida: " + UPLOAD_DIR);
                 }
