@@ -5,6 +5,7 @@ import com.gf.yummify.data.entity.User;
 import com.gf.yummify.data.enums.*;
 import com.gf.yummify.data.repository.UserRepository;
 import com.gf.yummify.presentation.dto.*;
+import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -62,6 +63,22 @@ public class UserServiceImpl implements UserService {
         ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, user.getUserId(), RelatedEntity.USER, ActivityType.USER_REGISTER, description);
         activityLogService.createActivityLog(activityLogRequestDTO);
         return user;
+    }
+
+    @Override
+    public Page<UserResponseDTO> findUsersPage(String status, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("lastModification").descending());
+        Page<User> usersPage;
+        if (status != null && !status.isEmpty()) {
+            usersPage = userRepository.findByVerificationStatus(VerificationStatus.valueOf(status), pageable);
+        } else {
+            usersPage = userRepository.findAll(pageable);
+        }
+        List<UserResponseDTO> userResponseDTOList = usersPage.getContent().stream()
+                .map(userMapper::toUserResponseDTO)
+                .collect(Collectors.toList());
+        Page<UserResponseDTO> userResponseDTOPage = new PageImpl<>(userResponseDTOList, pageable, usersPage.getTotalElements());
+        return userResponseDTOPage;
     }
 
     @Override

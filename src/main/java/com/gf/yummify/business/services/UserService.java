@@ -3,6 +3,7 @@ package com.gf.yummify.business.services;
 import com.gf.yummify.data.entity.User;
 import com.gf.yummify.data.enums.Role;
 import com.gf.yummify.presentation.dto.*;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 
 import java.util.List;
@@ -30,4 +31,6 @@ public interface UserService {
     List<ShortUserDTO> searchUsers(String searchTerm);
 
     void requestVerification(Authentication authentication, String username);
+
+    Page<UserResponseDTO> findUsersPage(String status, int page, int size);
 }

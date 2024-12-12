@@ -3,6 +3,7 @@ package com.gf.yummify.presentation.controller;
 import com.gf.yummify.business.services.RelationshipService;
 import com.gf.yummify.business.services.UserService;
 import com.gf.yummify.data.enums.Gender;
+import com.gf.yummify.data.enums.VerificationStatus;
 import com.gf.yummify.presentation.dto.ProfileUpdateDTO;
 import com.gf.yummify.presentation.dto.ProfileUpdateRequestDTO;
 import com.gf.yummify.presentation.dto.RegisterDTO;
@@ -116,6 +117,21 @@ public class UserController {
             return "error";
         }
         return "redirect:/users/profile/" + username;
+    }
+
+    @GetMapping("/users/management")
+    public String usersManagement(Model model,
+                                  @RequestParam(value = "status", required = false) String status,
+                                  @RequestParam(value = "page", defaultValue = "0") int page,
+                                  @RequestParam(value = "size", defaultValue = "6") int size) {
+        try {
+            model.addAttribute("statuses", VerificationStatus.values());
+            model.addAttribute("users", userService.findUsersPage(status, page, size));
+            model.addAttribute("status", status);
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+        }
+        return "users/userManagement";
     }
 
 }
