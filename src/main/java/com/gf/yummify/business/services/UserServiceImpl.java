@@ -2,12 +2,10 @@ package com.gf.yummify.business.services;
 
 import com.gf.yummify.business.mappers.UserMapper;
 import com.gf.yummify.data.entity.User;
-import com.gf.yummify.data.enums.ActivityType;
-import com.gf.yummify.data.enums.Gender;
-import com.gf.yummify.data.enums.RelatedEntity;
-import com.gf.yummify.data.enums.Role;
+import com.gf.yummify.data.enums.*;
 import com.gf.yummify.data.repository.UserRepository;
 import com.gf.yummify.presentation.dto.*;
+import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -68,6 +66,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Page<UserResponseDTO> findUsersPage(String status, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("lastModification").descending());
+        Page<User> usersPage;
+        if (status != null && !status.isEmpty()) {
+            usersPage = userRepository.findByVerificationStatus(VerificationStatus.valueOf(status), pageable);
+        } else {
+            usersPage = userRepository.findAll(pageable);
+        }
+        List<UserResponseDTO> userResponseDTOList = usersPage.getContent().stream()
+                .map(userMapper::toUserResponseDTO)
+                .collect(Collectors.toList());
+        Page<UserResponseDTO> userResponseDTOPage = new PageImpl<>(userResponseDTOList, pageable, usersPage.getTotalElements());
+        return userResponseDTOPage;
+    }
+
+    @Override
     public User findUserByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(() -> new NoSuchElementException("Usuario no encontrado con usuario: " + username));
     }
@@ -95,12 +109,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void verifyUser(String username, boolean verify) {
+        User user = findUserByUsername(username);
+        if (verify) {
+            user.setVerificationStatus(VerificationStatus.VERIFICADO);
+        } else {
+            user.setVerificationStatus(VerificationStatus.NO_VERIFICADO);
+        }
+        userRepository.save(user);
+    }
+
+    @Override
     public List<User> findAllUsersByRole(Role role) {
         return userRepository.findByRole(role);
     }
 
     @Override
-    public List<User> findAllUsers(){
+    public List<User> findAllUsers() {
         return userRepository.findAll();
     }
 
@@ -159,6 +184,19 @@ public class UserServiceImpl implements UserService {
         String description = "El usuario '" + user.getUsername() + "' (ID: " + user.getUserId() + ") ha actualizado su perfil";
         ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, user.getUserId(), RelatedEntity.USER, ActivityType.PROFILE_EDITED, description);
         activityLogService.createActivityLog(activityLogRequestDTO);
+    }
+
+    @Override
+    public void requestVerification(Authentication authentication, String username) {
+        User user = findUserByUsername(username);
+        if (user.getUsername().equals(authentication.getName())) {
+            if (user.getVerificationStatus().equals(VerificationStatus.NO_VERIFICADO)) {
+                user.setVerificationStatus(VerificationStatus.PENDIENTE);
+                userRepository.save(user);
+            }
+        } else {
+            throw new IllegalArgumentException("No puedes hacer esa operación");
+        }
     }
 
     private void validateProfileUpdateDTO(User user, ProfileUpdateRequestDTO profileUpdateRequestDTO) {

@@ -3,6 +3,7 @@ package com.gf.yummify.presentation.controller;
 import com.gf.yummify.business.services.RelationshipService;
 import com.gf.yummify.business.services.UserService;
 import com.gf.yummify.data.enums.Gender;
+import com.gf.yummify.data.enums.VerificationStatus;
 import com.gf.yummify.presentation.dto.ProfileUpdateDTO;
 import com.gf.yummify.presentation.dto.ProfileUpdateRequestDTO;
 import com.gf.yummify.presentation.dto.RegisterDTO;
@@ -13,10 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -110,5 +108,56 @@ public class UserController {
         return "redirect:/profile/update";
     }
 
+    @PostMapping("/profile/verified-request")
+    public String verificationStatusRequest(RedirectAttributes redirectAttributes, @RequestParam("username") String username, Authentication authentication) {
+        try {
+            userService.requestVerification(authentication, username);
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+            return "error";
+        }
+        return "redirect:/users/profile/" + username;
+    }
+
+    @GetMapping("/users/management")
+    public String usersManagement(Model model,
+                                  @RequestParam(value = "status", required = false) String status,
+                                  @RequestParam(value = "page", defaultValue = "0") int page,
+                                  @RequestParam(value = "size", defaultValue = "6") int size) {
+        try {
+            model.addAttribute("statuses", VerificationStatus.values());
+            model.addAttribute("users", userService.findUsersPage(status, page, size));
+            model.addAttribute("status", status);
+        } catch (Exception ex) {
+            model.addAttribute("error", ex.getMessage());
+        }
+        return "users/userManagement";
+    }
+
+    @PostMapping("/users/verify/{username}")
+    public String userAcceptVerification(RedirectAttributes redirectAttributes,
+                                         @PathVariable String username,
+                                         @RequestParam("status") String status) {
+        try {
+            userService.verifyUser(username, true);
+            redirectAttributes.addFlashAttribute("success", "Usuario verificado correctamente");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
+        return "redirect:/users/management?status=" + (status != null ? status : "");
+    }
+
+    @PostMapping("/users/reject/{username}")
+    public String userRejectVerification(RedirectAttributes redirectAttributes,
+                                         @PathVariable String username,
+                                         @RequestParam("status") String status) {
+        try {
+            userService.verifyUser(username, false);
+            redirectAttributes.addFlashAttribute("success", "Verificación de usuario correctamente rechazada");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
+        return "redirect:/users/management?status=" + (status != null ? status : "");
+    }
 
 }

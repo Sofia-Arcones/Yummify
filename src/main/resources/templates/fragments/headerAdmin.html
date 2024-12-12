@@ -40,18 +40,21 @@
                     </button>
                 </form>
             </li>
-            <li class="nav-item">
-                <a class="nav-link text-white" href="#">
-                    <i class="fas fa-users"></i> Gestión de Usuarios</a>
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+                <form th:action="@{/users/management}" method="get">
+                    <button type="submit" class="btn btn-link nav-link text-white">
+                        <i class="fas fa-users"></i> Gestión de usuarios
+                    </button>
+                </form>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
                 <form th:action="@{/challenges}" method="get">
                     <button type="submit" class="btn btn-link nav-link text-white">
                         <i class="fas fa-flag-checkered"></i> Gestión de retos
                     </button>
                 </form>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
                 <form th:action="@{/ingredients/management}" method="get">
                     <button type="submit" class="btn btn-link nav-link text-white">
                         <i class="fas fa-carrot"></i> Gestión de ingredientes
