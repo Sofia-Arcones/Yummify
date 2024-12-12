@@ -33,4 +33,6 @@ public interface UserService {
     void requestVerification(Authentication authentication, String username);
 
     Page<UserResponseDTO> findUsersPage(String status, int page, int size);
+
+    void verifyUser(String username, boolean verify);
 }

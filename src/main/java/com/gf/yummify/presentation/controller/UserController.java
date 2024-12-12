@@ -134,4 +134,30 @@ public class UserController {
         return "users/userManagement";
     }
 
+    @PostMapping("/users/verify/{username}")
+    public String userAcceptVerification(RedirectAttributes redirectAttributes,
+                                         @PathVariable String username,
+                                         @RequestParam("status") String status) {
+        try {
+            userService.verifyUser(username, true);
+            redirectAttributes.addFlashAttribute("success", "Usuario verificado correctamente");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
+        return "redirect:/users/management?status=" + (status != null ? status : "");
+    }
+
+    @PostMapping("/users/reject/{username}")
+    public String userRejectVerification(RedirectAttributes redirectAttributes,
+                                         @PathVariable String username,
+                                         @RequestParam("status") String status) {
+        try {
+            userService.verifyUser(username, false);
+            redirectAttributes.addFlashAttribute("success", "Verificación de usuario correctamente rechazada");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
+        return "redirect:/users/management?status=" + (status != null ? status : "");
+    }
+
 }

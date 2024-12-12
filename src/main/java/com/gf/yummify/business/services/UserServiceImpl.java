@@ -109,6 +109,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void verifyUser(String username, boolean verify) {
+        User user = findUserByUsername(username);
+        if (verify) {
+            user.setVerificationStatus(VerificationStatus.VERIFICADO);
+        } else {
+            user.setVerificationStatus(VerificationStatus.NO_VERIFICADO);
+        }
+        userRepository.save(user);
+    }
+
+    @Override
     public List<User> findAllUsersByRole(Role role) {
         return userRepository.findByRole(role);
     }
