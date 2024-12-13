@@ -158,8 +158,8 @@ public class NotificationServiceImpl implements NotificationService {
                 break;
             case CHALLENGE_JOINED:
                 userList = userService.findAllUsersByRole(Role.ROLE_ADMIN);
-                challenge = challengeService.findChallengeById(activityLog.getRelatedEntityId());
-                content = "¡Hay una nueva participación en el desafío '" + challenge.getTitle() + "'!";
+                challengeParticipation = challengeParticipationService.findChallengeParticipationById(activityLog.getRelatedEntityId());
+                content = "¡Hay una nueva participación en el desafío '" + challengeParticipation.getChallenge().getTitle() + "'!";
                 createNotificationsForUsers(userList, content, activityLog, notificationList);
                 break;
             case CHALLENGE_WINNER:

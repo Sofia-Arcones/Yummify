@@ -56,7 +56,7 @@ public class Recipe {
     private @NotNull LocalDateTime creationDate;
     private LocalDateTime lastModification;
 
-    @OneToMany(mappedBy = "recipe")
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RecipeIngredient> ingredients = new ArrayList<>();
 
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL)
