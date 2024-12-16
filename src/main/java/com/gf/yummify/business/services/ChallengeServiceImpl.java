@@ -126,23 +126,36 @@ public class ChallengeServiceImpl implements ChallengeService {
         long currentWinnerCount = challenge.getParticipations().stream()
                 .filter(ChallengeParticipation::getIsWinner)
                 .count();
+
         long remainingWinnerSpots = challenge.getWinnerQuantity() - currentWinnerCount;
+
         if (participationsIds.size() > remainingWinnerSpots) {
             throw new IllegalArgumentException("Has seleccionado más ganadores de los permitidos por el desafío");
         }
+
         challengeParticipationService.findAndSetWinners(participationsIds);
+
         long finalWinnerCount = challenge.getParticipations().stream()
                 .filter(ChallengeParticipation::getIsWinner)
                 .count();
+
         if (finalWinnerCount == challenge.getWinnerQuantity()) {
             challenge.setIsFinished(true);
             challengeRepository.save(challenge);
+
             User user = userService.findUserByUsername(authentication.getName());
             String description = "El administrador '" + user.getUsername() + "' ha dado por finalizado el reto '" + challenge.getTitle() + "' (ID: " + challenge.getChallengeId() + ").";
-            ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(user, challenge.getChallengeId(), RelatedEntity.CHALLENGE, ActivityType.CHALLENGE_FINISHED, description);
+            ActivityLogRequestDTO activityLogRequestDTO = new ActivityLogRequestDTO(
+                    user,
+                    challenge.getChallengeId(),
+                    RelatedEntity.CHALLENGE,
+                    ActivityType.CHALLENGE_FINISHED,
+                    description
+            );
             activityLogService.createActivityLog(activityLogRequestDTO);
         }
     }
+
 
     @Override
     public List<Challenge> findActiveChallenges() {
